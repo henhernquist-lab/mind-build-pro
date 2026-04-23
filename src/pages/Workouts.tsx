@@ -12,7 +12,7 @@ import {
 } from "recharts";
 import { toast } from "sonner";
 import { cn } from "@/lib/utils";
-import { useRankSystem, getNextRank, RANKS, type Rank } from "@/lib/rank";
+import { useRankSystem, type Rank } from "@/lib/rank";
 
 type Sport = "football" | "track";
 type Unit = "lbs" | "reps" | "seconds" | "minutes" | "yards";
@@ -375,37 +375,13 @@ const Workouts = () => {
   const { xp, rank, nextRank, history, addXp } = useRankSystem();
   const [rankUp, setRankUp] = useState<Rank | null>(null);
 
-  const handleLog = (isPR = false) => {
-    const xpGain = 10 + (isPR ? 50 : 0);
-    const result = addXp(xpGain, { isPR });
-    if (isPR) {
-      toast.success("🏆 New PR! +50 XP", {
-        description: `+${xpGain} XP earned`,
-        duration: 4000,
-      });
-    } else {
-      toast("💪 Workout logged", {
-        description: "+10 XP earned",
-        duration: 2500,
-      });
-    }
-    if (result.rankedUp) {
-      setTimeout(() => setRankUp(result.newRank), 600);
-    }
-  };
-
-  const onWorkoutLogged = () => handleLog(false);
-  const onPRSet = () => handleLog(true);
-
-  // Adjust: addXp is called twice if both fire. Compose in panel instead — see SportPanel: it calls onLog() then onPR() if PR.
-  // To avoid double XP, we override here:
-  const composedLog = () => {
-    // base XP only — PR will add the bonus
+  // SportPanel calls onLog() once per workout, plus onPR() if it was a PR.
+  const onLog = () => {
     const result = addXp(10);
     toast("💪 Workout logged", { description: "+10 XP earned", duration: 2200 });
     if (result.rankedUp) setTimeout(() => setRankUp(result.newRank), 600);
   };
-  const composedPR = () => {
+  const onPR = () => {
     const result = addXp(50, { isPR: true });
     toast.success("🏆 New PR! +50 XP bonus", { duration: 4000 });
     if (result.rankedUp) setTimeout(() => setRankUp(result.newRank), 600);
@@ -430,8 +406,8 @@ const Workouts = () => {
             🏃 Track
           </TabsTrigger>
         </TabsList>
-        <TabsContent value="football"><SportPanel sport="football" onLog={composedLog} onPR={composedPR} /></TabsContent>
-        <TabsContent value="track"><SportPanel sport="track" onLog={composedLog} onPR={composedPR} /></TabsContent>
+        <TabsContent value="football"><SportPanel sport="football" onLog={onLog} onPR={onPR} /></TabsContent>
+        <TabsContent value="track"><SportPanel sport="track" onLog={onLog} onPR={onPR} /></TabsContent>
       </Tabs>
 
       <AnimatePresence>
