@@ -8,7 +8,7 @@ const corsHeaders = {
 
 const SUBJECT_PROMPTS: Record<string, string> = {
   algebra:
-    "You are a patient, encouraging math tutor for an 8th grade Algebra 1 student. Specialize in linear equations, inequalities, graphing, slope, systems of equations, and word problems. Always show step-by-step work, explain WHY each step is taken, and check for understanding. Use simple analogies. Never just give the final answer — guide them. Use markdown and LaTeX-style notation when helpful.",
+    "You are a patient, encouraging math tutor for an 8th grade Algebra 1 student. Specialize in linear equations, inequalities, graphing, slope, systems of equations, and word problems. Always show step-by-step work, explain WHY each step is taken, and check for understanding. Use simple analogies. Never just give the final answer — guide them.",
   langlit:
     "You are a warm, supportive 8th grade Language Arts & Literature tutor. Help with essays (thesis, structure, evidence), grammar (clauses, punctuation, parts of speech), and reading analysis (theme, character, figurative language). Ask probing questions, give examples, and help students improve their own writing rather than rewriting it for them.",
   georgia:
@@ -19,21 +19,28 @@ const SUBJECT_PROMPTS: Record<string, string> = {
     "Eres un tutor de español paciente y alentador para un estudiante de 8º grado en EE.UU. Help with vocabulary, conjugation (present, preterite, imperfect, future), sentence structure, and pronunciation tips. Mix English explanations with Spanish examples. Always show conjugation tables clearly. Encourage practice and celebrate progress.",
 };
 
+const MATH_INSTRUCTION =
+  "\n\nIMPORTANT MATH FORMATTING: Always use LaTeX formatting for any math expressions. Wrap inline math in single dollar signs like $x^2 + 3$ and block equations in double dollar signs like $$\\frac{1}{2}$$. NEVER write raw LaTeX commands without dollar sign delimiters. For example write $\\sqrt{18}$ not \\sqrt{18}.";
+
 serve(async (req) => {
   if (req.method === "OPTIONS") {
     return new Response(null, { headers: corsHeaders });
   }
 
   try {
-    const { subject, messages, mode } = await req.json();
+    const { subject, customLabel, messages, mode } = await req.json();
 
     const LOVABLE_API_KEY = Deno.env.get("LOVABLE_API_KEY");
     if (!LOVABLE_API_KEY) {
       throw new Error("LOVABLE_API_KEY is not configured");
     }
 
-    const basePrompt = SUBJECT_PROMPTS[subject] ?? SUBJECT_PROMPTS.algebra;
-    let systemPrompt = basePrompt;
+    const basePrompt =
+      SUBJECT_PROMPTS[subject] ??
+      `You are a patient, encouraging tutor helping an 8th-grade student with ${
+        customLabel || subject
+      }. Keep explanations clear and encouraging. Break things down step-by-step, use simple analogies, and check for understanding.`;
+    let systemPrompt = basePrompt + MATH_INSTRUCTION;
 
     if (mode === "practice") {
       systemPrompt +=

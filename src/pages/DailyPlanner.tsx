@@ -1,15 +1,18 @@
 import { useMemo, useState } from "react";
 import { motion } from "framer-motion";
-import { useLocalStorage, todayKey } from "@/lib/storage";
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog";
+import { useLocalStorage } from "@/lib/storage";
+import {
+  Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter,
+} from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
+import { ChevronLeft, ChevronRight, CalendarDays } from "lucide-react";
 import { cn } from "@/lib/utils";
 
 type Category = "school" | "sports" | "coding" | "free";
 type Block = { label: string; category: Category };
-type DayMap = Record<string, Block>; // key = "HH:MM"
+type DayMap = Record<string, Block>;
 
 const TIMES: string[] = (() => {
   const arr: string[] = [];
@@ -36,8 +39,26 @@ const fmt12 = (t: string) => {
   return `${hh}:${String(m).padStart(2, "0")} ${ampm}`;
 };
 
+const toDateKey = (d: Date) => {
+  const y = d.getFullYear();
+  const m = String(d.getMonth() + 1).padStart(2, "0");
+  const day = String(d.getDate()).padStart(2, "0");
+  return `${y}-${m}-${day}`;
+};
+const todayKey = () => toDateKey(new Date());
+const parseKey = (k: string) => {
+  const [y, m, d] = k.split("-").map(Number);
+  return new Date(y, m - 1, d);
+};
+const shiftKey = (k: string, days: number) => {
+  const d = parseKey(k);
+  d.setDate(d.getDate() + days);
+  return toDateKey(d);
+};
+
 const DailyPlanner = () => {
-  const [day, setDay] = useLocalStorage<DayMap>(`planner:${todayKey()}`, {});
+  const [dateKey, setDateKey] = useState<string>(todayKey());
+  const [day, setDay] = useLocalStorage<DayMap>(`planner_${dateKey}`, {});
   const [openTime, setOpenTime] = useState<string | null>(null);
   const [draft, setDraft] = useState<Block>({ label: "", category: "school" });
 
@@ -71,14 +92,51 @@ const DailyPlanner = () => {
     setOpenTime(null);
   };
 
+  const date = parseKey(dateKey);
+  const isToday = dateKey === todayKey();
+  const dateLabel = date.toLocaleDateString(undefined, {
+    weekday: "long",
+    month: "long",
+    day: "numeric",
+  });
+  const yearLabel = date.getFullYear();
+
   return (
     <div className="p-6 md:p-10 max-w-5xl mx-auto">
       <header className="mb-8">
-        <p className="text-xs uppercase tracking-widest text-muted-foreground">Today</p>
-        <h1 className="text-3xl font-bold mt-1">Daily Planner</h1>
-        <p className="text-sm text-muted-foreground mt-2">
-          {new Date().toLocaleDateString(undefined, { weekday: "long", month: "long", day: "numeric" })}
+        <p className="text-xs uppercase tracking-widest text-muted-foreground">
+          {isToday ? "Today" : dateKey === shiftKey(todayKey(), 1) ? "Tomorrow" : dateKey === shiftKey(todayKey(), -1) ? "Yesterday" : "Planner"}
         </p>
+        <h1 className="text-3xl font-bold mt-1">Daily Planner</h1>
+
+        {/* Date navigation */}
+        <div className="mt-4 flex items-center gap-2 flex-wrap">
+          <Button
+            variant="outline"
+            size="icon"
+            onClick={() => setDateKey((k) => shiftKey(k, -1))}
+            aria-label="Previous day"
+          >
+            <ChevronLeft className="h-4 w-4" />
+          </Button>
+          <div className="rounded-lg border border-border bg-card px-4 py-2 flex-1 min-w-[200px]">
+            <div className="text-base font-semibold">{dateLabel}</div>
+            <div className="text-[11px] text-muted-foreground">{yearLabel}</div>
+          </div>
+          <Button
+            variant="outline"
+            size="icon"
+            onClick={() => setDateKey((k) => shiftKey(k, 1))}
+            aria-label="Next day"
+          >
+            <ChevronRight className="h-4 w-4" />
+          </Button>
+          {!isToday && (
+            <Button variant="secondary" size="sm" onClick={() => setDateKey(todayKey())}>
+              <CalendarDays className="h-3.5 w-3.5 mr-1.5" /> Jump to today
+            </Button>
+          )}
+        </div>
       </header>
 
       {/* Summary bar */}
@@ -102,8 +160,14 @@ const DailyPlanner = () => {
       </div>
 
       {/* Time blocks */}
-      <div className="rounded-2xl border border-border bg-card overflow-hidden">
-        {TIMES.map((time, i) => {
+      <motion.div
+        key={dateKey}
+        initial={{ opacity: 0, y: 4 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.2 }}
+        className="rounded-2xl border border-border bg-card overflow-hidden"
+      >
+        {TIMES.map((time) => {
           const b = day[time];
           const cat = b?.category ?? "free";
           const meta = CAT_META[cat];
@@ -112,8 +176,7 @@ const DailyPlanner = () => {
               key={time}
               onClick={() => openBlock(time)}
               className={cn(
-                "w-full flex items-center gap-4 px-4 py-2.5 text-left border-b border-border last:border-b-0 transition-colors hover:bg-accent/40",
-                i === 0 && ""
+                "w-full flex items-center gap-4 px-4 py-2.5 text-left border-b border-border last:border-b-0 transition-colors hover:bg-accent/40"
               )}
             >
               <div className="w-20 text-xs text-muted-foreground tabular-nums">{fmt12(time)}</div>
@@ -132,7 +195,7 @@ const DailyPlanner = () => {
             </button>
           );
         })}
-      </div>
+      </motion.div>
 
       <Dialog open={openTime !== null} onOpenChange={(o) => !o && setOpenTime(null)}>
         <DialogContent>
@@ -177,9 +240,7 @@ const DailyPlanner = () => {
           </div>
           <DialogFooter className="gap-2 sm:gap-2">
             {openTime && day[openTime] && (
-              <Button variant="ghost" onClick={clear}>
-                Clear
-              </Button>
+              <Button variant="ghost" onClick={clear}>Clear</Button>
             )}
             <Button onClick={save}>Save block</Button>
           </DialogFooter>
