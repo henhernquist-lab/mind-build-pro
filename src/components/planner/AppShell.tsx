@@ -2,6 +2,8 @@ import { NavLink, Outlet, useLocation } from "react-router-dom";
 import { Calendar, BookOpen, Dumbbell, Brain, Sparkles } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import { cn } from "@/lib/utils";
+import { ThemeSwitcher } from "@/components/ThemeSwitcher";
+import { useTheme } from "@/lib/themes";
 
 const NAV = [
   { to: "/", label: "Daily Planner", icon: Calendar, accent: "school" },
@@ -15,6 +17,8 @@ const accentColor = (a: string) =>
 
 export const AppShell = () => {
   const location = useLocation();
+  // Initialize theme on mount
+  useTheme();
   return (
     <div className="flex min-h-screen w-full bg-background text-foreground">
       <aside className="hidden md:flex w-60 flex-col border-r border-sidebar-border bg-sidebar">
@@ -91,6 +95,9 @@ export const AppShell = () => {
       </div>
 
       <main className="flex-1 min-w-0 pb-16 md:pb-0">
+        <div className="fixed top-3 right-3 z-40">
+          <ThemeSwitcher />
+        </div>
         <AnimatePresence mode="wait">
           <motion.div
             key={location.pathname}
