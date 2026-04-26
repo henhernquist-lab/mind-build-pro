@@ -9,6 +9,7 @@ import {
 } from "@/components/ui/dialog";
 import {
   Lightbulb, RefreshCcw, Send, Sparkles, Loader2, Settings, Plus, Trash2, ArrowUp, ArrowDown,
+  Globe, Eye, EyeOff, Info, ExternalLink,
 } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import ReactMarkdown from "react-markdown";
@@ -17,9 +18,52 @@ import rehypeKatex from "rehype-katex";
 import { useToast } from "@/hooks/use-toast";
 import { useLocalStorage } from "@/lib/storage";
 import { cn } from "@/lib/utils";
+import { Switch } from "@/components/ui/switch";
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
 
 type Msg = { role: "user" | "assistant"; content: string };
 type Subject = { id: string; label: string; emoji: string; color: string; description?: string };
+
+type ParsedMessage = {
+  text: string;
+  visual: string | null; // raw <svg>...</svg>
+  sources: { n: number; url: string }[];
+};
+
+const parseMessage = (raw: string): ParsedMessage => {
+  let text = raw;
+  let visual: string | null = null;
+  const sources: { n: number; url: string }[] = [];
+
+  // Visual block
+  const visualMatch = text.match(/\[VISUAL\]\s*([\s\S]*?)\s*\[\/VISUAL\]/);
+  if (visualMatch) {
+    const inner = visualMatch[1].trim();
+    const svgMatch = inner.match(/<svg[\s\S]*?<\/svg>/i);
+    visual = svgMatch ? svgMatch[0] : null;
+    text = text.replace(visualMatch[0], "").trim();
+  }
+
+  // Sources block
+  const srcMatch = text.match(/\[SOURCES\]\s*([\s\S]*?)\s*\[\/SOURCES\]/);
+  if (srcMatch) {
+    const lines = srcMatch[1].split("\n").map((l) => l.trim()).filter(Boolean);
+    for (const line of lines) {
+      const m = line.match(/^\[?(\d+)\]?\.?\s*(https?:\/\/\S+)/);
+      if (m) sources.push({ n: parseInt(m[1]), url: m[2] });
+    }
+    text = text.replace(srcMatch[0], "").trim();
+  }
+
+  return { text, visual, sources };
+};
+
+// Triggers Deep Search auto-on
+const AUTO_SEARCH_KEYWORDS = /\b(current|today|latest|recent|now|this year|2024|2025|2026)\b/i;
+const isGeorgiaCurrentEvent = (subjectId: string, q: string) =>
+  subjectId === "georgia" && AUTO_SEARCH_KEYWORDS.test(q);
+const shouldAutoSearch = (subjectId: string, q: string) =>
+  AUTO_SEARCH_KEYWORDS.test(q) || isGeorgiaCurrentEvent(subjectId, q);
 
 const DEFAULT_SUBJECTS: Subject[] = [
   { id: "algebra", label: "Algebra 1", emoji: "🧮", color: "school", description: "Equations, graphing, word problems" },
@@ -41,11 +85,16 @@ const SubjectChat = ({ subject }: { subject: Subject }) => {
   const [messages, setMessages] = useState<Msg[]>([]);
   const [input, setInput] = useState("");
   const [loading, setLoading] = useState(false);
+  const [deepSearch, setDeepSearch] = useState(false);
+  const [searching, setSearching] = useState(false);
+  const [hiddenVisuals, setHiddenVisuals] = useState<Record<number, boolean>>({});
   const { toast } = useToast();
   const scrollRef = useRef<HTMLDivElement>(null);
 
-  const stream = async (history: Msg[], mode?: "practice" | "simpler") => {
+  const stream = async (history: Msg[], mode?: "practice" | "simpler", forceDeepSearch?: boolean) => {
     setLoading(true);
+    const useDeep = forceDeepSearch ?? deepSearch;
+    if (useDeep) setSearching(true);
     let assistant = "";
     setMessages((m) => [...m, { role: "assistant", content: "" }]);
 
@@ -61,6 +110,7 @@ const SubjectChat = ({ subject }: { subject: Subject }) => {
           customLabel: subject.label,
           messages: history,
           mode,
+          deepSearch: useDeep,
         }),
       });
 
@@ -83,6 +133,7 @@ const SubjectChat = ({ subject }: { subject: Subject }) => {
       while (!done) {
         const { done: d, value } = await reader.read();
         if (d) break;
+        if (searching) setSearching(false);
         buf += decoder.decode(value, { stream: true });
         let nl: number;
         while ((nl = buf.indexOf("\n")) !== -1) {
@@ -118,16 +169,18 @@ const SubjectChat = ({ subject }: { subject: Subject }) => {
       setMessages((m) => m.slice(0, -1));
     } finally {
       setLoading(false);
+      setSearching(false);
     }
   };
 
   const send = () => {
     if (!input.trim() || loading) return;
+    const auto = shouldAutoSearch(subject.id, input);
     const userMsg: Msg = { role: "user", content: input.trim() };
     const next = [...messages, userMsg];
     setMessages(next);
     setInput("");
-    stream(next);
+    stream(next, undefined, auto || deepSearch);
   };
 
   const practice = () => {
@@ -146,8 +199,40 @@ const SubjectChat = ({ subject }: { subject: Subject }) => {
     stream(next, "simpler");
   };
 
+  const toggleVisual = (i: number) => {
+    setHiddenVisuals((h) => ({ ...h, [i]: !h[i] }));
+  };
+
   return (
-    <div className="flex flex-col h-[calc(100vh-15rem)] md:h-[calc(100vh-13rem)] rounded-2xl border border-border bg-card overflow-hidden">
+    <div className={cn(
+      "flex flex-col h-[calc(100vh-15rem)] md:h-[calc(100vh-13rem)] rounded-2xl border border-border bg-card overflow-hidden transition-shadow",
+      deepSearch && "deep-search-glow"
+    )}>
+      {/* Deep Search toggle bar */}
+      <div className="flex items-center justify-between gap-2 px-4 py-2 border-b border-border bg-background/50">
+        <div className="flex items-center gap-2 min-w-0">
+          <span className="text-lg flex-shrink-0">{subject.emoji}</span>
+          <div className="text-sm font-medium truncate">{subject.label}</div>
+        </div>
+        <TooltipProvider>
+          <div className="flex items-center gap-2 flex-shrink-0">
+            <Tooltip>
+              <TooltipTrigger asChild>
+                <button className="text-muted-foreground hover:text-foreground" aria-label="What is Deep Search">
+                  <Info className="h-3.5 w-3.5" />
+                </button>
+              </TooltipTrigger>
+              <TooltipContent side="bottom" className="max-w-[240px]">
+                Deep Search looks up real-time information to give more accurate and detailed answers.
+              </TooltipContent>
+            </Tooltip>
+            <Globe className={cn("h-4 w-4", deepSearch ? "text-primary" : "text-muted-foreground")} />
+            <span className="text-xs font-medium">Deep Search</span>
+            <Switch checked={deepSearch} onCheckedChange={setDeepSearch} />
+          </div>
+        </TooltipProvider>
+      </div>
+
       <div className="flex-1 overflow-y-auto scrollbar-thin p-4 md:p-6 space-y-4" ref={scrollRef}>
         {messages.length === 0 && (
           <div className="h-full flex flex-col items-center justify-center text-center px-6">
@@ -167,7 +252,10 @@ const SubjectChat = ({ subject }: { subject: Subject }) => {
           </div>
         )}
         <AnimatePresence initial={false}>
-          {messages.map((m, i) => (
+          {messages.map((m, i) => {
+            const parsed = m.role === "assistant" ? parseMessage(m.content) : null;
+            const visualHidden = hiddenVisuals[i];
+            return (
             <motion.div
               key={i}
               initial={{ opacity: 0, y: 6 }}
@@ -184,33 +272,81 @@ const SubjectChat = ({ subject }: { subject: Subject }) => {
               )}
               <div
                 className={cn(
-                  "rounded-2xl px-4 py-2.5 max-w-[85%] text-sm",
+                  "rounded-2xl px-4 py-2.5 max-w-[85%] text-sm space-y-2",
                   m.role === "user" ? "bg-primary text-primary-foreground" : "bg-muted text-foreground"
                 )}
               >
                 {m.role === "assistant" ? (
                   m.content === "" && loading ? (
-                    <div className="flex items-center gap-1.5 py-1">
-                      <span className="h-1.5 w-1.5 rounded-full bg-foreground/60 animate-bounce" style={{ animationDelay: "0ms" }} />
-                      <span className="h-1.5 w-1.5 rounded-full bg-foreground/60 animate-bounce" style={{ animationDelay: "150ms" }} />
-                      <span className="h-1.5 w-1.5 rounded-full bg-foreground/60 animate-bounce" style={{ animationDelay: "300ms" }} />
+                    <div className="flex items-center gap-2 py-1">
+                      {searching ? (
+                        <>
+                          <Globe className="h-3.5 w-3.5 text-primary animate-pulse" />
+                          <span className="text-xs text-muted-foreground">Searching the web…</span>
+                        </>
+                      ) : (
+                        <>
+                          <span className="h-1.5 w-1.5 rounded-full bg-foreground/60 animate-bounce" style={{ animationDelay: "0ms" }} />
+                          <span className="h-1.5 w-1.5 rounded-full bg-foreground/60 animate-bounce" style={{ animationDelay: "150ms" }} />
+                          <span className="h-1.5 w-1.5 rounded-full bg-foreground/60 animate-bounce" style={{ animationDelay: "300ms" }} />
+                        </>
+                      )}
                     </div>
                   ) : (
+                    <>
                     <div className="prose prose-sm prose-invert max-w-none prose-p:my-1.5 prose-pre:my-2 prose-ul:my-1.5 prose-ol:my-1.5">
                       <ReactMarkdown
                         remarkPlugins={[remarkMath]}
                         rehypePlugins={[rehypeKatex]}
                       >
-                        {m.content}
+                        {parsed?.text ?? m.content}
                       </ReactMarkdown>
                     </div>
+                    {parsed?.visual && (
+                      <div className="mt-2">
+                        <button
+                          onClick={() => toggleVisual(i)}
+                          className="text-[11px] text-muted-foreground hover:text-foreground flex items-center gap-1.5 mb-1.5"
+                        >
+                          {visualHidden ? <Eye className="h-3 w-3" /> : <EyeOff className="h-3 w-3" />}
+                          {visualHidden ? "Show visual" : "Hide visual"}
+                        </button>
+                        {!visualHidden && (
+                          <div
+                            className="rounded-lg bg-background/60 border border-border p-3 overflow-x-auto [&_svg]:max-w-full [&_svg]:h-auto"
+                            // SVG content from a controlled prompt to a trusted gateway model.
+                            // We strip the [VISUAL] wrapper and only allow <svg> tags via parseMessage.
+                            dangerouslySetInnerHTML={{ __html: parsed.visual }}
+                          />
+                        )}
+                      </div>
+                    )}
+                    {parsed && parsed.sources.length > 0 && (
+                      <div className="mt-2 flex flex-wrap gap-1.5">
+                        {parsed.sources.map((s) => (
+                          <a
+                            key={s.n}
+                            href={s.url}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            className="inline-flex items-center gap-1 text-[10px] bg-background/70 border border-border rounded-full px-2 py-0.5 hover:border-primary"
+                          >
+                            <span className="font-bold text-primary">[{s.n}]</span>
+                            <span className="truncate max-w-[140px]">{new URL(s.url).hostname.replace(/^www\./, "")}</span>
+                            <ExternalLink className="h-2.5 w-2.5" />
+                          </a>
+                        ))}
+                      </div>
+                    )}
+                    </>
                   )
                 ) : (
                   <div className="whitespace-pre-wrap">{m.content}</div>
                 )}
               </div>
             </motion.div>
-          ))}
+            );
+          })}
         </AnimatePresence>
       </div>
 

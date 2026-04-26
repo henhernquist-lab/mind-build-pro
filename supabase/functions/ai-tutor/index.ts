@@ -22,13 +22,75 @@ const SUBJECT_PROMPTS: Record<string, string> = {
 const MATH_INSTRUCTION =
   "\n\nIMPORTANT MATH FORMATTING: Always use LaTeX formatting for any math expressions. Wrap inline math in single dollar signs like $x^2 + 3$ and block equations in double dollar signs like $$\\frac{1}{2}$$. NEVER write raw LaTeX commands without dollar sign delimiters. For example write $\\sqrt{18}$ not \\sqrt{18}.";
 
+const VISUAL_INSTRUCTION = `
+
+VISUAL ENHANCEMENTS:
+After your text answer, if (and only if) a visual diagram would genuinely help, append a single block on its own line in EXACTLY this format:
+
+[VISUAL]
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 400 300" width="400" height="300">
+   ... your SVG content here ...
+</svg>
+[/VISUAL]
+
+Rules for the visual:
+- Use ONLY plain SVG (no scripts, no external resources, no foreign objects).
+- Use viewBox="0 0 400 300" or similar; keep it under 500x400.
+- Use these CSS color variables for theming where possible: stroke="currentColor" or fill="currentColor", or hex colors that work on both light and dark backgrounds (use semi-transparent fills).
+- Use white/light strokes (#e5e7eb) and colored fills (#3b82f6 for primary, #22c55e for green, #f97316 for orange, #ef4444 for red).
+- Add labels with <text> elements, font-family="sans-serif", font-size 12-16.
+- Examples of when to add a visual: graphing equations, force diagrams, atom models, Spanish conjugation tables (use SVG with text/rect cells), maps of Georgia regions, plot mountain story structures, grammar trees.
+- Do NOT include the [VISUAL] block for simple text-only answers (greetings, definitions, encouragement).
+- Include AT MOST ONE visual per response.`;
+
+const DEEP_SEARCH_INSTRUCTION = `
+
+DEEP SEARCH MODE: You have been provided with web search results below. Use them to give a current, accurate, well-cited answer. Cite sources inline as [1], [2] etc. matching the numbered sources. At the very end of your message, on a new line, append:
+
+[SOURCES]
+1. {url}
+2. {url}
+[/SOURCES]
+
+Only include sources you actually used.`;
+
+// Simple DuckDuckGo HTML search — free, no key. Returns top results.
+async function webSearch(query: string): Promise<{ title: string; url: string; snippet: string }[]> {
+  try {
+    const resp = await fetch(`https://html.duckduckgo.com/html/?q=${encodeURIComponent(query)}`, {
+      headers: {
+        "User-Agent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36",
+      },
+    });
+    if (!resp.ok) return [];
+    const html = await resp.text();
+    const results: { title: string; url: string; snippet: string }[] = [];
+    // Parse result blocks
+    const blockRe = /<a[^>]+class="result__a"[^>]+href="([^"]+)"[^>]*>([\s\S]*?)<\/a>[\s\S]*?<a[^>]+class="result__snippet"[^>]*>([\s\S]*?)<\/a>/g;
+    let m;
+    while ((m = blockRe.exec(html)) && results.length < 5) {
+      let url = m[1];
+      // DuckDuckGo wraps real urls in /l/?uddg=...
+      const uddg = url.match(/uddg=([^&]+)/);
+      if (uddg) url = decodeURIComponent(uddg[1]);
+      const title = m[2].replace(/<[^>]+>/g, "").trim();
+      const snippet = m[3].replace(/<[^>]+>/g, "").trim();
+      results.push({ title, url, snippet });
+    }
+    return results;
+  } catch (e) {
+    console.error("webSearch error:", e);
+    return [];
+  }
+}
+
 serve(async (req) => {
   if (req.method === "OPTIONS") {
     return new Response(null, { headers: corsHeaders });
   }
 
   try {
-    const { subject, customLabel, messages, mode } = await req.json();
+    const { subject, customLabel, messages, mode, deepSearch } = await req.json();
 
     const LOVABLE_API_KEY = Deno.env.get("LOVABLE_API_KEY");
     if (!LOVABLE_API_KEY) {
@@ -40,7 +102,7 @@ serve(async (req) => {
       `You are a patient, encouraging tutor helping an 8th-grade student with ${
         customLabel || subject
       }. Keep explanations clear and encouraging. Break things down step-by-step, use simple analogies, and check for understanding.`;
-    let systemPrompt = basePrompt + MATH_INSTRUCTION;
+    let systemPrompt = basePrompt + MATH_INSTRUCTION + VISUAL_INSTRUCTION;
 
     if (mode === "practice") {
       systemPrompt +=
@@ -48,6 +110,28 @@ serve(async (req) => {
     } else if (mode === "simpler") {
       systemPrompt +=
         "\n\nThe student didn't fully understand your last explanation. Re-explain the SAME concept using simpler words, a concrete real-world analogy, and shorter sentences. Pretend you're explaining it to a curious 5th grader.";
+    }
+
+    // Deep Search: fetch web results and inject them
+    let augmentedMessages = messages;
+    if (deepSearch) {
+      systemPrompt += DEEP_SEARCH_INSTRUCTION;
+      const lastUser = [...messages].reverse().find((m: any) => m.role === "user");
+      if (lastUser) {
+        const results = await webSearch(lastUser.content);
+        if (results.length > 0) {
+          const block = results
+            .map((r, i) => `[${i + 1}] ${r.title}\nURL: ${r.url}\n${r.snippet}`)
+            .join("\n\n");
+          augmentedMessages = [
+            ...messages.slice(0, -1),
+            {
+              role: "user",
+              content: `${lastUser.content}\n\n--- WEB SEARCH RESULTS ---\n${block}\n--- END RESULTS ---`,
+            },
+          ];
+        }
+      }
     }
 
     const response = await fetch(
@@ -62,7 +146,7 @@ serve(async (req) => {
           model: "google/gemini-3-flash-preview",
           messages: [
             { role: "system", content: systemPrompt },
-            ...messages,
+            ...augmentedMessages,
           ],
           stream: true,
         }),
