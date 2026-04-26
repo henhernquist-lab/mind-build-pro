@@ -5,7 +5,10 @@ import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Trophy, Plus, Trash2, Sparkles } from "lucide-react";
+import { Trophy, Plus, Trash2, Sparkles, User } from "lucide-react";
+import {
+  Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter,
+} from "@/components/ui/dialog";
 import { motion, AnimatePresence } from "framer-motion";
 import {
   LineChart, Line, XAxis, YAxis, ResponsiveContainer, Tooltip, CartesianGrid,
@@ -13,6 +16,9 @@ import {
 import { toast } from "sonner";
 import { cn } from "@/lib/utils";
 import { useRankSystem, type Rank } from "@/lib/rank";
+import {
+  AthleteProfile, Gender, Grade, gradeColor, gradeWorkout, averageGrade,
+} from "@/lib/athlete";
 
 type Sport = "football" | "track";
 type Unit = "lbs" | "reps" | "seconds" | "minutes" | "yards";
@@ -24,9 +30,95 @@ type Entry = {
   unit: Unit;
   date: string;
   isPR?: boolean;
+  addedWeight?: number;
+  grade?: Grade;
+  xp?: number;
+  note?: string;
+  breakdown?: string;
 };
 
 const isLowerBetter = (u: Unit) => u === "seconds" || u === "minutes";
+
+// ---------- Grade Badge ----------
+const GradeBadge = ({ grade }: { grade: Grade }) => (
+  <span
+    className="inline-flex items-center justify-center h-6 min-w-[28px] px-1.5 rounded-md text-[11px] font-bold tabular-nums"
+    style={{ background: gradeColor(grade), color: "hsl(var(--background))" }}
+  >
+    {grade}
+  </span>
+);
+
+// ---------- Profile Setup Dialog ----------
+const ProfileDialog = ({
+  open, onOpenChange, profile, onSave,
+}: {
+  open: boolean;
+  onOpenChange: (o: boolean) => void;
+  profile: AthleteProfile | null;
+  onSave: (p: AthleteProfile) => void;
+}) => {
+  const [age, setAge] = useState(profile?.age?.toString() ?? "");
+  const [ft, setFt] = useState(profile?.heightFt?.toString() ?? "");
+  const [inch, setInch] = useState(profile?.heightIn?.toString() ?? "");
+  const [w, setW] = useState(profile?.weightLbs?.toString() ?? "");
+  const [g, setG] = useState<Gender>(profile?.gender ?? "male");
+
+  const save = () => {
+    const p: AthleteProfile = {
+      age: parseInt(age) || 13,
+      heightFt: parseInt(ft) || 5,
+      heightIn: parseInt(inch) || 0,
+      weightLbs: parseInt(w) || 120,
+      gender: g,
+    };
+    onSave(p);
+    onOpenChange(false);
+  };
+
+  return (
+    <Dialog open={open} onOpenChange={onOpenChange}>
+      <DialogContent>
+        <DialogHeader>
+          <DialogTitle>Athlete Profile</DialogTitle>
+        </DialogHeader>
+        <div className="space-y-3">
+          <div>
+            <Label className="text-xs">Age</Label>
+            <Input type="number" value={age} onChange={(e) => setAge(e.target.value)} placeholder="13" />
+          </div>
+          <div className="grid grid-cols-2 gap-2">
+            <div>
+              <Label className="text-xs">Height (ft)</Label>
+              <Input type="number" value={ft} onChange={(e) => setFt(e.target.value)} placeholder="5" />
+            </div>
+            <div>
+              <Label className="text-xs">Height (in)</Label>
+              <Input type="number" value={inch} onChange={(e) => setInch(e.target.value)} placeholder="6" />
+            </div>
+          </div>
+          <div>
+            <Label className="text-xs">Weight (lbs)</Label>
+            <Input type="number" value={w} onChange={(e) => setW(e.target.value)} placeholder="120" />
+          </div>
+          <div>
+            <Label className="text-xs">Gender</Label>
+            <Select value={g} onValueChange={(v) => setG(v as Gender)}>
+              <SelectTrigger><SelectValue /></SelectTrigger>
+              <SelectContent>
+                <SelectItem value="male">Male</SelectItem>
+                <SelectItem value="female">Female</SelectItem>
+              </SelectContent>
+            </Select>
+          </div>
+        </div>
+        <DialogFooter>
+          <Button onClick={save}>Save profile</Button>
+        </DialogFooter>
+      </DialogContent>
+    </Dialog>
+  );
+};
 
 // ---------- Rank Card ----------
 const RankCard = ({
@@ -155,14 +247,17 @@ const SportPanel = ({
   sport,
   onLog,
   onPR,
+  profile,
 }: {
   sport: Sport;
-  onLog: () => void;
-  onPR: () => void;
+  onLog: (xp: number) => void;
+  onPR: (xp: number) => void;
+  profile: AthleteProfile | null;
 }) => {
   const [entries, setEntries] = useLocalStorage<Entry[]>(`workouts:${sport}`, []);
   const [exercise, setExercise] = useState("");
   const [value, setValue] = useState("");
+  const [addedWeight, setAddedWeight] = useState("");
   const [unit, setUnit] = useState<Unit>(sport === "football" ? "lbs" : "seconds");
 
   const exercises = useMemo(
@@ -186,6 +281,7 @@ const SportPanel = ({
   const add = () => {
     const v = parseFloat(value);
     if (!exercise.trim() || isNaN(v)) return;
+    const aw = parseFloat(addedWeight) || 0;
     const prior = entries.filter((e) => e.exercise.toLowerCase() === exercise.trim().toLowerCase());
     let isPR = true;
     if (prior.length > 0) {
@@ -194,6 +290,7 @@ const SportPanel = ({
       );
       isPR = isLowerBetter(unit) ? v < best.value : v > best.value;
     }
+    const result = profile ? gradeWorkout(exercise.trim(), v, unit, aw, profile) : null;
     setEntries((arr) => [
       ...arr,
       {
@@ -204,19 +301,26 @@ const SportPanel = ({
         unit,
         date: new Date().toISOString(),
         isPR,
+        addedWeight: aw || undefined,
+        grade: result?.grade,
+        xp: result?.xp,
+        note: result?.note,
+        breakdown: result?.breakdown,
       },
     ]);
     setValue("");
-    onLog();
-    if (isPR) onPR();
+    setAddedWeight("");
+    onLog(result?.xp ?? 10);
+    if (isPR) onPR(result?.xp ?? 10);
   };
 
   const remove = (id: string) => setEntries((arr) => arr.filter((e) => e.id !== id));
   const accent = sport === "football" ? "hsl(var(--sports))" : "hsl(var(--coding))";
+  const isRepsBased = unit === "reps";
 
   return (
     <div className="space-y-6">
-      <div className="rounded-xl border border-border bg-card p-4 grid gap-3 md:grid-cols-[1fr_120px_140px_auto]">
+      <div className="rounded-xl border border-border bg-card p-4 grid gap-3 md:grid-cols-[1fr_100px_120px_120px_auto]">
         <div>
           <Label className="text-[11px] text-muted-foreground">Exercise</Label>
           <Input
@@ -245,6 +349,17 @@ const SportPanel = ({
               <SelectItem value="yards">yards</SelectItem>
             </SelectContent>
           </Select>
+        </div>
+        <div>
+          <Label className="text-[11px] text-muted-foreground">+Weight (lbs)</Label>
+          <Input
+            type="number"
+            step="1"
+            value={addedWeight}
+            onChange={(e) => setAddedWeight(e.target.value)}
+            placeholder="0"
+            disabled={!isRepsBased}
+          />
         </div>
         <div className="flex items-end">
           <Button onClick={add} style={{ backgroundColor: accent, color: "hsl(var(--background))" }}>
@@ -336,30 +451,49 @@ const SportPanel = ({
                       animate={{ opacity: 1 }}
                       exit={{ opacity: 0 }}
                       className={cn(
-                        "flex items-center justify-between text-xs px-3 py-1.5 rounded-md group",
+                        "flex flex-col gap-1 text-xs px-3 py-2 rounded-md group",
                         e.isPR && "bg-accent"
                       )}
                     >
-                      <div className="flex items-center gap-2">
-                        {e.isPR && <Trophy className="h-3 w-3" style={{ color: accent }} />}
-                        <span className="font-medium">{e.value} {e.unit}</span>
-                        {e.isPR && (
-                          <span className="text-[10px] uppercase font-bold tracking-wider" style={{ color: accent }}>
-                            PR
+                      <div className="flex items-center justify-between gap-2">
+                        <div className="flex items-center gap-2 min-w-0">
+                          {e.grade && <GradeBadge grade={e.grade} />}
+                          {e.isPR && <Trophy className="h-3 w-3 flex-shrink-0" style={{ color: accent }} />}
+                          <span className="font-medium">
+                            {e.value} {e.unit}
+                            {e.addedWeight ? ` +${e.addedWeight}lb` : ""}
                           </span>
-                        )}
+                          {e.isPR && (
+                            <span className="text-[10px] uppercase font-bold tracking-wider" style={{ color: accent }}>
+                              PR
+                            </span>
+                          )}
+                          {e.xp !== undefined && (
+                            <span className="text-[10px] text-muted-foreground tabular-nums">
+                              +{e.xp}{e.isPR ? "+50" : ""} XP
+                            </span>
+                          )}
+                        </div>
+                        <div className="flex items-center gap-2 flex-shrink-0">
+                          <span className="text-muted-foreground">
+                            {new Date(e.date).toLocaleDateString()}
+                          </span>
+                          <button
+                            onClick={() => remove(e.id)}
+                            className="opacity-0 group-hover:opacity-100 text-muted-foreground hover:text-destructive"
+                          >
+                            <Trash2 className="h-3 w-3" />
+                          </button>
+                        </div>
                       </div>
-                      <div className="flex items-center gap-2">
-                        <span className="text-muted-foreground">
-                          {new Date(e.date).toLocaleDateString()}
-                        </span>
-                        <button
-                          onClick={() => remove(e.id)}
-                          className="opacity-0 group-hover:opacity-100 text-muted-foreground hover:text-destructive"
-                        >
-                          <Trash2 className="h-3 w-3" />
-                        </button>
-                      </div>
+                      {(e.note || e.breakdown) && (
+                        <div className="text-[10px] text-muted-foreground flex items-center gap-2 flex-wrap pl-1">
+                          {e.note && <span>{e.note}</span>}
+                          {e.breakdown && (
+                            <span className="text-muted-foreground/70">· {e.breakdown}</span>
+                          )}
+                        </div>
+                      )}
                     </motion.div>
                   ))}
               </AnimatePresence>
@@ -374,11 +508,24 @@ const SportPanel = ({
 const Workouts = () => {
   const { xp, rank, nextRank, history, addXp } = useRankSystem();
   const [rankUp, setRankUp] = useState<Rank | null>(null);
+  const [profile, setProfile] = useLocalStorage<AthleteProfile | null>("athlete:profile", null);
+  const [profileOpen, setProfileOpen] = useState(false);
+  const [football] = useLocalStorage<Entry[]>("workouts:football", []);
+  const [track] = useLocalStorage<Entry[]>("workouts:track", []);
+
+  const overallGrade = useMemo(() => {
+    const recent = [...football, ...track]
+      .filter((e) => e.grade)
+      .sort((a, b) => b.date.localeCompare(a.date))
+      .slice(0, 20)
+      .map((e) => e.grade!) as Grade[];
+    return averageGrade(recent);
+  }, [football, track]);
 
   // SportPanel calls onLog() once per workout, plus onPR() if it was a PR.
-  const onLog = () => {
-    const result = addXp(10);
-    toast("💪 Workout logged", { description: "+10 XP earned", duration: 2200 });
+  const onLog = (xpEarned: number) => {
+    const result = addXp(xpEarned);
+    toast("💪 Workout logged", { description: `+${xpEarned} XP earned`, duration: 2200 });
     if (result.rankedUp) setTimeout(() => setRankUp(result.newRank), 600);
   };
   const onPR = () => {
@@ -389,10 +536,45 @@ const Workouts = () => {
 
   return (
     <div className="p-6 md:p-10 max-w-5xl mx-auto">
-      <header className="mb-6">
-        <p className="text-xs uppercase tracking-widest text-muted-foreground">Performance</p>
-        <h1 className="text-3xl font-bold mt-1">Workouts &amp; PRs</h1>
+      <header className="mb-6 flex items-start justify-between gap-4">
+        <div>
+          <p className="text-xs uppercase tracking-widest text-muted-foreground">Performance</p>
+          <h1 className="text-3xl font-bold mt-1">Workouts &amp; PRs</h1>
+        </div>
+        <Button variant="outline" size="sm" onClick={() => setProfileOpen(true)}>
+          <User className="h-4 w-4 mr-1.5" />
+          {profile ? "Edit profile" : "Set up profile"}
+        </Button>
       </header>
+
+      {!profile && (
+        <div className="rounded-xl border border-dashed border-primary/40 bg-primary/5 p-4 mb-6 flex items-center gap-3 flex-wrap">
+          <User className="h-5 w-5 text-primary" />
+          <div className="flex-1 min-w-[200px]">
+            <div className="text-sm font-semibold">Set up your athlete profile</div>
+            <div className="text-xs text-muted-foreground">Get age- and bodyweight-adjusted grades on every log.</div>
+          </div>
+          <Button size="sm" onClick={() => setProfileOpen(true)}>Set up</Button>
+        </div>
+      )}
+
+      {profile && overallGrade && (
+        <div className="rounded-xl border border-border bg-card p-4 mb-6 flex items-center gap-4">
+          <div
+            className="h-14 w-14 rounded-xl flex items-center justify-center text-2xl font-black"
+            style={{ background: gradeColor(overallGrade), color: "hsl(var(--background))" }}
+          >
+            {overallGrade}
+          </div>
+          <div>
+            <div className="text-[11px] uppercase tracking-widest text-muted-foreground">Overall athletic grade</div>
+            <div className="text-lg font-bold">Across last 20 logs</div>
+            <div className="text-xs text-muted-foreground">
+              Age {profile.age} · {profile.weightLbs}lb · {profile.gender}
+            </div>
+          </div>
+        </div>
+      )}
 
       <RankCard rank={rank} xp={xp} next={nextRank} />
       {history.length > 0 && <LastMonthCard entry={history[0]} />}
@@ -406,13 +588,20 @@ const Workouts = () => {
             🏃 Track
           </TabsTrigger>
         </TabsList>
-        <TabsContent value="football"><SportPanel sport="football" onLog={onLog} onPR={onPR} /></TabsContent>
-        <TabsContent value="track"><SportPanel sport="track" onLog={onLog} onPR={onPR} /></TabsContent>
+        <TabsContent value="football"><SportPanel sport="football" onLog={onLog} onPR={onPR} profile={profile} /></TabsContent>
+        <TabsContent value="track"><SportPanel sport="track" onLog={onLog} onPR={onPR} profile={profile} /></TabsContent>
       </Tabs>
 
       <AnimatePresence>
         {rankUp && <RankUpBanner rank={rankUp} onDone={() => setRankUp(null)} />}
       </AnimatePresence>
+
+      <ProfileDialog
+        open={profileOpen}
+        onOpenChange={setProfileOpen}
+        profile={profile}
+        onSave={setProfile}
+      />
     </div>
   );
 };
