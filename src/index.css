@@ -1,14 +1,13 @@
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;700&family=Quicksand:wght@400;500;600;700&family=Oswald:wght@400;500;600;700&family=Space+Grotesk:wght@400;500;600;700&display=swap');
+@import "katex/dist/katex.min.css";
+
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
 
-@import "katex/dist/katex.min.css";
-
 /* Design system + 5 swappable visual themes.
    Theme is set via <html data-theme="..."> by ThemeProvider.
    All colors MUST be HSL. */
-
-@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;700&family=Quicksand:wght@400;500;600;700&family=Oswald:wght@400;500;600;700&family=Space+Grotesk:wght@400;500;600;700&display=swap');
 
 @layer base {
   /* ---------- Midnight Pro (default) ---------- */
