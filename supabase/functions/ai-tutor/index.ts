@@ -103,7 +103,7 @@ serve(async (req) => {
   }
 
   try {
-    const { subject, customLabel, messages, mode, deepSearch } = await req.json();
+    const { subject, customLabel, messages, mode, deepSearch, videosEnabled } = await req.json();
 
     const LOVABLE_API_KEY = Deno.env.get("LOVABLE_API_KEY");
     if (!LOVABLE_API_KEY) {
@@ -117,6 +117,10 @@ serve(async (req) => {
       }. Keep explanations clear and encouraging. Break things down step-by-step, use simple analogies, and check for understanding.`;
     let systemPrompt = basePrompt + MATH_INSTRUCTION + VISUAL_INSTRUCTION;
     if (subject === "algebra") systemPrompt += GRAPH_INSTRUCTION;
+
+    if (videosEnabled) {
+      systemPrompt += `\n\nVIDEO RECOMMENDATIONS:\nIf a short YouTube video would help the student understand a concept you just taught, append a single VIDEO tag on its own line at the END of your message (after any [GRAPH:] or [VISUAL] block):\n\n[VIDEOS: <short search query>]\n\nKeep the query under 8 words and focused on the specific concept (e.g. "[VIDEOS: solving two-step equations]"). Only include this when a video would genuinely help — skip for trivial answers, casual chat, or pure practice problems. Maximum one [VIDEOS:] tag per response.`;
+    }
 
     if (mode === "practice") {
       systemPrompt +=
