@@ -1,7 +1,7 @@
 // Recurring events for the daily planner.
-// Stored in localStorage as `planner_recurring`.
+// Persisted in Supabase via the planner_recurring table.
 
-export type Category = "school" | "sports" | "coding" | "free";
+export type Category = "school" | "sports" | "free";
 
 export type RecurrenceRule =
   | { type: "none" }
@@ -12,7 +12,8 @@ export type RecurrenceRule =
 
 export type RecurringEvent = {
   id: string;
-  time: string; // "HH:MM"
+  startTime: string; // "HH:MM"
+  endTime: string;   // "HH:MM"
   label: string;
   category: Category;
   rule: RecurrenceRule;
@@ -20,13 +21,20 @@ export type RecurringEvent = {
   endDate?: string;  // YYYY-MM-DD (inclusive)
 };
 
-// One-off override map per date: keyed by `${date}_${time}`.
-// Stored in localStorage as `planner_overrides`. Two kinds:
-//  - { type: "skip" } means hide a recurring event for that day
-//  - { type: "replace", block: {label, category} } means override label/category
+// Per-day overrides stored in planner_overrides. Two kinds:
+//  - "skip" hides a recurring occurrence that day
+//  - "replace" rewrites label/category/time for that day
 export type Override =
-  | { type: "skip"; recurringId: string }
-  | { type: "replace"; recurringId: string; label: string; category: Category };
+  | { type: "skip"; recurringId: string; date: string }
+  | {
+      type: "replace";
+      recurringId: string;
+      date: string;
+      label: string;
+      category: Category;
+      startTime?: string;
+      endTime?: string;
+    };
 
 export const dayMatches = (rule: RecurrenceRule, date: Date): boolean => {
   const dow = date.getDay();
