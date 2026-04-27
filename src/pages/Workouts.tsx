@@ -1,11 +1,10 @@
-import { useMemo, useState } from "react";
-import { useLocalStorage } from "@/lib/storage";
+import { useEffect, useMemo, useState } from "react";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Trophy, Plus, Trash2, Sparkles, User } from "lucide-react";
+import { Trophy, Plus, Trash2, Sparkles, User, Dumbbell, Footprints } from "lucide-react";
 import {
   Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter,
 } from "@/components/ui/dialog";
@@ -15,29 +14,28 @@ import {
 } from "recharts";
 import { toast } from "sonner";
 import { cn } from "@/lib/utils";
-import { useRankSystem, type Rank } from "@/lib/rank";
 import {
   AthleteProfile, Gender, Grade, gradeColor, gradeWorkout, averageGrade,
+  WeightUnit, toLbs, Unit,
 } from "@/lib/athlete";
-
-type Sport = "football" | "track";
-type Unit = "lbs" | "reps" | "seconds" | "minutes" | "yards";
-type Entry = {
-  id: string;
-  sport: Sport;
-  exercise: string;
-  value: number;
-  unit: Unit;
-  date: string;
-  isPR?: boolean;
-  addedWeight?: number;
-  grade?: Grade;
-  xp?: number;
-  note?: string;
-  breakdown?: string;
-};
+import {
+  Sport, Entry, fetchEntries, insertEntry, deleteEntry,
+  fetchAthleteProfile, saveAthleteProfile,
+  fetchUserStats, saveUserStats, fetchRankHistory, insertRankHistory, monthKey,
+  fetchPrefs, savePrefs,
+} from "@/lib/workouts";
+import { useAuth } from "@/lib/auth";
+import { RANKS, getRank, getNextRank, XP_PR_BONUS, type Rank } from "@/lib/rank";
 
 const isLowerBetter = (u: Unit) => u === "seconds" || u === "minutes";
+
+const SPORT_META: Record<Sport, { label: string; emoji: string; icon: typeof Dumbbell; accent: string; defaultUnit: Unit }> = {
+  weightlifting: { label: "Weightlifting", emoji: "🏋️", icon: Dumbbell, accent: "hsl(var(--sports))", defaultUnit: "lbs" },
+  running:       { label: "Running",       emoji: "🏃", icon: Footprints, accent: "hsl(var(--primary))", defaultUnit: "seconds" },
+};
+
+const WEIGHTLIFTING_DEFAULTS = ["Bench press", "Squat", "Push-ups", "Pull-ups", "Deadlift"];
+const RUNNING_DEFAULTS = ["40-yard dash", "100m", "200m", "400m", "Mile run", "Shuttle run"];
 
 // ---------- Grade Badge ----------
 const GradeBadge = ({ grade }: { grade: Grade }) => (
@@ -49,7 +47,7 @@ const GradeBadge = ({ grade }: { grade: Grade }) => (
   </span>
 );
 
-// ---------- Profile Setup Dialog ----------
+// ---------- Profile Dialog ----------
 const ProfileDialog = ({
   open, onOpenChange, profile, onSave,
 }: {
@@ -58,49 +56,34 @@ const ProfileDialog = ({
   profile: AthleteProfile | null;
   onSave: (p: AthleteProfile) => void;
 }) => {
-  const [age, setAge] = useState(profile?.age?.toString() ?? "");
-  const [ft, setFt] = useState(profile?.heightFt?.toString() ?? "");
-  const [inch, setInch] = useState(profile?.heightIn?.toString() ?? "");
-  const [w, setW] = useState(profile?.weightLbs?.toString() ?? "");
+  const [age, setAge] = useState(profile?.age?.toString() ?? "13");
+  const [ft, setFt] = useState(profile?.heightFt?.toString() ?? "5");
+  const [inch, setInch] = useState(profile?.heightIn?.toString() ?? "6");
+  const [w, setW] = useState(profile?.weightLbs?.toString() ?? "120");
   const [g, setG] = useState<Gender>(profile?.gender ?? "male");
 
   const save = () => {
-    const p: AthleteProfile = {
+    onSave({
       age: parseInt(age) || 13,
       heightFt: parseInt(ft) || 5,
       heightIn: parseInt(inch) || 0,
       weightLbs: parseInt(w) || 120,
       gender: g,
-    };
-    onSave(p);
+    });
     onOpenChange(false);
   };
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent>
-        <DialogHeader>
-          <DialogTitle>Athlete Profile</DialogTitle>
-        </DialogHeader>
+        <DialogHeader><DialogTitle>Athlete Profile</DialogTitle></DialogHeader>
         <div className="space-y-3">
-          <div>
-            <Label className="text-xs">Age</Label>
-            <Input type="number" value={age} onChange={(e) => setAge(e.target.value)} placeholder="13" />
-          </div>
+          <div><Label className="text-xs">Age</Label><Input type="number" value={age} onChange={(e) => setAge(e.target.value)} /></div>
           <div className="grid grid-cols-2 gap-2">
-            <div>
-              <Label className="text-xs">Height (ft)</Label>
-              <Input type="number" value={ft} onChange={(e) => setFt(e.target.value)} placeholder="5" />
-            </div>
-            <div>
-              <Label className="text-xs">Height (in)</Label>
-              <Input type="number" value={inch} onChange={(e) => setInch(e.target.value)} placeholder="6" />
-            </div>
+            <div><Label className="text-xs">Height (ft)</Label><Input type="number" value={ft} onChange={(e) => setFt(e.target.value)} /></div>
+            <div><Label className="text-xs">Height (in)</Label><Input type="number" value={inch} onChange={(e) => setInch(e.target.value)} /></div>
           </div>
-          <div>
-            <Label className="text-xs">Weight (lbs)</Label>
-            <Input type="number" value={w} onChange={(e) => setW(e.target.value)} placeholder="120" />
-          </div>
+          <div><Label className="text-xs">Weight (lbs)</Label><Input type="number" value={w} onChange={(e) => setW(e.target.value)} /></div>
           <div>
             <Label className="text-xs">Gender</Label>
             <Select value={g} onValueChange={(v) => setG(v as Gender)}>
@@ -112,130 +95,50 @@ const ProfileDialog = ({
             </Select>
           </div>
         </div>
-        <DialogFooter>
-          <Button onClick={save}>Save profile</Button>
-        </DialogFooter>
+        <DialogFooter><Button onClick={save}>Save profile</Button></DialogFooter>
       </DialogContent>
     </Dialog>
   );
 };
 
-// ---------- Rank Card ----------
-const RankCard = ({
-  rank,
-  xp,
-  next,
-}: {
-  rank: Rank;
-  xp: number;
-  next: Rank | null;
-}) => {
-  const progress = next
-    ? Math.min(100, Math.max(0, ((xp - rank.xpRequired) / (next.xpRequired - rank.xpRequired)) * 100))
-    : 100;
+// ---------- Rank card ----------
+const RankCard = ({ rank, xp, next }: { rank: Rank; xp: number; next: Rank | null }) => {
+  const progress = next ? Math.min(100, Math.max(0, ((xp - rank.xpRequired) / (next.xpRequired - rank.xpRequired)) * 100)) : 100;
   const xpToNext = next ? next.xpRequired - xp : 0;
-
   return (
-    <div
-      className="rounded-2xl border border-border bg-card p-5 mb-6 relative overflow-hidden"
-      style={{ borderTop: `3px solid ${rank.color}` }}
-    >
-      <div
-        className="absolute inset-0 pointer-events-none opacity-10"
-        style={{ background: `radial-gradient(circle at top right, ${rank.color}, transparent 60%)` }}
-      />
+    <div className="rounded-2xl border border-border bg-card p-5 mb-6 relative overflow-hidden" style={{ borderTop: `3px solid ${rank.color}` }}>
+      <div className="absolute inset-0 pointer-events-none opacity-10" style={{ background: `radial-gradient(circle at top right, ${rank.color}, transparent 60%)` }} />
       <div className="relative flex items-center gap-4 flex-wrap">
-        <div
-          className="h-16 w-16 rounded-2xl flex items-center justify-center text-4xl flex-shrink-0"
-          style={{ background: `${rank.color}22`, border: `1px solid ${rank.color}44` }}
-        >
+        <div className="h-16 w-16 rounded-2xl flex items-center justify-center text-4xl flex-shrink-0" style={{ background: `${rank.color}22`, border: `1px solid ${rank.color}44` }}>
           {rank.icon}
         </div>
         <div className="flex-1 min-w-[180px]">
           <div className="text-[11px] uppercase tracking-widest text-muted-foreground">Current rank</div>
           <div className="text-2xl font-bold" style={{ color: rank.color }}>{rank.name}</div>
           <div className="text-xs text-muted-foreground mt-0.5">
-            {xp} XP {next ? `· ${xpToNext} XP to ${next.icon} ${next.name}` : "· max rank reached 🔥"}
+            {xp} XP {next ? `· ${xpToNext} XP to ${next.icon} ${next.name}` : "· max rank 🔥"}
           </div>
         </div>
       </div>
-      <div className="mt-4 h-2 rounded-full bg-muted overflow-hidden relative">
-        <motion.div
-          className="h-full rounded-full"
-          style={{ background: rank.color }}
-          initial={false}
-          animate={{ width: `${progress}%` }}
-          transition={{ duration: 0.6, ease: "easeOut" }}
-        />
-      </div>
-      <div className="mt-2 flex justify-between text-[10px] text-muted-foreground tabular-nums">
-        <span>{rank.xpRequired} XP</span>
-        {next && <span>{next.xpRequired} XP</span>}
+      <div className="mt-4 h-2 rounded-full bg-muted overflow-hidden">
+        <motion.div className="h-full rounded-full" style={{ background: rank.color }} initial={false} animate={{ width: `${progress}%` }} transition={{ duration: 0.6 }} />
       </div>
     </div>
   );
 };
 
-// ---------- Last Month Card ----------
-const LastMonthCard = ({
-  entry,
-}: {
-  entry: { monthName: string; finalXp: number; highestRankName: string; highestRankIcon: string };
-}) => (
-  <div className="rounded-xl border border-border bg-card/60 p-4 mb-6">
-    <div className="text-[11px] uppercase tracking-widest text-muted-foreground mb-1">Last month</div>
-    <div className="flex items-center justify-between gap-3 flex-wrap">
-      <div>
-        <div className="text-sm font-semibold">{entry.monthName}</div>
-        <div className="text-xs text-muted-foreground">Season recap</div>
-      </div>
-      <div className="text-right">
-        <div className="text-lg font-bold flex items-center gap-1.5">
-          <span>{entry.highestRankIcon}</span>
-          <span>{entry.highestRankName}</span>
-        </div>
-        <div className="text-xs text-muted-foreground">{entry.finalXp} XP</div>
-      </div>
-    </div>
-  </div>
-);
-
-// ---------- Rank Up Banner ----------
 const RankUpBanner = ({ rank, onDone }: { rank: Rank; onDone: () => void }) => (
-  <motion.div
-    initial={{ opacity: 0 }}
-    animate={{ opacity: 1 }}
-    exit={{ opacity: 0 }}
+  <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
     className="fixed inset-0 z-[100] flex items-center justify-center bg-background/80 backdrop-blur-sm"
-    onClick={onDone}
-  >
-    <motion.div
-      initial={{ scale: 0.7, y: 20 }}
-      animate={{ scale: 1, y: 0 }}
-      exit={{ scale: 0.9, opacity: 0 }}
+    onClick={onDone}>
+    <motion.div initial={{ scale: 0.7 }} animate={{ scale: 1 }} exit={{ scale: 0.9, opacity: 0 }}
       transition={{ type: "spring", stiffness: 220, damping: 18 }}
-      className="rounded-3xl border border-border bg-card px-10 py-12 text-center max-w-sm mx-4 relative overflow-hidden"
-      style={{ borderColor: rank.color, boxShadow: `0 0 60px ${rank.color}55` }}
-    >
-      <div
-        className="absolute inset-0 pointer-events-none opacity-20"
-        style={{ background: `radial-gradient(circle at center, ${rank.color}, transparent 70%)` }}
-      />
-      <motion.div
-        animate={{ scale: [1, 1.15, 1] }}
-        transition={{ repeat: Infinity, duration: 1.6 }}
-        className="text-7xl mb-4 relative"
-      >
-        {rank.icon}
-      </motion.div>
-      <div className="text-xs uppercase tracking-widest text-muted-foreground relative">Rank up!</div>
-      <div className="text-3xl font-bold mt-1 relative" style={{ color: rank.color }}>
-        {rank.name}
-      </div>
-      <div className="text-sm text-muted-foreground mt-3 relative">
-        Keep grinding — the next level awaits.
-      </div>
-      <Button onClick={onDone} className="mt-6 relative" style={{ background: rank.color, color: "hsl(var(--background))" }}>
+      className="rounded-3xl border bg-card px-10 py-12 text-center max-w-sm mx-4 relative overflow-hidden"
+      style={{ borderColor: rank.color, boxShadow: `0 0 60px ${rank.color}55` }}>
+      <motion.div animate={{ scale: [1, 1.15, 1] }} transition={{ repeat: Infinity, duration: 1.6 }} className="text-7xl mb-4">{rank.icon}</motion.div>
+      <div className="text-xs uppercase tracking-widest text-muted-foreground">Rank up!</div>
+      <div className="text-3xl font-bold mt-1" style={{ color: rank.color }}>{rank.name}</div>
+      <Button onClick={onDone} className="mt-6" style={{ background: rank.color, color: "hsl(var(--background))" }}>
         <Sparkles className="h-4 w-4 mr-1.5" /> Let's go
       </Button>
     </motion.div>
@@ -244,26 +147,33 @@ const RankUpBanner = ({ rank, onDone }: { rank: Rank; onDone: () => void }) => (
 
 // ---------- Sport Panel ----------
 const SportPanel = ({
-  sport,
-  onLog,
-  onPR,
-  profile,
+  sport, entries, reload, onLog, onPR, profile, weightUnit, setWeightUnit,
 }: {
   sport: Sport;
-  onLog: (xp: number) => void;
-  onPR: (xp: number) => void;
+  entries: Entry[];
+  reload: () => Promise<void>;
+  onLog: (xp: number) => Promise<{ rankedUp: boolean; newRank: Rank } | null>;
+  onPR: (xp: number) => Promise<void>;
   profile: AthleteProfile | null;
+  weightUnit: WeightUnit;
+  setWeightUnit: (u: WeightUnit) => void;
 }) => {
-  const [entries, setEntries] = useLocalStorage<Entry[]>(`workouts:${sport}`, []);
-  const [exercise, setExercise] = useState("");
-  const [value, setValue] = useState("");
-  const [addedWeight, setAddedWeight] = useState("");
-  const [unit, setUnit] = useState<Unit>(sport === "football" ? "lbs" : "seconds");
+  const meta = SPORT_META[sport];
+  const defaults = sport === "weightlifting" ? WEIGHTLIFTING_DEFAULTS : RUNNING_DEFAULTS;
 
-  const exercises = useMemo(
-    () => Array.from(new Set(entries.map((e) => e.exercise))).sort(),
-    [entries]
+  const [exercise, setExercise] = useState(defaults[0]);
+  const [customExercise, setCustomExercise] = useState("");
+  const [reps, setReps] = useState("");
+  const [weight, setWeight] = useState("");
+  const [unit, setUnit] = useState<Unit>(sport === "weightlifting" ? "lbs" : "seconds");
+  const { user } = useAuth();
+
+  const usedExercises = useMemo(
+    () => Array.from(new Set([...defaults, ...entries.map((e) => e.exercise)])),
+    [entries, defaults],
   );
+
+  const finalExercise = exercise === "__custom__" ? customExercise.trim() : exercise;
 
   const prs = useMemo(() => {
     const map = new Map<string, Entry>();
@@ -278,99 +188,164 @@ const SportPanel = ({
     return Array.from(map.values()).sort((a, b) => a.exercise.localeCompare(b.exercise));
   }, [entries]);
 
-  const add = () => {
-    const v = parseFloat(value);
-    if (!exercise.trim() || isNaN(v)) return;
-    const aw = parseFloat(addedWeight) || 0;
-    const prior = entries.filter((e) => e.exercise.toLowerCase() === exercise.trim().toLowerCase());
+  const add = async () => {
+    if (!user) return;
+    if (!finalExercise) { toast.error("Pick an exercise"); return; }
+
+    // Determine primary value + unit
+    let primaryValue: number;
+    let primaryUnit: Unit;
+    let addedWeightLbs = 0;
+
+    if (sport === "weightlifting") {
+      // Reps + weight. Primary value = reps (reps-based), or weight if no reps entered.
+      const r = parseFloat(reps);
+      const w = parseFloat(weight);
+      const wLbs = !isNaN(w) ? toLbs(w, weightUnit) : 0;
+      if (!isNaN(r) && r > 0) {
+        primaryValue = r;
+        primaryUnit = "reps";
+        addedWeightLbs = wLbs;
+      } else if (!isNaN(w) && w > 0) {
+        // Pure lift: log as weight (converted to lbs)
+        primaryValue = wLbs;
+        primaryUnit = "lbs";
+      } else {
+        toast.error("Enter reps or weight");
+        return;
+      }
+    } else {
+      // Running: value in chosen unit (seconds/minutes/yards)
+      const v = parseFloat(reps); // reps input doubles as "time/distance" value in running
+      if (isNaN(v)) { toast.error("Enter a value"); return; }
+      primaryValue = v;
+      primaryUnit = unit;
+    }
+
+    // PR detection
+    const prior = entries.filter((e) => e.exercise.toLowerCase() === finalExercise.toLowerCase() && e.unit === primaryUnit);
     let isPR = true;
     if (prior.length > 0) {
       const best = prior.reduce((acc, x) =>
-        (isLowerBetter(unit) ? x.value < acc.value : x.value > acc.value) ? x : acc
+        (isLowerBetter(primaryUnit) ? x.value < acc.value : x.value > acc.value) ? x : acc,
       );
-      isPR = isLowerBetter(unit) ? v < best.value : v > best.value;
+      isPR = isLowerBetter(primaryUnit) ? primaryValue < best.value : primaryValue > best.value;
     }
-    const result = profile ? gradeWorkout(exercise.trim(), v, unit, aw, profile) : null;
-    setEntries((arr) => [
-      ...arr,
-      {
-        id: crypto.randomUUID(),
+
+    const result = profile ? gradeWorkout(finalExercise, primaryValue, primaryUnit, addedWeightLbs, profile) : null;
+
+    try {
+      await insertEntry(user.id, {
         sport,
-        exercise: exercise.trim(),
-        value: v,
-        unit,
-        date: new Date().toISOString(),
+        exercise: finalExercise,
+        value: primaryValue,
+        unit: primaryUnit,
+        addedWeight: addedWeightLbs || undefined,
         isPR,
-        addedWeight: aw || undefined,
         grade: result?.grade,
         xp: result?.xp,
         note: result?.note,
         breakdown: result?.breakdown,
-      },
-    ]);
-    setValue("");
-    setAddedWeight("");
-    onLog(result?.xp ?? 10);
-    if (isPR) onPR(result?.xp ?? 10);
+      });
+      setReps("");
+      setWeight("");
+      setCustomExercise("");
+      await reload();
+      const xp = result?.xp ?? 10;
+      await onLog(xp);
+      if (isPR) {
+        toast.success(`🏆 New PR on ${finalExercise}!`);
+        await onPR(xp);
+      }
+    } catch (e: any) {
+      toast.error(e.message ?? "Could not log workout");
+    }
   };
 
-  const remove = (id: string) => setEntries((arr) => arr.filter((e) => e.id !== id));
-  const accent = sport === "football" ? "hsl(var(--sports))" : "hsl(var(--coding))";
-  const isRepsBased = unit === "reps";
+  const remove = async (id: string) => {
+    await deleteEntry(id);
+    await reload();
+  };
 
   return (
     <div className="space-y-6">
-      <div className="rounded-xl border border-border bg-card p-4 grid gap-3 md:grid-cols-[1fr_100px_120px_120px_auto]">
+      <div className="rounded-xl border border-border bg-card p-4 space-y-3">
         <div>
           <Label className="text-[11px] text-muted-foreground">Exercise</Label>
-          <Input
-            value={exercise}
-            onChange={(e) => setExercise(e.target.value)}
-            placeholder={sport === "football" ? "Bench press" : "100m sprint"}
-            list={`ex-${sport}`}
-          />
-          <datalist id={`ex-${sport}`}>
-            {exercises.map((e) => <option key={e} value={e} />)}
-          </datalist>
-        </div>
-        <div>
-          <Label className="text-[11px] text-muted-foreground">Value</Label>
-          <Input type="number" step="0.01" value={value} onChange={(e) => setValue(e.target.value)} placeholder="0" />
-        </div>
-        <div>
-          <Label className="text-[11px] text-muted-foreground">Unit</Label>
-          <Select value={unit} onValueChange={(v) => setUnit(v as Unit)}>
+          <Select value={exercise} onValueChange={setExercise}>
             <SelectTrigger><SelectValue /></SelectTrigger>
             <SelectContent>
-              <SelectItem value="lbs">lbs</SelectItem>
-              <SelectItem value="reps">reps</SelectItem>
-              <SelectItem value="seconds">seconds</SelectItem>
-              <SelectItem value="minutes">minutes</SelectItem>
-              <SelectItem value="yards">yards</SelectItem>
+              {usedExercises.map((e) => <SelectItem key={e} value={e}>{e}</SelectItem>)}
+              <SelectItem value="__custom__">➕ Custom…</SelectItem>
             </SelectContent>
           </Select>
+          {exercise === "__custom__" && (
+            <Input
+              className="mt-1.5"
+              value={customExercise}
+              onChange={(e) => setCustomExercise(e.target.value)}
+              placeholder={sport === "weightlifting" ? "e.g. Incline bench" : "e.g. 800m"}
+            />
+          )}
         </div>
-        <div>
-          <Label className="text-[11px] text-muted-foreground">+Weight (lbs)</Label>
-          <Input
-            type="number"
-            step="1"
-            value={addedWeight}
-            onChange={(e) => setAddedWeight(e.target.value)}
-            placeholder="0"
-            disabled={!isRepsBased}
-          />
-        </div>
-        <div className="flex items-end">
-          <Button onClick={add} style={{ backgroundColor: accent, color: "hsl(var(--background))" }}>
-            <Plus className="h-4 w-4 mr-1" />Log
-          </Button>
-        </div>
+
+        {sport === "weightlifting" ? (
+          <>
+            <div>
+              <Label className="text-[11px] text-muted-foreground">Reps</Label>
+              <Input type="number" step="1" value={reps} onChange={(e) => setReps(e.target.value)} placeholder="0" />
+            </div>
+            <div>
+              <div className="flex items-center justify-between mb-1">
+                <Label className="text-[11px] text-muted-foreground">Weight (optional for bodyweight reps)</Label>
+                <div className="inline-flex rounded-full border border-border p-0.5 text-[10px] font-semibold">
+                  {(["lbs", "kg"] as WeightUnit[]).map((u) => (
+                    <button
+                      key={u}
+                      type="button"
+                      onClick={() => setWeightUnit(u)}
+                      className={cn(
+                        "px-2.5 py-0.5 rounded-full transition-colors uppercase",
+                        weightUnit === u ? "bg-primary text-primary-foreground" : "text-muted-foreground",
+                      )}
+                    >
+                      {u}
+                    </button>
+                  ))}
+                </div>
+              </div>
+              <Input type="number" step="0.5" value={weight} onChange={(e) => setWeight(e.target.value)} placeholder={`0 ${weightUnit}`} />
+            </div>
+          </>
+        ) : (
+          <>
+            <div>
+              <Label className="text-[11px] text-muted-foreground">Value</Label>
+              <Input type="number" step="0.01" value={reps} onChange={(e) => setReps(e.target.value)} placeholder="0" />
+            </div>
+            <div>
+              <Label className="text-[11px] text-muted-foreground">Unit</Label>
+              <Select value={unit} onValueChange={(v) => setUnit(v as Unit)}>
+                <SelectTrigger><SelectValue /></SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="seconds">seconds</SelectItem>
+                  <SelectItem value="minutes">minutes</SelectItem>
+                  <SelectItem value="yards">yards</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+          </>
+        )}
+
+        <Button onClick={add} className="w-full" style={{ backgroundColor: meta.accent, color: "hsl(var(--background))" }}>
+          <Plus className="h-4 w-4 mr-1" /> Log workout
+        </Button>
       </div>
 
+      {/* PRs */}
       <div>
         <h3 className="text-sm font-semibold mb-3 flex items-center gap-2">
-          <Trophy className="h-4 w-4" style={{ color: accent }} /> All-time PRs
+          <Trophy className="h-4 w-4" style={{ color: meta.accent }} /> All-time PRs
         </h3>
         {prs.length === 0 ? (
           <div className="text-sm text-muted-foreground rounded-lg border border-dashed border-border p-6 text-center">
@@ -381,11 +356,14 @@ const SportPanel = ({
             {prs.map((pr) => (
               <div key={pr.id} className="rounded-xl border border-border bg-card p-4">
                 <div className="text-xs text-muted-foreground">{pr.exercise}</div>
-                <div className="text-2xl font-bold mt-1" style={{ color: accent }}>
+                <div className="text-2xl font-bold mt-1" style={{ color: meta.accent }}>
                   {pr.value} <span className="text-sm font-normal text-muted-foreground">{pr.unit}</span>
                 </div>
+                {pr.addedWeight ? (
+                  <div className="text-[10px] text-muted-foreground">+{pr.addedWeight.toFixed(0)} lbs added</div>
+                ) : null}
                 <div className="text-[10px] text-muted-foreground mt-1">
-                  {new Date(pr.date).toLocaleDateString()}
+                  {new Date(pr.loggedAt).toLocaleDateString()}
                 </div>
               </div>
             ))}
@@ -393,12 +371,12 @@ const SportPanel = ({
         )}
       </div>
 
-      {exercises.map((ex) => {
+      {/* History per-exercise */}
+      {Array.from(new Set(entries.map((e) => e.exercise))).map((ex) => {
         const data = entries
           .filter((e) => e.exercise === ex)
-          .sort((a, b) => a.date.localeCompare(b.date))
           .map((e) => ({
-            date: new Date(e.date).toLocaleDateString(undefined, { month: "short", day: "numeric" }),
+            date: new Date(e.loggedAt).toLocaleDateString(undefined, { month: "short", day: "numeric" }),
             value: e.value,
             id: e.id,
             isPR: e.isPR,
@@ -417,26 +395,11 @@ const SportPanel = ({
                   <CartesianGrid strokeDasharray="3 3" stroke="hsl(var(--border))" />
                   <XAxis dataKey="date" stroke="hsl(var(--muted-foreground))" fontSize={11} />
                   <YAxis stroke="hsl(var(--muted-foreground))" fontSize={11} />
-                  <Tooltip
-                    contentStyle={{
-                      backgroundColor: "hsl(var(--popover))",
-                      border: "1px solid hsl(var(--border))",
-                      borderRadius: 8,
-                      fontSize: 12,
-                    }}
-                  />
-                  <Line
-                    type="monotone"
-                    dataKey="value"
-                    stroke={accent}
-                    strokeWidth={2.5}
-                    dot={{ r: 4, fill: accent }}
-                    activeDot={{ r: 6 }}
-                  />
+                  <Tooltip contentStyle={{ backgroundColor: "hsl(var(--popover))", border: "1px solid hsl(var(--border))", borderRadius: 8, fontSize: 12 }} />
+                  <Line type="monotone" dataKey="value" stroke={meta.accent} strokeWidth={2.5} dot={{ r: 4, fill: meta.accent }} activeDot={{ r: 6 }} />
                 </LineChart>
               </ResponsiveContainer>
             </div>
-
             <div className="mt-3 space-y-1">
               <AnimatePresence initial={false}>
                 {entries
@@ -450,50 +413,24 @@ const SportPanel = ({
                       initial={{ opacity: 0 }}
                       animate={{ opacity: 1 }}
                       exit={{ opacity: 0 }}
-                      className={cn(
-                        "flex flex-col gap-1 text-xs px-3 py-2 rounded-md group",
-                        e.isPR && "bg-accent"
-                      )}
+                      className={cn("flex items-center gap-2 text-xs px-3 py-2 rounded-md group", e.isPR && "bg-accent")}
                     >
-                      <div className="flex items-center justify-between gap-2">
-                        <div className="flex items-center gap-2 min-w-0">
-                          {e.grade && <GradeBadge grade={e.grade} />}
-                          {e.isPR && <Trophy className="h-3 w-3 flex-shrink-0" style={{ color: accent }} />}
-                          <span className="font-medium">
-                            {e.value} {e.unit}
-                            {e.addedWeight ? ` +${e.addedWeight}lb` : ""}
-                          </span>
-                          {e.isPR && (
-                            <span className="text-[10px] uppercase font-bold tracking-wider" style={{ color: accent }}>
-                              PR
-                            </span>
-                          )}
-                          {e.xp !== undefined && (
-                            <span className="text-[10px] text-muted-foreground tabular-nums">
-                              +{e.xp}{e.isPR ? "+50" : ""} XP
-                            </span>
-                          )}
-                        </div>
-                        <div className="flex items-center gap-2 flex-shrink-0">
-                          <span className="text-muted-foreground">
-                            {new Date(e.date).toLocaleDateString()}
-                          </span>
-                          <button
-                            onClick={() => remove(e.id)}
-                            className="opacity-0 group-hover:opacity-100 text-muted-foreground hover:text-destructive"
-                          >
-                            <Trash2 className="h-3 w-3" />
-                          </button>
-                        </div>
-                      </div>
-                      {(e.note || e.breakdown) && (
-                        <div className="text-[10px] text-muted-foreground flex items-center gap-2 flex-wrap pl-1">
-                          {e.note && <span>{e.note}</span>}
-                          {e.breakdown && (
-                            <span className="text-muted-foreground/70">· {e.breakdown}</span>
-                          )}
-                        </div>
-                      )}
+                      {e.grade && <GradeBadge grade={e.grade} />}
+                      {e.isPR && <Trophy className="h-3 w-3 flex-shrink-0" style={{ color: meta.accent }} />}
+                      <span className="font-medium">
+                        {e.value} {e.unit}
+                        {e.addedWeight ? ` +${e.addedWeight.toFixed(0)}lb` : ""}
+                      </span>
+                      {e.xp !== undefined && <span className="text-muted-foreground">· +{e.xp} XP</span>}
+                      <span className="ml-auto text-muted-foreground">
+                        {new Date(e.loggedAt).toLocaleDateString()}
+                      </span>
+                      <button
+                        onClick={() => remove(e.id)}
+                        className="opacity-0 group-hover:opacity-100 text-muted-foreground hover:text-destructive"
+                      >
+                        <Trash2 className="h-3 w-3" />
+                      </button>
                     </motion.div>
                   ))}
               </AnimatePresence>
@@ -505,103 +442,142 @@ const SportPanel = ({
   );
 };
 
+// ---------- Page ----------
 const Workouts = () => {
-  const { xp, rank, nextRank, history, addXp } = useRankSystem();
-  const [rankUp, setRankUp] = useState<Rank | null>(null);
-  const [profile, setProfile] = useLocalStorage<AthleteProfile | null>("athlete:profile", null);
+  const { user } = useAuth();
+  const [sport, setSport] = useState<Sport>("weightlifting");
+  const [lifting, setLifting] = useState<Entry[]>([]);
+  const [running, setRunning] = useState<Entry[]>([]);
+  const [profile, setProfile] = useState<AthleteProfile | null>(null);
   const [profileOpen, setProfileOpen] = useState(false);
-  const [football] = useLocalStorage<Entry[]>("workouts:football", []);
-  const [track] = useLocalStorage<Entry[]>("workouts:track", []);
+  const [xp, setXp] = useState(0);
+  const [currentMonth, setCurrentMonth] = useState<string>(monthKey());
+  const [rankUp, setRankUp] = useState<Rank | null>(null);
+  const [weightUnit, setWeightUnitState] = useState<WeightUnit>("lbs");
 
-  const overallGrade = useMemo(() => {
-    const recent = [...football, ...track]
-      .filter((e) => e.grade)
-      .sort((a, b) => b.date.localeCompare(a.date))
-      .slice(0, 20)
-      .map((e) => e.grade!) as Grade[];
-    return averageGrade(recent);
-  }, [football, track]);
+  const reloadLifting = async () => { if (user) setLifting(await fetchEntries(user.id, "weightlifting")); };
+  const reloadRunning = async () => { if (user) setRunning(await fetchEntries(user.id, "running")); };
 
-  // SportPanel calls onLog() once per workout, plus onPR() if it was a PR.
-  const onLog = (xpEarned: number) => {
-    const result = addXp(xpEarned);
-    toast("💪 Workout logged", { description: `+${xpEarned} XP earned`, duration: 2200 });
-    if (result.rankedUp) setTimeout(() => setRankUp(result.newRank), 600);
+  useEffect(() => {
+    if (!user) return;
+    (async () => {
+      const [p, stats, prefs] = await Promise.all([
+        fetchAthleteProfile(user.id),
+        fetchUserStats(user.id),
+        fetchPrefs(user.id),
+      ]);
+      setProfile(p);
+      setXp(stats.xp);
+      setCurrentMonth(stats.currentMonth);
+      setWeightUnitState(prefs.weight_unit);
+      await reloadLifting();
+      await reloadRunning();
+
+      // Monthly rollover
+      const cur = monthKey();
+      if (stats.currentMonth !== cur) {
+        const prevRank = getRank(stats.xp);
+        await insertRankHistory(user.id, {
+          monthKey: stats.currentMonth,
+          monthName: new Date(stats.currentMonth + "-01").toLocaleDateString(undefined, { month: "long", year: "numeric" }),
+          finalXp: stats.xp,
+          highestRankName: prevRank.name,
+          highestRankIcon: prevRank.icon,
+        });
+        await saveUserStats(user.id, 0, cur);
+        setXp(0);
+        setCurrentMonth(cur);
+        toast.success("New month, fresh start!", {
+          description: `Last month you were ${prevRank.icon} ${prevRank.name} with ${stats.xp} XP.`,
+        });
+      }
+    })();
+  }, [user?.id]);
+
+  const setWeightUnit = (u: WeightUnit) => {
+    setWeightUnitState(u);
+    if (user) savePrefs(user.id, { weight_unit: u });
   };
-  const onPR = () => {
-    const result = addXp(50, { isPR: true });
-    toast.success("🏆 New PR! +50 XP bonus", { duration: 4000 });
-    if (result.rankedUp) setTimeout(() => setRankUp(result.newRank), 600);
+
+  const saveProfile = async (p: AthleteProfile) => {
+    if (!user) return;
+    await saveAthleteProfile(user.id, p);
+    setProfile(p);
   };
+
+  const addXp = async (amount: number) => {
+    if (!user) return null;
+    const before = xp;
+    const after = before + amount;
+    const beforeRank = getRank(before);
+    const afterRank = getRank(after);
+    setXp(after);
+    await saveUserStats(user.id, after, currentMonth);
+    if (beforeRank.name !== afterRank.name) {
+      setRankUp(afterRank);
+      return { rankedUp: true, newRank: afterRank };
+    }
+    return { rankedUp: false, newRank: afterRank };
+  };
+
+  const addPRBonus = async (_xp: number) => {
+    await addXp(XP_PR_BONUS);
+  };
+
+  const rank = getRank(xp);
+  const next = getNextRank(xp);
 
   return (
     <div className="p-6 md:p-10 max-w-5xl mx-auto">
-      <header className="mb-6 flex items-start justify-between gap-4">
+      <header className="flex items-start justify-between gap-4 mb-6 flex-wrap">
         <div>
-          <p className="text-xs uppercase tracking-widest text-muted-foreground">Performance</p>
-          <h1 className="text-3xl font-bold mt-1">Workouts &amp; PRs</h1>
+          <p className="text-xs uppercase tracking-widest text-muted-foreground">Workouts</p>
+          <h1 className="text-3xl font-bold mt-1">Train. Log. Level up.</h1>
         </div>
         <Button variant="outline" size="sm" onClick={() => setProfileOpen(true)}>
           <User className="h-4 w-4 mr-1.5" />
-          {profile ? "Edit profile" : "Set up profile"}
+          {profile ? `Profile (${profile.weightLbs}lb)` : "Setup profile"}
         </Button>
       </header>
 
-      {!profile && (
-        <div className="rounded-xl border border-dashed border-primary/40 bg-primary/5 p-4 mb-6 flex items-center gap-3 flex-wrap">
-          <User className="h-5 w-5 text-primary" />
-          <div className="flex-1 min-w-[200px]">
-            <div className="text-sm font-semibold">Set up your athlete profile</div>
-            <div className="text-xs text-muted-foreground">Get age- and bodyweight-adjusted grades on every log.</div>
-          </div>
-          <Button size="sm" onClick={() => setProfileOpen(true)}>Set up</Button>
-        </div>
-      )}
+      <RankCard rank={rank} xp={xp} next={next} />
 
-      {profile && overallGrade && (
-        <div className="rounded-xl border border-border bg-card p-4 mb-6 flex items-center gap-4">
-          <div
-            className="h-14 w-14 rounded-xl flex items-center justify-center text-2xl font-black"
-            style={{ background: gradeColor(overallGrade), color: "hsl(var(--background))" }}
-          >
-            {overallGrade}
-          </div>
-          <div>
-            <div className="text-[11px] uppercase tracking-widest text-muted-foreground">Overall athletic grade</div>
-            <div className="text-lg font-bold">Across last 20 logs</div>
-            <div className="text-xs text-muted-foreground">
-              Age {profile.age} · {profile.weightLbs}lb · {profile.gender}
-            </div>
-          </div>
-        </div>
-      )}
-
-      <RankCard rank={rank} xp={xp} next={nextRank} />
-      {history.length > 0 && <LastMonthCard entry={history[0]} />}
-
-      <Tabs defaultValue="football">
-        <TabsList className="mb-6">
-          <TabsTrigger value="football" className="data-[state=active]:bg-sports data-[state=active]:text-background">
-            🏈 Football
-          </TabsTrigger>
-          <TabsTrigger value="track" className="data-[state=active]:bg-coding data-[state=active]:text-background">
-            🏃 Track
-          </TabsTrigger>
+      <Tabs value={sport} onValueChange={(v) => setSport(v as Sport)}>
+        <TabsList className="grid grid-cols-2 w-full mb-6">
+          <TabsTrigger value="weightlifting">🏋️ Weightlifting</TabsTrigger>
+          <TabsTrigger value="running">🏃 Running</TabsTrigger>
         </TabsList>
-        <TabsContent value="football"><SportPanel sport="football" onLog={onLog} onPR={onPR} profile={profile} /></TabsContent>
-        <TabsContent value="track"><SportPanel sport="track" onLog={onLog} onPR={onPR} profile={profile} /></TabsContent>
+        <TabsContent value="weightlifting">
+          <SportPanel
+            sport="weightlifting"
+            entries={lifting}
+            reload={reloadLifting}
+            onLog={addXp}
+            onPR={addPRBonus}
+            profile={profile}
+            weightUnit={weightUnit}
+            setWeightUnit={setWeightUnit}
+          />
+        </TabsContent>
+        <TabsContent value="running">
+          <SportPanel
+            sport="running"
+            entries={running}
+            reload={reloadRunning}
+            onLog={addXp}
+            onPR={addPRBonus}
+            profile={profile}
+            weightUnit={weightUnit}
+            setWeightUnit={setWeightUnit}
+          />
+        </TabsContent>
       </Tabs>
+
+      <ProfileDialog open={profileOpen} onOpenChange={setProfileOpen} profile={profile} onSave={saveProfile} />
 
       <AnimatePresence>
         {rankUp && <RankUpBanner rank={rankUp} onDone={() => setRankUp(null)} />}
       </AnimatePresence>
-
-      <ProfileDialog
-        open={profileOpen}
-        onOpenChange={setProfileOpen}
-        profile={profile}
-        onSave={setProfile}
-      />
     </div>
   );
 };

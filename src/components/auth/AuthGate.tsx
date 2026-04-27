@@ -12,7 +12,7 @@ import { useToast } from "@/hooks/use-toast";
 const FullScreenLoader = () => (
   <div className="min-h-screen w-full bg-background text-foreground flex items-center justify-center">
     <div className="flex flex-col items-center gap-4">
-      <div className="h-12 w-12 rounded-2xl flex items-center justify-center bg-gradient-to-br from-school to-coding animate-pulse">
+      <div className="h-12 w-12 rounded-2xl flex items-center justify-center bg-gradient-to-br from-school to-sports animate-pulse">
         <Sparkles className="h-6 w-6" style={{ color: "hsl(var(--background))" }} />
       </div>
       <div className="text-sm text-muted-foreground">Loading your stack…</div>

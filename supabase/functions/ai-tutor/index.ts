@@ -36,12 +36,25 @@ After your text answer, if (and only if) a visual diagram would genuinely help, 
 Rules for the visual:
 - Use ONLY plain SVG (no scripts, no external resources, no foreign objects).
 - Use viewBox="0 0 400 300" or similar; keep it under 500x400.
-- Use these CSS color variables for theming where possible: stroke="currentColor" or fill="currentColor", or hex colors that work on both light and dark backgrounds (use semi-transparent fills).
-- Use white/light strokes (#e5e7eb) and colored fills (#3b82f6 for primary, #22c55e for green, #f97316 for orange, #ef4444 for red).
-- Add labels with <text> elements, font-family="sans-serif", font-size 12-16.
-- Examples of when to add a visual: graphing equations, force diagrams, atom models, Spanish conjugation tables (use SVG with text/rect cells), maps of Georgia regions, plot mountain story structures, grammar trees.
-- Do NOT include the [VISUAL] block for simple text-only answers (greetings, definitions, encouragement).
+- Use white/light strokes (#e5e7eb) and colored fills (#3b82f6, #22c55e, #f97316, #ef4444).
+- Do NOT include the [VISUAL] block for simple text-only answers.
 - Include AT MOST ONE visual per response.`;
+
+const GRAPH_INSTRUCTION = `
+
+MATH GRAPHS (Algebra only):
+Whenever a plottable function or equation would help the student VISUALIZE the concept (linear equations, quadratics, systems of equations, inequalities, parabolas, etc.), append a single GRAPH tag on its own line AT THE END of your message:
+
+[GRAPH: y=2x+3]
+
+For multiple expressions on one graph, separate with commas:
+[GRAPH: y=x^2, y=2x+1]
+
+Rules:
+- Use standard math syntax: ^ for powers, * for multiplication (can omit), y=, x=, or equations like x^2+y^2=25.
+- Only include [GRAPH:] when the equation is actually plottable (skip for pure arithmetic, fractions, word problems without a function).
+- Do NOT use [GRAPH:] and [VISUAL] together — prefer [GRAPH:] for Algebra functions.
+- Include AT MOST ONE [GRAPH:] per response.`;
 
 const DEEP_SEARCH_INSTRUCTION = `
 
@@ -103,6 +116,7 @@ serve(async (req) => {
         customLabel || subject
       }. Keep explanations clear and encouraging. Break things down step-by-step, use simple analogies, and check for understanding.`;
     let systemPrompt = basePrompt + MATH_INSTRUCTION + VISUAL_INSTRUCTION;
+    if (subject === "algebra") systemPrompt += GRAPH_INSTRUCTION;
 
     if (mode === "practice") {
       systemPrompt +=

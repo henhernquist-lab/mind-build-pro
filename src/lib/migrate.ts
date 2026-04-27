@@ -52,7 +52,7 @@ export const collectLocalSnapshot = (): LocalSnapshot => {
     if (recRaw) {
       try { recurring.push(...JSON.parse(recRaw)); } catch {}
     }
-    for (const sport of ["football", "track"]) {
+    for (const sport of ["football", "track", "weightlifting", "running"]) {
       const raw = localStorage.getItem(`workouts:${sport}`);
       if (raw) {
         try { workouts.push({ sport, entries: JSON.parse(raw) }); } catch {}

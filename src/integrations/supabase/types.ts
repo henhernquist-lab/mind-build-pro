@@ -80,6 +80,36 @@ export type Database = {
         }
         Relationships: []
       }
+      planner_labels: {
+        Row: {
+          category: string
+          created_at: string
+          id: string
+          name: string
+          sort_order: number
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          category?: string
+          created_at?: string
+          id?: string
+          name: string
+          sort_order?: number
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          category?: string
+          created_at?: string
+          id?: string
+          name?: string
+          sort_order?: number
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       planner_overrides: {
         Row: {
           category: string | null
@@ -229,6 +259,42 @@ export type Database = {
         }
         Relationships: []
       }
+      saved_chats: {
+        Row: {
+          created_at: string
+          id: string
+          messages: Json
+          subject_color: string
+          subject_emoji: string
+          subject_id: string
+          subject_label: string
+          title: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          messages?: Json
+          subject_color?: string
+          subject_emoji?: string
+          subject_id: string
+          subject_label: string
+          title?: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          messages?: Json
+          subject_color?: string
+          subject_emoji?: string
+          subject_id?: string
+          subject_label?: string
+          title?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       subjects: {
         Row: {
           color: string
@@ -267,19 +333,28 @@ export type Database = {
       }
       user_preferences: {
         Row: {
+          first_name: string | null
           theme: string
           updated_at: string
           user_id: string
+          videos_enabled: boolean
+          weight_unit: string
         }
         Insert: {
+          first_name?: string | null
           theme?: string
           updated_at?: string
           user_id: string
+          videos_enabled?: boolean
+          weight_unit?: string
         }
         Update: {
+          first_name?: string | null
           theme?: string
           updated_at?: string
           user_id?: string
+          videos_enabled?: boolean
+          weight_unit?: string
         }
         Relationships: []
       }

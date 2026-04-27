@@ -20,10 +20,17 @@ export type GradedResult = {
 };
 
 export type Unit = "lbs" | "reps" | "seconds" | "minutes" | "yards";
+export type WeightUnit = "lbs" | "kg";
+
+export const KG_TO_LBS = 2.205;
+export const toLbs = (value: number, unit: WeightUnit) =>
+  unit === "kg" ? value * KG_TO_LBS : value;
+export const fromLbs = (valueLbs: number, unit: WeightUnit) =>
+  unit === "kg" ? valueLbs / KG_TO_LBS : valueLbs;
 
 const GRADE_COLORS: Record<Grade, string> = {
-  "A+": "hsl(var(--coding))",
-  "A":  "hsl(var(--coding))",
+  "A+": "hsl(142 71% 45%)",
+  "A":  "hsl(142 71% 45%)",
   "B":  "hsl(var(--school))",
   "C":  "hsl(45 90% 55%)",
   "D":  "hsl(21 90% 54%)",
