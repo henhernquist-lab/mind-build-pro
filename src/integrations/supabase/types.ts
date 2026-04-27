@@ -14,7 +14,347 @@ export type Database = {
   }
   public: {
     Tables: {
-      [_ in never]: never
+      athlete_profile: {
+        Row: {
+          age: number
+          gender: string
+          height_ft: number
+          height_in: number
+          updated_at: string
+          user_id: string
+          weight_lbs: number
+        }
+        Insert: {
+          age?: number
+          gender?: string
+          height_ft?: number
+          height_in?: number
+          updated_at?: string
+          user_id: string
+          weight_lbs?: number
+        }
+        Update: {
+          age?: number
+          gender?: string
+          height_ft?: number
+          height_in?: number
+          updated_at?: string
+          user_id?: string
+          weight_lbs?: number
+        }
+        Relationships: []
+      }
+      planner_blocks: {
+        Row: {
+          category: string
+          created_at: string
+          date: string
+          end_time: string
+          id: string
+          label: string
+          start_time: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          category?: string
+          created_at?: string
+          date: string
+          end_time: string
+          id?: string
+          label?: string
+          start_time: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          category?: string
+          created_at?: string
+          date?: string
+          end_time?: string
+          id?: string
+          label?: string
+          start_time?: string
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
+      planner_overrides: {
+        Row: {
+          category: string | null
+          created_at: string
+          date: string
+          end_time: string | null
+          id: string
+          label: string | null
+          override_type: string
+          recurring_id: string
+          start_time: string | null
+          user_id: string
+        }
+        Insert: {
+          category?: string | null
+          created_at?: string
+          date: string
+          end_time?: string | null
+          id?: string
+          label?: string | null
+          override_type: string
+          recurring_id: string
+          start_time?: string | null
+          user_id: string
+        }
+        Update: {
+          category?: string | null
+          created_at?: string
+          date?: string
+          end_time?: string | null
+          id?: string
+          label?: string | null
+          override_type?: string
+          recurring_id?: string
+          start_time?: string | null
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "planner_overrides_recurring_id_fkey"
+            columns: ["recurring_id"]
+            isOneToOne: false
+            referencedRelation: "planner_recurring"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      planner_recurring: {
+        Row: {
+          category: string
+          created_at: string
+          end_date: string | null
+          end_time: string
+          id: string
+          label: string
+          rule: Json
+          start_date: string
+          start_time: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          category?: string
+          created_at?: string
+          end_date?: string | null
+          end_time: string
+          id?: string
+          label?: string
+          rule?: Json
+          start_date: string
+          start_time: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          category?: string
+          created_at?: string
+          end_date?: string | null
+          end_time?: string
+          id?: string
+          label?: string
+          rule?: Json
+          start_date?: string
+          start_time?: string
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
+      profiles: {
+        Row: {
+          avatar_url: string | null
+          created_at: string
+          display_name: string | null
+          id: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          avatar_url?: string | null
+          created_at?: string
+          display_name?: string | null
+          id?: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          avatar_url?: string | null
+          created_at?: string
+          display_name?: string | null
+          id?: string
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
+      rank_history: {
+        Row: {
+          created_at: string
+          final_xp: number
+          highest_rank_icon: string
+          highest_rank_name: string
+          id: string
+          month_key: string
+          month_name: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          final_xp: number
+          highest_rank_icon: string
+          highest_rank_name: string
+          id?: string
+          month_key: string
+          month_name: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          final_xp?: number
+          highest_rank_icon?: string
+          highest_rank_name?: string
+          id?: string
+          month_key?: string
+          month_name?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
+      subjects: {
+        Row: {
+          color: string
+          created_at: string
+          description: string | null
+          emoji: string
+          id: string
+          label: string
+          slug: string
+          sort_order: number
+          user_id: string
+        }
+        Insert: {
+          color?: string
+          created_at?: string
+          description?: string | null
+          emoji?: string
+          id?: string
+          label: string
+          slug: string
+          sort_order?: number
+          user_id: string
+        }
+        Update: {
+          color?: string
+          created_at?: string
+          description?: string | null
+          emoji?: string
+          id?: string
+          label?: string
+          slug?: string
+          sort_order?: number
+          user_id?: string
+        }
+        Relationships: []
+      }
+      user_preferences: {
+        Row: {
+          theme: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          theme?: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          theme?: string
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
+      user_stats: {
+        Row: {
+          current_month: string
+          updated_at: string
+          user_id: string
+          xp: number
+        }
+        Insert: {
+          current_month?: string
+          updated_at?: string
+          user_id: string
+          xp?: number
+        }
+        Update: {
+          current_month?: string
+          updated_at?: string
+          user_id?: string
+          xp?: number
+        }
+        Relationships: []
+      }
+      workout_logs: {
+        Row: {
+          added_weight: number | null
+          breakdown: string | null
+          created_at: string
+          exercise: string
+          grade: string | null
+          id: string
+          is_pr: boolean | null
+          logged_at: string
+          note: string | null
+          sport: string
+          unit: string
+          user_id: string
+          value: number
+          xp: number | null
+        }
+        Insert: {
+          added_weight?: number | null
+          breakdown?: string | null
+          created_at?: string
+          exercise: string
+          grade?: string | null
+          id?: string
+          is_pr?: boolean | null
+          logged_at?: string
+          note?: string | null
+          sport: string
+          unit: string
+          user_id: string
+          value: number
+          xp?: number | null
+        }
+        Update: {
+          added_weight?: number | null
+          breakdown?: string | null
+          created_at?: string
+          exercise?: string
+          grade?: string | null
+          id?: string
+          is_pr?: boolean | null
+          logged_at?: string
+          note?: string | null
+          sport?: string
+          unit?: string
+          user_id?: string
+          value?: number
+          xp?: number | null
+        }
+        Relationships: []
+      }
     }
     Views: {
       [_ in never]: never

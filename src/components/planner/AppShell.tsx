@@ -1,13 +1,14 @@
 import { NavLink, Outlet, useLocation } from "react-router-dom";
-import { Calendar, BookOpen, Dumbbell, Brain, Sparkles } from "lucide-react";
-import { motion, AnimatePresence } from "framer-motion";
+import { Calendar, Dumbbell, Brain, Sparkles, LogOut } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { ThemeSwitcher } from "@/components/ThemeSwitcher";
 import { useTheme } from "@/lib/themes";
+import { useAuth } from "@/lib/auth";
+import { Button } from "@/components/ui/button";
+import { SwipeNav } from "@/components/SwipeNav";
 
 const NAV = [
   { to: "/", label: "Daily Planner", icon: Calendar, accent: "school" },
-  { to: "/homework", label: "Homework", icon: BookOpen, accent: "school" },
   { to: "/workouts", label: "Workouts", icon: Dumbbell, accent: "sports" },
   { to: "/tutor", label: "AI Tutor", icon: Brain, accent: "coding" },
 ] as const;
@@ -17,19 +18,31 @@ const accentColor = (a: string) =>
 
 export const AppShell = () => {
   const location = useLocation();
-  // Initialize theme on mount
   useTheme();
+  const { user, profile, signOut } = useAuth();
+  const displayName = profile?.display_name || user?.email?.split("@")[0] || "You";
+  const initials = displayName.slice(0, 2).toUpperCase();
+  const avatarUrl = profile?.avatar_url;
   return (
     <div className="flex min-h-screen w-full bg-background text-foreground">
       <aside className="hidden md:flex w-60 flex-col border-r border-sidebar-border bg-sidebar">
-        <div className="p-5 flex items-center gap-2">
-          <div className="h-9 w-9 rounded-xl flex items-center justify-center bg-gradient-to-br from-school to-coding">
-            <Sparkles className="h-5 w-5 text-background" />
+        <div className="p-5 flex items-center gap-2 justify-between">
+          <div className="flex items-center gap-2 min-w-0">
+            <div className="h-9 w-9 rounded-xl flex items-center justify-center bg-gradient-to-br from-school to-coding flex-shrink-0">
+              <Sparkles className="h-5 w-5" style={{ color: "hsl(var(--background))" }} />
+            </div>
+            <div className="min-w-0">
+              <div className="text-sm font-semibold leading-tight">LifeStack</div>
+              <div className="text-[11px] text-muted-foreground truncate">{user?.email}</div>
+            </div>
           </div>
-          <div>
-            <div className="text-sm font-semibold leading-tight">LifeStack</div>
-            <div className="text-[11px] text-muted-foreground">8th grade · athlete · coder</div>
-          </div>
+          {avatarUrl ? (
+            <img src={avatarUrl} alt={displayName} className="h-8 w-8 rounded-full flex-shrink-0" />
+          ) : (
+            <div className="h-8 w-8 rounded-full bg-primary text-primary-foreground text-xs font-bold flex items-center justify-center flex-shrink-0">
+              {initials}
+            </div>
+          )}
         </div>
         <nav className="px-3 flex-1 space-y-1">
           {NAV.map((item) => (
@@ -62,8 +75,11 @@ export const AppShell = () => {
             </NavLink>
           ))}
         </nav>
-        <div className="p-4 text-[11px] text-muted-foreground border-t border-sidebar-border">
-          Stack the days. Win the year.
+        <div className="p-3 border-t border-sidebar-border space-y-2">
+          <Button variant="ghost" size="sm" onClick={signOut} className="w-full justify-start">
+            <LogOut className="h-4 w-4 mr-2" /> Sign out
+          </Button>
+          <div className="px-2 text-[11px] text-muted-foreground">Stack the days. Win the year.</div>
         </div>
       </aside>
 
@@ -95,21 +111,20 @@ export const AppShell = () => {
       </div>
 
       <main className="flex-1 min-w-0 pb-16 md:pb-0">
-        <div className="fixed top-3 right-3 z-40">
+        <div className="fixed top-3 right-3 z-40 flex gap-2 items-center">
           <ThemeSwitcher />
-        </div>
-        <AnimatePresence mode="wait">
-          <motion.div
-            key={location.pathname}
-            initial={{ opacity: 0, y: 8 }}
-            animate={{ opacity: 1, y: 0 }}
-            exit={{ opacity: 0, y: -4 }}
-            transition={{ duration: 0.22, ease: "easeOut" }}
-            className="h-full"
+          <button
+            onClick={signOut}
+            className="md:hidden h-9 w-9 rounded-full bg-card border border-border flex items-center justify-center text-xs font-bold"
+            aria-label="Sign out"
+            title={displayName}
           >
-            <Outlet />
-          </motion.div>
-        </AnimatePresence>
+            {avatarUrl ? <img src={avatarUrl} alt="" className="h-9 w-9 rounded-full" /> : initials}
+          </button>
+        </div>
+        <SwipeNav>
+          <Outlet />
+        </SwipeNav>
       </main>
     </div>
   );
