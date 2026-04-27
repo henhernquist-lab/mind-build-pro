@@ -10,11 +10,11 @@ import { SwipeNav } from "@/components/SwipeNav";
 const NAV = [
   { to: "/", label: "Daily Planner", icon: Calendar, accent: "school" },
   { to: "/workouts", label: "Workouts", icon: Dumbbell, accent: "sports" },
-  { to: "/tutor", label: "AI Tutor", icon: Brain, accent: "coding" },
+  { to: "/tutor", label: "AI Tutor", icon: Brain, accent: "primary" },
 ] as const;
 
 const accentColor = (a: string) =>
-  a === "sports" ? "hsl(var(--sports))" : a === "coding" ? "hsl(var(--coding))" : "hsl(var(--school))";
+  a === "sports" ? "hsl(var(--sports))" : a === "primary" ? "hsl(var(--primary))" : "hsl(var(--school))";
 
 export const AppShell = () => {
   const location = useLocation();
@@ -28,7 +28,7 @@ export const AppShell = () => {
       <aside className="hidden md:flex w-60 flex-col border-r border-sidebar-border bg-sidebar">
         <div className="p-5 flex items-center gap-2 justify-between">
           <div className="flex items-center gap-2 min-w-0">
-            <div className="h-9 w-9 rounded-xl flex items-center justify-center bg-gradient-to-br from-school to-coding flex-shrink-0">
+            <div className="h-9 w-9 rounded-xl flex items-center justify-center bg-gradient-to-br from-school to-sports flex-shrink-0">
               <Sparkles className="h-5 w-5" style={{ color: "hsl(var(--background))" }} />
             </div>
             <div className="min-w-0">
