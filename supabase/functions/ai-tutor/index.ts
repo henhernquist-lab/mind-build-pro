@@ -103,11 +103,54 @@ serve(async (req) => {
   }
 
   try {
-    const { subject, customLabel, messages, mode, deepSearch, videosEnabled } = await req.json();
+    const { subject, customLabel, messages, mode, deepSearch, videosEnabled, mindmap } = await req.json();
 
     const LOVABLE_API_KEY = Deno.env.get("LOVABLE_API_KEY");
     if (!LOVABLE_API_KEY) {
       throw new Error("LOVABLE_API_KEY is not configured");
+    }
+
+    // ===== MIND MAP MODE: non-streaming JSON =====
+    if (mindmap && typeof mindmap === "string") {
+      const mmPrompt = `You are an expert tutor creating a study mind map for an 8th grade student about: "${mindmap}"${
+        customLabel ? ` (subject: ${customLabel})` : ""
+      }.\n\nReturn ONLY valid JSON (no prose, no markdown fences) with this exact shape:\n{\n  "topic": "<the central topic, short>",\n  "summary": "<one-sentence overview>",\n  "branches": [\n    {\n      "title": "<key concept>",\n      "color": "<one of: blue, green, orange, purple, pink, cyan>",\n      "children": [\n        { "title": "<sub-idea>", "detail": "<one short clarifying line>" }\n      ]\n    }\n  ]\n}\n\nRules:\n- 4 to 6 branches.\n- Each branch has 2 to 4 children.\n- Keep titles under 5 words; details under 12 words.\n- Vary the colors across branches.\n- Output JSON only. No backticks. No commentary.`;
+
+      const mmResp = await fetch(
+        "https://ai.gateway.lovable.dev/v1/chat/completions",
+        {
+          method: "POST",
+          headers: {
+            Authorization: `Bearer ${LOVABLE_API_KEY}`,
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({
+            model: "google/gemini-2.5-flash",
+            messages: [
+              { role: "system", content: "You output strict JSON only." },
+              { role: "user", content: mmPrompt },
+            ],
+            response_format: { type: "json_object" },
+          }),
+        }
+      );
+      if (!mmResp.ok) {
+        const t = await mmResp.text();
+        return new Response(JSON.stringify({ error: "Mind map failed", detail: t }), {
+          status: mmResp.status,
+          headers: { ...corsHeaders, "Content-Type": "application/json" },
+        });
+      }
+      const data = await mmResp.json();
+      const raw = data.choices?.[0]?.message?.content ?? "{}";
+      let json: any = {};
+      try { json = JSON.parse(raw); } catch {
+        const m = raw.match(/\{[\s\S]*\}/);
+        if (m) { try { json = JSON.parse(m[0]); } catch {} }
+      }
+      return new Response(JSON.stringify(json), {
+        headers: { ...corsHeaders, "Content-Type": "application/json" },
+      });
     }
 
     const basePrompt =
