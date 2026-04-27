@@ -1,5 +1,5 @@
-import { useEffect } from "react";
-import { useLocalStorage } from "@/lib/storage";
+import { useEffect, useState } from "react";
+import { supabase } from "@/integrations/supabase/client";
 
 export type ThemeId = "midnight" | "neon" | "forest" | "solar" | "arctic";
 
@@ -43,12 +43,58 @@ export const THEMES: Theme[] = [
   },
 ];
 
-export const useTheme = () => {
-  const [theme, setTheme] = useLocalStorage<ThemeId>("app:theme", "midnight");
+const KEY = "app:theme";
+const VALID: ThemeId[] = ["midnight", "neon", "forest", "solar", "arctic"];
+const isValid = (v: string | null): v is ThemeId => !!v && (VALID as string[]).includes(v);
 
+const readLocal = (): ThemeId => {
+  try {
+    const raw = localStorage.getItem(KEY);
+    if (!raw) return "midnight";
+    const parsed = JSON.parse(raw);
+    return isValid(parsed) ? parsed : "midnight";
+  } catch {
+    return "midnight";
+  }
+};
+
+export const useTheme = () => {
+  const [theme, setThemeState] = useState<ThemeId>(readLocal);
+
+  // Apply to <html>
   useEffect(() => {
     document.documentElement.setAttribute("data-theme", theme);
+    try { localStorage.setItem(KEY, JSON.stringify(theme)); } catch {}
   }, [theme]);
+
+  // Pull from DB on mount if signed in
+  useEffect(() => {
+    let cancelled = false;
+    (async () => {
+      const { data: { user } } = await supabase.auth.getUser();
+      if (!user || cancelled) return;
+      const { data } = await supabase
+        .from("user_preferences")
+        .select("theme")
+        .eq("user_id", user.id)
+        .maybeSingle();
+      if (cancelled) return;
+      if (data?.theme && isValid(data.theme)) {
+        setThemeState(data.theme);
+      }
+    })();
+    return () => { cancelled = true; };
+  }, []);
+
+  const setTheme = (t: ThemeId) => {
+    setThemeState(t);
+    // Fire-and-forget DB sync
+    (async () => {
+      const { data: { user } } = await supabase.auth.getUser();
+      if (!user) return;
+      await supabase.from("user_preferences").upsert({ user_id: user.id, theme: t });
+    })();
+  };
 
   return { theme, setTheme };
 };
