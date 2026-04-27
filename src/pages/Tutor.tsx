@@ -17,7 +17,7 @@ import {
 import {
   Lightbulb, RefreshCcw, Send, Sparkles, Loader2, Settings, Plus, Trash2,
   ArrowUp, ArrowDown, Globe, Eye, EyeOff, Info, ExternalLink, Bookmark,
-  BookmarkPlus, Video, History, X,
+  BookmarkPlus, Video, History, X, MessageSquare, Network, Gamepad2,
 } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import ReactMarkdown from "react-markdown";
@@ -33,6 +33,8 @@ import { fetchPrefs, savePrefs } from "@/lib/workouts";
 import { listSavedChats, saveChat, deleteSavedChat, type SavedChat } from "@/lib/savedChats";
 import { DesmosGraph } from "@/components/tutor/DesmosGraph";
 import { VideoResults } from "@/components/tutor/VideoResults";
+import { MindMap } from "@/components/tutor/MindMap";
+import { GamesPlaceholder } from "@/components/tutor/GamesPlaceholder";
 
 type Msg = { role: "user" | "assistant"; content: string };
 type Subject = { id: string; label: string; emoji: string; color: string; description?: string; slug?: string };
@@ -619,6 +621,7 @@ const Tutor = () => {
   const [viewingChat, setViewingChat] = useState<SavedChat | null>(null);
   const [saveTitleFor, setSaveTitleFor] = useState<{ messages: Msg[] } | null>(null);
   const [titleInput, setTitleInput] = useState("");
+  const [view, setView] = useState<"chat" | "mindmap" | "games">("chat");
 
   // Load subjects from Supabase (or seed defaults)
   useEffect(() => {
@@ -783,22 +786,55 @@ const Tutor = () => {
           <h1 className="text-3xl font-bold mt-1">AI Tutor</h1>
         </div>
         <div className="flex items-center gap-2 flex-wrap">
-          <div className="flex items-center gap-2 rounded-md border border-border px-2.5 py-1.5">
+          <div className={cn(
+            "flex items-center gap-2 rounded-md border border-border px-2.5 py-1.5",
+            view !== "chat" && "opacity-50"
+          )}>
             <Video className={cn("h-4 w-4", videosEnabled ? "text-primary" : "text-muted-foreground")} />
             <span className="text-xs">Include videos</span>
-            <Switch checked={videosEnabled} onCheckedChange={toggleVideos} />
+            <Switch checked={videosEnabled} onCheckedChange={toggleVideos} disabled={view !== "chat"} />
           </div>
-          <Button variant="outline" size="sm" onClick={() => setSavedOpen(true)}>
+          <Button variant="outline" size="sm" onClick={() => setSavedOpen(true)} disabled={view !== "chat"}>
             <Bookmark className="h-4 w-4 mr-1.5" /> Saved
             {savedChats.length > 0 && <span className="ml-1.5 text-[10px] bg-primary/20 text-primary rounded-full px-1.5">{savedChats.length}</span>}
           </Button>
-          <Button variant="outline" size="sm" onClick={() => setManageOpen(true)}>
+          <Button variant="outline" size="sm" onClick={() => setManageOpen(true)} disabled={view !== "chat"}>
             <Settings className="h-4 w-4 mr-1.5" /> Manage subjects
           </Button>
         </div>
       </header>
 
-      {!subjectsLoaded ? (
+      {/* Mode switcher */}
+      <div className="mb-5 inline-flex rounded-lg border border-border bg-card p-1">
+        {([
+          { id: "chat", label: "Chat", icon: MessageSquare },
+          { id: "mindmap", label: "Mind Map", icon: Network },
+          { id: "games", label: "Games", icon: Gamepad2 },
+        ] as const).map((m) => {
+          const Icon = m.icon;
+          const isActive = view === m.id;
+          return (
+            <button
+              key={m.id}
+              onClick={() => setView(m.id)}
+              className={cn(
+                "px-3 py-1.5 rounded-md text-xs font-medium flex items-center gap-1.5 transition-colors",
+                isActive
+                  ? "bg-primary text-primary-foreground"
+                  : "text-muted-foreground hover:text-foreground"
+              )}
+            >
+              <Icon className="h-3.5 w-3.5" /> {m.label}
+            </button>
+          );
+        })}
+      </div>
+
+      {view === "games" ? (
+        <GamesPlaceholder />
+      ) : view === "mindmap" ? (
+        <MindMap subjectLabel={activeSubject?.label} />
+      ) : !subjectsLoaded ? (
         <div className="text-center py-10 text-sm text-muted-foreground">Loading…</div>
       ) : viewingChat && viewSubject ? (
         <SubjectChat
