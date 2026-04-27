@@ -6,9 +6,12 @@ import { TooltipProvider } from "@/components/ui/tooltip";
 import NotFound from "./pages/NotFound.tsx";
 import { AppShell } from "@/components/planner/AppShell";
 import DailyPlanner from "./pages/DailyPlanner";
-import Homework from "./pages/Homework";
 import Workouts from "./pages/Workouts";
 import Tutor from "./pages/Tutor";
+import Auth from "./pages/Auth";
+import ResetPassword from "./pages/ResetPassword";
+import { AuthProvider } from "@/lib/auth";
+import { AuthGate } from "@/components/auth/AuthGate";
 
 const queryClient = new QueryClient();
 
@@ -18,15 +21,18 @@ const App = () => (
       <Toaster />
       <Sonner />
       <BrowserRouter>
-        <Routes>
-          <Route element={<AppShell />}>
-            <Route path="/" element={<DailyPlanner />} />
-            <Route path="/homework" element={<Homework />} />
-            <Route path="/workouts" element={<Workouts />} />
-            <Route path="/tutor" element={<Tutor />} />
-          </Route>
-          <Route path="*" element={<NotFound />} />
-        </Routes>
+        <AuthProvider>
+          <Routes>
+            <Route path="/auth" element={<Auth />} />
+            <Route path="/reset-password" element={<ResetPassword />} />
+            <Route element={<AuthGate><AppShell /></AuthGate>}>
+              <Route path="/" element={<DailyPlanner />} />
+              <Route path="/workouts" element={<Workouts />} />
+              <Route path="/tutor" element={<Tutor />} />
+            </Route>
+            <Route path="*" element={<NotFound />} />
+          </Routes>
+        </AuthProvider>
       </BrowserRouter>
     </TooltipProvider>
   </QueryClientProvider>
