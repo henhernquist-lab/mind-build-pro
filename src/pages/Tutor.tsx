@@ -17,7 +17,7 @@ import {
 import {
   Lightbulb, RefreshCcw, Send, Sparkles, Loader2, Settings, Plus, Trash2,
   ArrowUp, ArrowDown, Globe, Eye, EyeOff, Info, ExternalLink, Bookmark,
-  BookmarkPlus, Video, History, X,
+  BookmarkPlus, Video, History, X, MessageSquare, Network, Gamepad2,
 } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import ReactMarkdown from "react-markdown";
@@ -33,6 +33,8 @@ import { fetchPrefs, savePrefs } from "@/lib/workouts";
 import { listSavedChats, saveChat, deleteSavedChat, type SavedChat } from "@/lib/savedChats";
 import { DesmosGraph } from "@/components/tutor/DesmosGraph";
 import { VideoResults } from "@/components/tutor/VideoResults";
+import { MindMap } from "@/components/tutor/MindMap";
+import { GamesPlaceholder } from "@/components/tutor/GamesPlaceholder";
 
 type Msg = { role: "user" | "assistant"; content: string };
 type Subject = { id: string; label: string; emoji: string; color: string; description?: string; slug?: string };
