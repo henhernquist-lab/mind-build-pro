@@ -579,6 +579,14 @@ const Profile = () => {
           </Button>
         </div>
       </section>
+
+      {/* Academic Profile editor */}
+      <div className="mt-6">
+        <AcademicProfileSection onChanged={(p, classes) => {
+          setAcademicData({ p, classes });
+          if (typeof window !== "undefined") window.dispatchEvent(new CustomEvent("classes-changed"));
+        }} />
+      </div>
     </div>
   );
 };
