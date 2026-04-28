@@ -6,6 +6,7 @@ import { useAuth } from "@/lib/auth";
 import { toast } from "sonner";
 import { sfx } from "@/lib/sounds";
 import { showFloatingXp } from "@/components/fx/FloatingXp";
+import { recordStudyActivity, isMultiplierActive } from "@/lib/streak";
 
 export type Rank = { name: string; icon: string; xpRequired: number; color: string };
 
@@ -152,14 +153,30 @@ export const useRank = (type: RankType) => {
 
   const addXp = useCallback(async (amount: number) => {
     if (!user) return null;
+    // Apply 7-day streak XP multiplier (academic only) by checking streak row.
+    let amt = amount;
+    if (type === "academic" && amount > 0) {
+      try {
+        const { data } = await supabase
+          .from("study_streak")
+          .select("multiplier_active_until")
+          .eq("user_id", user.id)
+          .maybeSingle();
+        if (isMultiplierActive((data as any) ?? null)) {
+          amt = Math.round(amount * 1.5);
+        }
+      } catch {}
+    }
     const before = xp;
-    const after = Math.max(0, before + amount);
+    const after = Math.max(0, before + amt);
     const beforeRank = getRank(before, ranks);
     const afterRank = getRank(after, ranks);
     setXpState(after);
     await setStats(user.id, type, after, periodStart);
-    if (amount > 0) {
-      showFloatingXp(amount, { color: afterRank.color });
+    if (amt > 0) {
+      showFloatingXp(amt, { color: afterRank.color });
+      // Any positive XP counts as study activity → bumps streak
+      try { await recordStudyActivity(user.id); } catch {}
     }
     if (beforeRank.name !== afterRank.name && after > before) {
       const label = type === "athletic" ? "Athletic" : "Academic";
