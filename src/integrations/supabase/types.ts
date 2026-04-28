@@ -867,6 +867,17 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
+      get_leaderboard: {
+        Args: { _limit?: number; _rank_type: string }
+        Returns: {
+          avatar_url: string
+          display_name: string
+          period_start: string
+          user_id: string
+          username: string
+          xp: number
+        }[]
+      }
       get_public_athlete_card: {
         Args: { _username: string }
         Returns: {
