@@ -332,6 +332,108 @@ export type Database = {
         }
         Relationships: []
       }
+      lift_max_history: {
+        Row: {
+          bodyweight_lbs: number | null
+          created_at: string
+          estimated_1rm_lbs: number
+          exercise: string
+          formula_avg: number | null
+          id: string
+          reps_used: number
+          strength_grade: string | null
+          user_id: string
+          weight_used: number
+        }
+        Insert: {
+          bodyweight_lbs?: number | null
+          created_at?: string
+          estimated_1rm_lbs: number
+          exercise: string
+          formula_avg?: number | null
+          id?: string
+          reps_used: number
+          strength_grade?: string | null
+          user_id: string
+          weight_used: number
+        }
+        Update: {
+          bodyweight_lbs?: number | null
+          created_at?: string
+          estimated_1rm_lbs?: number
+          exercise?: string
+          formula_avg?: number | null
+          id?: string
+          reps_used?: number
+          strength_grade?: string | null
+          user_id?: string
+          weight_used?: number
+        }
+        Relationships: []
+      }
+      meal_logs: {
+        Row: {
+          ai_estimated: boolean
+          calories: number
+          carbs_g: number
+          created_at: string
+          description: string
+          fat_g: number
+          id: string
+          log_date: string
+          meal_type: string
+          protein_g: number
+          user_id: string
+        }
+        Insert: {
+          ai_estimated?: boolean
+          calories?: number
+          carbs_g?: number
+          created_at?: string
+          description: string
+          fat_g?: number
+          id?: string
+          log_date?: string
+          meal_type?: string
+          protein_g?: number
+          user_id: string
+        }
+        Update: {
+          ai_estimated?: boolean
+          calories?: number
+          carbs_g?: number
+          created_at?: string
+          description?: string
+          fat_g?: number
+          id?: string
+          log_date?: string
+          meal_type?: string
+          protein_g?: number
+          user_id?: string
+        }
+        Relationships: []
+      }
+      nutrition_prefs: {
+        Row: {
+          allergies: string | null
+          preferences: string | null
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          allergies?: string | null
+          preferences?: string | null
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          allergies?: string | null
+          preferences?: string | null
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       planner_blocks: {
         Row: {
           category: string
