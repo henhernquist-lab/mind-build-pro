@@ -5,18 +5,15 @@ import { ChevronLeft, ChevronRight } from "lucide-react";
 import { useIsMobile } from "@/hooks/use-mobile";
 import { cn } from "@/lib/utils";
 
-type Section = { to: string; label: string };
+type Section = { to: string; label: string; members: string[] };
 
+// 4 top-level swipeable tabs. `members` are all routes that belong to the tab —
+// swiping from any member navigates to the next tab's root.
 const SECTIONS: Section[] = [
-  { to: "/", label: "Planner" },
-  { to: "/workouts", label: "Workouts" },
-  { to: "/nutrition", label: "Nutrition" },
-  { to: "/tutor", label: "AI Tutor" },
-  { to: "/tests", label: "Tests" },
-  { to: "/vocab", label: "Vocab" },
-  { to: "/notes", label: "Notes" },
-  { to: "/games", label: "Games" },
-  { to: "/leaderboard", label: "Leaderboard" },
+  { to: "/", label: "Planner", members: ["/"] },
+  { to: "/workouts", label: "Training", members: ["/workouts", "/nutrition", "/macros"] },
+  { to: "/tutor", label: "Academic", members: ["/tutor", "/tests", "/vocab", "/notes"] },
+  { to: "/games", label: "Arcade", members: ["/games", "/leaderboard"] },
 ];
 
 const HINT_KEY = "swipe_hint_shown_v1";
@@ -28,7 +25,9 @@ export const SwipeNav = ({ children }: { children: React.ReactNode }) => {
   const [direction, setDirection] = useState<1 | -1>(1);
   const [showHint, setShowHint] = useState(false);
 
-  const idx = SECTIONS.findIndex((s) => s.to === location.pathname);
+  const idx = SECTIONS.findIndex((s) =>
+    s.members.some((m) => location.pathname === m || (m !== "/" && location.pathname.startsWith(m)))
+  );
   const currentIdx = idx === -1 ? 0 : idx;
 
   const goTo = (newIdx: number) => {

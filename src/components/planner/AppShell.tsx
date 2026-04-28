@@ -16,6 +16,7 @@ import { StreakBadge } from "@/components/academic/StreakBadge";
 import { CommandPalette, openCommandPalette } from "@/components/nav/CommandPalette";
 import { Breadcrumbs } from "@/components/nav/Breadcrumbs";
 import { MobileFab } from "@/components/nav/MobileFab";
+import { SubTabs } from "@/components/nav/SubTabs";
 import { OnboardingFlow } from "@/components/onboarding/OnboardingFlow";
 import { FocusToggle } from "@/components/focus/FocusToggle";
 import { claimDailyLoginXp } from "@/lib/streak";
@@ -27,25 +28,18 @@ type NavGroup = { id: string; label: string; icon: any; items: NavItem[] };
 
 const GROUPS: NavGroup[] = [
   {
-    id: "plan",
-    label: "Plan",
+    id: "planner",
+    label: "Planner",
     icon: Calendar,
     items: [{ to: "/", label: "Daily Planner", icon: Calendar, accent: "school" }],
   },
   {
-    id: "athletic",
-    label: "Athletic",
+    id: "training",
+    label: "Training",
     icon: Dumbbell,
     items: [
       { to: "/workouts", label: "Workouts", icon: Dumbbell, accent: "sports" },
-    ],
-  },
-  {
-    id: "nutrition",
-    label: "Nutrition",
-    icon: Utensils,
-    items: [
-      { to: "/nutrition", label: "Fuel Hub", icon: Apple, accent: "sports" },
+      { to: "/nutrition", label: "Nutrition", icon: Apple, accent: "sports" },
     ],
   },
   {
@@ -54,28 +48,28 @@ const GROUPS: NavGroup[] = [
     icon: GraduationCap,
     items: [
       { to: "/tutor", label: "AI Tutor", icon: Brain, accent: "primary" },
-      { to: "/tests", label: "Test Calendar", icon: CalendarDays, accent: "school" },
-      { to: "/vocab", label: "Vocab Builder", icon: BookText, accent: "school" },
+      { to: "/tests", label: "Tests", icon: CalendarDays, accent: "school" },
+      { to: "/vocab", label: "Vocab", icon: BookText, accent: "school" },
       { to: "/notes", label: "Notes", icon: NotebookPen, accent: "school" },
     ],
   },
   {
-    id: "games",
-    label: "Games",
+    id: "arcade",
+    label: "Arcade",
     icon: Gamepad2,
     items: [
-      { to: "/games", label: "All Games", icon: Gamepad2, accent: "primary" },
+      { to: "/games", label: "Games", icon: Gamepad2, accent: "primary" },
       { to: "/leaderboard", label: "Leaderboard", icon: Trophy, accent: "primary" },
     ],
   },
 ];
 
-// Trimmed mobile bottom nav — only the 4 most-used routes
+// Mobile bottom nav — one entry per top-level swipeable tab
 const MOBILE_NAV: NavItem[] = [
-  { to: "/", label: "Plan", icon: Calendar, accent: "school" },
-  { to: "/workouts", label: "Workouts", icon: Dumbbell, accent: "sports" },
-  { to: "/tutor", label: "Tutor", icon: Brain, accent: "primary" },
-  { to: "/games", label: "Games", icon: Gamepad2, accent: "primary" },
+  { to: "/", label: "Planner", icon: Calendar, accent: "school" },
+  { to: "/workouts", label: "Training", icon: Dumbbell, accent: "sports" },
+  { to: "/tutor", label: "Academic", icon: Brain, accent: "primary" },
+  { to: "/games", label: "Arcade", icon: Gamepad2, accent: "primary" },
 ];
 
 const accentColor = (a: string) =>
@@ -121,11 +115,10 @@ export const AppShell = () => {
   // Group expand/collapse state — auto-expand the group containing current route
   const activeGroup = GROUPS.find((g) => g.items.some((i) => location.pathname === i.to || (i.to !== "/" && location.pathname.startsWith(i.to))))?.id;
   const [openGroups, setOpenGroups] = useState<Record<string, boolean>>({
-    plan: true,
-    athletic: true,
-    nutrition: true,
+    planner: true,
+    training: true,
     academic: true,
-    games: true,
+    arcade: true,
   });
   const toggleGroup = (id: string) => setOpenGroups((s) => ({ ...s, [id]: !s[id] }));
 
@@ -294,6 +287,7 @@ export const AppShell = () => {
         </div>
         <Breadcrumbs />
         <SwipeNav>
+          <SubTabs />
           <PageTransition>
             <Outlet />
           </PageTransition>
