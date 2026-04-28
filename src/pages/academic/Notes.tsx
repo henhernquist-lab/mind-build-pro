@@ -116,7 +116,7 @@ export default function Notes() {
         await supabase.from("study_notes").update({ ai_summary: out }).eq("id", active.id);
         updateActive({ ai_summary: out });
       }
-      sfx.xpGain();
+      sfx.xp();
       await academic.addXp(2);
     } catch (e: any) {
       toast.error(e.message || "AI failed");

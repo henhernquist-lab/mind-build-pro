@@ -117,7 +117,7 @@ export default function TestCalendar() {
       });
       if (error) throw error;
       setPlan((p) => ({ ...p, [t.id]: (data as any)?.plan ?? "" }));
-      sfx.xpGain();
+      sfx.xp();
     } catch (e: any) {
       toast.error(e.message || "Plan failed");
     } finally {
