@@ -22,6 +22,9 @@ import { AcademicProfileSection } from "@/components/profile/AcademicProfileSect
 import { RankCountdown } from "@/components/profile/RankCountdown";
 import { RankHistoryTimeline } from "@/components/profile/RankHistoryTimeline";
 import { WeeklyReportCard } from "@/components/profile/WeeklyReportCard";
+import { BadgeGallery } from "@/components/profile/BadgeGallery";
+import { DailyChallenges } from "@/components/profile/DailyChallenges";
+import { AccentColorPicker } from "@/components/profile/AccentColorPicker";
 import { useRank } from "@/lib/ranks2";
 import { useState as useStateAcademic } from "react";
 import html2canvas from "html2canvas";
@@ -593,6 +596,21 @@ const Profile = () => {
       {/* Rank history */}
       <div className="mt-6">
         <RankHistoryTimeline />
+      </div>
+
+      {/* Daily challenges */}
+      <div className="mt-6">
+        <DailyChallenges />
+      </div>
+
+      {/* Achievements */}
+      <div className="mt-6">
+        <BadgeGallery />
+      </div>
+
+      {/* Accent color */}
+      <div className="mt-6">
+        <AccentColorPicker />
       </div>
 
       {/* AI Report Card */}

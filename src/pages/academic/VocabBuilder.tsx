@@ -96,9 +96,19 @@ export default function VocabBuilder() {
     } else {
       sfx.wrong();
     }
+    // Daily challenge: vocab review counts on any rating
+    try {
+      const { incrementChallengeProgress } = await import("@/lib/dailyChallenges");
+      await incrementChallengeProgress(user.id, "vocab_review", 1);
+    } catch {}
     if (next.mastered) {
       sfx.rankUp();
       toast.success(`✨ Mastered: ${current.word}`);
+      try {
+        const { unlockBadge } = await import("@/lib/achievements");
+        const masteredCount = mastered.length + 1;
+        if (masteredCount >= 25) await unlockBadge(user.id, "vocab_25");
+      } catch {}
     }
     setRevealed(false);
     reload();

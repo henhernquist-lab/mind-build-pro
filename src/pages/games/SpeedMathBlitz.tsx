@@ -9,6 +9,8 @@ import { GameLobby } from "@/components/games/GameLobby";
 import { GameResults } from "@/components/games/GameResults";
 import { ComboCounter, comboMultiplier } from "@/components/games/ComboCounter";
 import { cn } from "@/lib/utils";
+import { unlockBadge } from "@/lib/achievements";
+import { incrementChallengeProgress } from "@/lib/dailyChallenges";
 
 type Op = "+" | "-" | "×" | "÷";
 interface Problem { a: number; b: number; op: Op; answer: number; text: string }
@@ -167,6 +169,15 @@ const SpeedMathBlitz = () => {
     // XP: 1 per correct + streak bonus, capped
     const xp = Math.min(80, solved + Math.floor(bestStreak / 2));
     if (xp > 0) await academic.addXp(xp);
+    // Achievements + challenge progress
+    if (user) {
+      try {
+        if (solved >= 30) await unlockBadge(user.id, "blitz_30");
+        if (solved >= 50) await unlockBadge(user.id, "blitz_50");
+        if (bestStreak >= 8) await unlockBadge(user.id, "combo_8");
+        if (solved > 0) await incrementChallengeProgress(user.id, "blitz_solve", solved);
+      } catch {}
+    }
   }, [timesMs, solved, bestStreak, academic]);
 
   const submit = () => {

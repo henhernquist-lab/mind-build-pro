@@ -61,6 +61,12 @@ export default function Notes() {
       .single();
     if (error) { toast.error(error.message); return; }
     sfx.click();
+    try {
+      const { unlockBadge } = await import("@/lib/achievements");
+      const { incrementChallengeProgress } = await import("@/lib/dailyChallenges");
+      await unlockBadge(user.id, "note_taker");
+      await incrementChallengeProgress(user.id, "save_note", 1);
+    } catch {}
     setActiveId((data as any).id);
     reload();
   };

@@ -176,6 +176,30 @@ export type Database = {
         }
         Relationships: []
       }
+      achievements: {
+        Row: {
+          badge_id: string
+          id: string
+          progress: number
+          unlocked_at: string
+          user_id: string
+        }
+        Insert: {
+          badge_id: string
+          id?: string
+          progress?: number
+          unlocked_at?: string
+          user_id: string
+        }
+        Update: {
+          badge_id?: string
+          id?: string
+          progress?: number
+          unlocked_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       athlete_profile: {
         Row: {
           age: number
@@ -257,6 +281,54 @@ export type Database = {
           subject_id?: string
           updated_at?: string
           user_id?: string
+        }
+        Relationships: []
+      }
+      daily_challenges: {
+        Row: {
+          category: string
+          challenge_date: string
+          challenge_id: string
+          claimed: boolean
+          created_at: string
+          description: string
+          id: string
+          progress: number
+          target: number
+          title: string
+          updated_at: string
+          user_id: string
+          xp_reward: number
+        }
+        Insert: {
+          category?: string
+          challenge_date?: string
+          challenge_id: string
+          claimed?: boolean
+          created_at?: string
+          description: string
+          id?: string
+          progress?: number
+          target?: number
+          title: string
+          updated_at?: string
+          user_id: string
+          xp_reward?: number
+        }
+        Update: {
+          category?: string
+          challenge_date?: string
+          challenge_id?: string
+          claimed?: boolean
+          created_at?: string
+          description?: string
+          id?: string
+          progress?: number
+          target?: number
+          title?: string
+          updated_at?: string
+          user_id?: string
+          xp_reward?: number
         }
         Relationships: []
       }
@@ -633,6 +705,7 @@ export type Database = {
       }
       user_preferences: {
         Row: {
+          accent_hue: number | null
           first_name: string | null
           onboarding_completed: boolean
           sounds_enabled: boolean
@@ -643,6 +716,7 @@ export type Database = {
           weight_unit: string
         }
         Insert: {
+          accent_hue?: number | null
           first_name?: string | null
           onboarding_completed?: boolean
           sounds_enabled?: boolean
@@ -653,6 +727,7 @@ export type Database = {
           weight_unit?: string
         }
         Update: {
+          accent_hue?: number | null
           first_name?: string | null
           onboarding_completed?: boolean
           sounds_enabled?: boolean
@@ -792,6 +867,17 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
+      get_leaderboard: {
+        Args: { _limit?: number; _rank_type: string }
+        Returns: {
+          avatar_url: string
+          display_name: string
+          period_start: string
+          user_id: string
+          username: string
+          xp: number
+        }[]
+      }
       get_public_athlete_card: {
         Args: { _username: string }
         Returns: {

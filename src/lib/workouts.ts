@@ -58,6 +58,22 @@ export const insertEntry = async (userId: string, entry: Omit<Entry, "id" | "log
     breakdown: entry.breakdown ?? null,
   }).select().single();
   if (error) throw error;
+  // Achievements + daily challenge progress (best-effort)
+  try {
+    const { incrementChallengeProgress } = await import("@/lib/dailyChallenges");
+    await incrementChallengeProgress(userId, "log_workout", 1);
+    if (entry.isPR) {
+      const { count } = await supabase
+        .from("workout_logs")
+        .select("id", { count: "exact", head: true })
+        .eq("user_id", userId)
+        .eq("is_pr", true);
+      if ((count ?? 0) >= 5) {
+        const { unlockBadge } = await import("@/lib/achievements");
+        await unlockBadge(userId, "pr_machine");
+      }
+    }
+  } catch {}
   return rowToEntry(data);
 };
 

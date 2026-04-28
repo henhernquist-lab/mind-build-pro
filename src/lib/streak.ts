@@ -6,6 +6,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/lib/auth";
 import { sfx } from "@/lib/sounds";
 import { toast } from "sonner";
+import { unlockBadge } from "@/lib/achievements";
 
 export type StreakRow = {
   current_streak: number;
@@ -63,6 +64,10 @@ export const recordStudyActivity = async (
     total_study_days: row.total_study_days + 1,
   };
   await supabase.from("study_streak").update(updated).eq("user_id", userId);
+  try {
+    if (updated.current_streak >= 3) await unlockBadge(userId, "streak_3");
+    if (updated.current_streak >= 7) await unlockBadge(userId, "streak_7");
+  } catch {}
   return { row: updated, bumped: true, rolled };
 };
 
