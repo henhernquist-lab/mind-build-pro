@@ -27,6 +27,7 @@ import {
 import { useAuth } from "@/lib/auth";
 import { RANKS, getRank, getNextRank, XP_PR_BONUS, type Rank } from "@/lib/rank";
 import { AthleticProfileBar } from "@/components/profile/AthleticProfileBar";
+import { MaxLifts } from "@/components/workouts/MaxLifts";
 
 const isLowerBetter = (u: Unit) => u === "seconds" || u === "minutes";
 
@@ -545,10 +546,11 @@ const Workouts = () => {
 
       <AthleticProfileBar />
 
-      <Tabs value={sport} onValueChange={(v) => setSport(v as Sport)}>
-        <TabsList className="grid grid-cols-2 w-full mb-6">
+      <Tabs value={sport} onValueChange={(v) => setSport(v as Sport)} >
+        <TabsList className="grid grid-cols-3 w-full mb-6">
           <TabsTrigger value="weightlifting">🏋️ Weightlifting</TabsTrigger>
           <TabsTrigger value="running">🏃 Running</TabsTrigger>
+          <TabsTrigger value="maxlifts">📐 Max Lifts</TabsTrigger>
         </TabsList>
         <TabsContent value="weightlifting">
           <SportPanel
@@ -573,6 +575,9 @@ const Workouts = () => {
             weightUnit={weightUnit}
             setWeightUnit={setWeightUnit}
           />
+        </TabsContent>
+        <TabsContent value="maxlifts">
+          <MaxLifts weightUnit={weightUnit} setWeightUnit={setWeightUnit} />
         </TabsContent>
       </Tabs>
 
