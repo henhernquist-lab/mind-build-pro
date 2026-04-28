@@ -526,6 +526,7 @@ export type Database = {
       user_preferences: {
         Row: {
           first_name: string | null
+          sounds_enabled: boolean
           theme: string
           updated_at: string
           user_id: string
@@ -534,6 +535,7 @@ export type Database = {
         }
         Insert: {
           first_name?: string | null
+          sounds_enabled?: boolean
           theme?: string
           updated_at?: string
           user_id: string
@@ -542,6 +544,7 @@ export type Database = {
         }
         Update: {
           first_name?: string | null
+          sounds_enabled?: boolean
           theme?: string
           updated_at?: string
           user_id?: string
