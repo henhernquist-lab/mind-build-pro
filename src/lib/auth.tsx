@@ -5,6 +5,10 @@ import { supabase } from "@/integrations/supabase/client";
 type Profile = {
   display_name: string | null;
   avatar_url: string | null;
+  bio?: string | null;
+  grade?: string | null;
+  school_name?: string | null;
+  username?: string | null;
 };
 
 type AuthCtx = {
@@ -13,6 +17,7 @@ type AuthCtx = {
   profile: Profile | null;
   loading: boolean;
   signOut: () => Promise<void>;
+  refreshProfile: () => Promise<void>;
 };
 
 const Ctx = createContext<AuthCtx>({
@@ -21,6 +26,7 @@ const Ctx = createContext<AuthCtx>({
   profile: null,
   loading: true,
   signOut: async () => {},
+  refreshProfile: async () => {},
 });
 
 export const AuthProvider = ({ children }: { children: ReactNode }) => {
@@ -56,10 +62,14 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
   const fetchProfile = async (userId: string) => {
     const { data } = await supabase
       .from("profiles")
-      .select("display_name, avatar_url")
+      .select("display_name, avatar_url, bio, grade, school_name, username")
       .eq("user_id", userId)
       .maybeSingle();
     if (data) setProfile(data);
+  };
+
+  const refreshProfile = async () => {
+    if (user?.id) await fetchProfile(user.id);
   };
 
   const signOut = async () => {
@@ -68,7 +78,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
   };
 
   return (
-    <Ctx.Provider value={{ user, session, profile, loading, signOut }}>
+    <Ctx.Provider value={{ user, session, profile, loading, signOut, refreshProfile }}>
       {children}
     </Ctx.Provider>
   );

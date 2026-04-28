@@ -1,5 +1,5 @@
-import { NavLink, Outlet, useLocation } from "react-router-dom";
-import { Calendar, Dumbbell, Brain, Sparkles, LogOut } from "lucide-react";
+import { NavLink, Outlet, useLocation, useNavigate } from "react-router-dom";
+import { Calendar, Dumbbell, Brain, Sparkles, LogOut, User } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { ThemeSwitcher } from "@/components/ThemeSwitcher";
 import { useTheme } from "@/lib/themes";
@@ -18,6 +18,7 @@ const accentColor = (a: string) =>
 
 export const AppShell = () => {
   const location = useLocation();
+  const navigate = useNavigate();
   useTheme();
   const { user, profile, signOut } = useAuth();
   const displayName = profile?.display_name || user?.email?.split("@")[0] || "You";
@@ -25,8 +26,20 @@ export const AppShell = () => {
   const avatarUrl = profile?.avatar_url;
   return (
     <div className="flex min-h-screen w-full bg-background text-foreground">
+      {/* Top-left floating profile button */}
+      <button
+        onClick={() => navigate("/profile")}
+        className="fixed top-3 left-3 z-40 h-10 w-10 rounded-full border-2 border-border bg-card shadow-lg hover:border-primary transition-colors overflow-hidden flex items-center justify-center text-xs font-bold"
+        title="Open profile"
+        aria-label="Open profile"
+      >
+        {avatarUrl
+          ? <img src={avatarUrl} alt={displayName} className="h-full w-full object-cover" />
+          : <span className="text-foreground">{initials}</span>}
+      </button>
+
       <aside className="hidden md:flex w-60 flex-col border-r border-sidebar-border bg-sidebar">
-        <div className="p-5 flex items-center gap-2 justify-between">
+        <div className="p-5 pl-16 flex items-center gap-2 justify-between">
           <div className="flex items-center gap-2 min-w-0">
             <div className="h-9 w-9 rounded-xl flex items-center justify-center bg-gradient-to-br from-school to-sports flex-shrink-0">
               <Sparkles className="h-5 w-5" style={{ color: "hsl(var(--background))" }} />
@@ -36,13 +49,6 @@ export const AppShell = () => {
               <div className="text-[11px] text-muted-foreground truncate">{user?.email}</div>
             </div>
           </div>
-          {avatarUrl ? (
-            <img src={avatarUrl} alt={displayName} className="h-8 w-8 rounded-full flex-shrink-0" />
-          ) : (
-            <div className="h-8 w-8 rounded-full bg-primary text-primary-foreground text-xs font-bold flex items-center justify-center flex-shrink-0">
-              {initials}
-            </div>
-          )}
         </div>
         <nav className="px-3 flex-1 space-y-1">
           {NAV.map((item) => (
@@ -74,6 +80,21 @@ export const AppShell = () => {
               )}
             </NavLink>
           ))}
+          <NavLink
+            to="/profile"
+            className={({ isActive }) =>
+              cn(
+                "group flex items-center gap-3 rounded-lg px-3 py-2.5 text-sm transition-colors",
+                isActive
+                  ? "bg-sidebar-accent text-sidebar-accent-foreground"
+                  : "text-sidebar-foreground hover:bg-sidebar-accent/60 hover:text-sidebar-accent-foreground"
+              )
+            }
+          >
+            <span className="h-2 w-2 rounded-full bg-primary" />
+            <User className="h-4 w-4" />
+            <span className="font-medium">Profile</span>
+          </NavLink>
         </nav>
         <div className="p-3 border-t border-sidebar-border space-y-2">
           <Button variant="ghost" size="sm" onClick={signOut} className="w-full justify-start">

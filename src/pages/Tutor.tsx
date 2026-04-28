@@ -30,6 +30,7 @@ import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/comp
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/lib/auth";
 import { fetchPrefs, savePrefs } from "@/lib/workouts";
+import { fetchAthletic } from "@/lib/profile";
 import { listSavedChats, saveChat, deleteSavedChat, type SavedChat } from "@/lib/savedChats";
 import { DesmosGraph } from "@/components/tutor/DesmosGraph";
 import { VideoResults } from "@/components/tutor/VideoResults";
@@ -116,6 +117,7 @@ const SubjectChat = ({
   readOnly,
   onSaveRequested,
   onExitReadOnly,
+  studentProfile,
 }: {
   subject: Subject;
   videosEnabled: boolean;
@@ -123,6 +125,7 @@ const SubjectChat = ({
   readOnly?: boolean;
   onSaveRequested?: (messages: Msg[]) => void;
   onExitReadOnly?: () => void;
+  studentProfile?: any;
 }) => {
   const [messages, setMessages] = useState<Msg[]>(initialMessages ?? []);
   const [input, setInput] = useState("");
@@ -161,6 +164,7 @@ const SubjectChat = ({
           mode,
           deepSearch: useDeep,
           videosEnabled,
+          studentProfile,
         }),
       });
 
@@ -622,6 +626,7 @@ const Tutor = () => {
   const [saveTitleFor, setSaveTitleFor] = useState<{ messages: Msg[] } | null>(null);
   const [titleInput, setTitleInput] = useState("");
   const [view, setView] = useState<"chat" | "mindmap" | "games">("chat");
+  const [studentProfile, setStudentProfile] = useState<any>(null);
 
   // Load subjects from Supabase (or seed defaults)
   useEffect(() => {
@@ -662,6 +667,30 @@ const Tutor = () => {
       const prefs = await fetchPrefs(user.id);
       setVideosEnabled(prefs.videos_enabled);
       try { setSavedChats(await listSavedChats()); } catch (e) { console.error(e); }
+    })();
+  }, [user]);
+
+  // Build student profile for AI personalization
+  useEffect(() => {
+    if (!user) return;
+    (async () => {
+      const a = await fetchAthletic(user.id);
+      const { data: p } = await supabase
+        .from("profiles")
+        .select("display_name, bio, grade, school_name")
+        .eq("user_id", user.id)
+        .maybeSingle();
+      const sp = {
+        name: (p as any)?.display_name || null,
+        grade: (p as any)?.grade || null,
+        bio: (p as any)?.bio || null,
+        school: (p as any)?.school_name || null,
+        sports: a ? [...a.primary_sports.filter((s) => s !== "Other"), ...(a.other_sport ? [a.other_sport] : [])] : [],
+        goals: a?.fitness_goals ?? [],
+        injuries: a?.injuries || null,
+      };
+      const hasAny = sp.name || sp.grade || sp.bio || sp.school || sp.sports.length || sp.goals.length || sp.injuries;
+      setStudentProfile(hasAny ? sp : null);
     })();
   }, [user]);
 
@@ -868,6 +897,7 @@ const Tutor = () => {
                 subject={activeSubject}
                 videosEnabled={videosEnabled}
                 onSaveRequested={requestSave}
+                studentProfile={studentProfile}
               />
             </TabsContent>
           )}
