@@ -17,6 +17,11 @@ import {
 } from "@/lib/profile";
 import { fetchPrefs, savePrefs, fetchUserStats } from "@/lib/workouts";
 import { AthleteCard } from "@/components/profile/AthleteCard";
+import { AcademicCard } from "@/components/profile/AcademicCard";
+import { AcademicProfileSection } from "@/components/profile/AcademicProfileSection";
+import { RankCountdown } from "@/components/profile/RankCountdown";
+import { useRank } from "@/lib/ranks2";
+import { useState as useStateAcademic } from "react";
 import html2canvas from "html2canvas";
 
 const slugifyUsername = (s: string) =>
@@ -25,6 +30,9 @@ const slugifyUsername = (s: string) =>
 const Profile = () => {
   const { user, profile, refreshProfile } = useAuth();
   const cardRef = useRef<HTMLDivElement>(null);
+  const athleticRank = useRank("athletic");
+  const academicRank = useRank("academic");
+  const [academicData, setAcademicData] = useStateAcademic<{ p: any; classes: any[] }>({ p: null, classes: [] });
 
   // Personal
   const [displayName, setDisplayName] = useState("");
