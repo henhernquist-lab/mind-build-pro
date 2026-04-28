@@ -16,6 +16,8 @@ import { motion, AnimatePresence } from "framer-motion";
 import { toast } from "sonner";
 import { cn } from "@/lib/utils";
 import { ComboCounter } from "@/components/games/ComboCounter";
+import { unlockBadge } from "@/lib/achievements";
+import { incrementChallengeProgress } from "@/lib/dailyChallenges";
 
 type Boss = { name: string; personality: string; emoji: string };
 
@@ -99,6 +101,10 @@ const BossBattles = () => {
       const isLegend = academic.rank.name === "Valedictorian";
       const xp = 150 * (isLegend ? 3 : 1);
       await academic.addXp(xp);
+      if (user) {
+        try { await unlockBadge(user.id, "boss_slayer"); } catch {}
+        try { await incrementChallengeProgress(user.id, "boss_round", 1); } catch {}
+      }
       const dialogue = await callGame({ mode: "boss_dialogue", bossName: boss.name, bossPersonality: boss.personality, event: "has been defeated by the player", bossHp: 0, playerHp, streak });
       toast.success(`🏆 You defeated ${boss.name}!`, { description: `+${xp} Academic XP` });
       setBattle({ ...battle, bossHp, playerHp, round, streak, asked, current: null, line: dialogue.line, defeated: 1 });
@@ -118,6 +124,9 @@ const BossBattles = () => {
       return;
     }
     if (correct) await academic.addXp(20);
+    if (correct && user) {
+      try { await incrementChallengeProgress(user.id, "boss_round", 1); } catch {}
+    }
     const event = correct ? (crit ? "scored a critical hit" : "answered correctly") : "answered wrong";
     const [dialogue, q] = await Promise.all([
       callGame({ mode: "boss_dialogue", bossName: boss.name, bossPersonality: boss.personality, event, bossHp, playerHp, streak }),
