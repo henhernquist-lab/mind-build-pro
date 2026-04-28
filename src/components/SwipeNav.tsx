@@ -10,7 +10,13 @@ type Section = { to: string; label: string };
 const SECTIONS: Section[] = [
   { to: "/", label: "Planner" },
   { to: "/workouts", label: "Workouts" },
+  { to: "/nutrition", label: "Nutrition" },
   { to: "/tutor", label: "AI Tutor" },
+  { to: "/tests", label: "Tests" },
+  { to: "/vocab", label: "Vocab" },
+  { to: "/notes", label: "Notes" },
+  { to: "/games", label: "Games" },
+  { to: "/leaderboard", label: "Leaderboard" },
 ];
 
 const HINT_KEY = "swipe_hint_shown_v1";
