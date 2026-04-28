@@ -25,7 +25,12 @@ import { WeeklyReportCard } from "@/components/profile/WeeklyReportCard";
 import { BadgeGallery } from "@/components/profile/BadgeGallery";
 import { DailyChallenges } from "@/components/profile/DailyChallenges";
 import { AccentColorPicker } from "@/components/profile/AccentColorPicker";
+import { GlowingXpBar } from "@/components/profile/GlowingXpBar";
+import { WorkoutHeatmap } from "@/components/profile/WorkoutHeatmap";
+import { StatsRadar } from "@/components/profile/StatsRadar";
+import { ProfileCompletionRing } from "@/components/profile/ProfileCompletionRing";
 import { useRank } from "@/lib/ranks2";
+import { ATHLETIC_RANKS, ACADEMIC_RANKS, getNextRank } from "@/lib/ranks2";
 import { useState as useStateAcademic } from "react";
 import html2canvas from "html2canvas";
 
@@ -241,6 +246,50 @@ const Profile = () => {
         <p className="text-xs uppercase tracking-widest text-muted-foreground">Profile</p>
         <h1 className="gradient-text text-3xl font-bold mt-1">Your Athlete Hub</h1>
       </header>
+
+      {/* Glowing XP bars */}
+      <div className="grid md:grid-cols-2 gap-3 mb-6">
+        <GlowingXpBar
+          label="Athletic"
+          xp={athleticRank.xp}
+          nextXp={getNextRank(athleticRank.xp, ATHLETIC_RANKS)?.xpRequired ?? null}
+          rankName={athleticRank.rank.name}
+          rankIcon={athleticRank.rank.icon}
+          rankColor={athleticRank.rank.color}
+        />
+        <GlowingXpBar
+          label="Academic"
+          xp={academicRank.xp}
+          nextXp={getNextRank(academicRank.xp, ACADEMIC_RANKS)?.xpRequired ?? null}
+          rankName={academicRank.rank.name}
+          rankIcon={academicRank.rank.icon}
+          rankColor={academicRank.rank.color}
+        />
+      </div>
+
+      {/* Profile completion ring */}
+      <div className="mb-6">
+        <ProfileCompletionRing
+          fields={[
+            { label: "Display name", filled: !!displayName.trim() },
+            { label: "Profile photo", filled: !!avatarUrl },
+            { label: "Username", filled: !!username },
+            { label: "Grade", filled: !!grade },
+            { label: "Bio", filled: !!bio.trim() },
+            { label: "Age", filled: athletic.age > 0 },
+            { label: "Height & weight", filled: athletic.height_ft > 0 && athletic.weight_lbs > 0 },
+            { label: "Sport(s)", filled: athletic.primary_sports.length > 0 },
+            { label: "Goals", filled: athletic.fitness_goals.length > 0 },
+            { label: "Experience", filled: !!athletic.years_experience },
+          ]}
+        />
+      </div>
+
+      {/* Performance radar + Workout heatmap */}
+      <div className="grid md:grid-cols-2 gap-3 mb-8">
+        <StatsRadar />
+        <WorkoutHeatmap />
+      </div>
 
       {/* Live Athlete Card */}
       <div className="mb-8">
