@@ -15,6 +15,7 @@ import { StreakBadge } from "@/components/academic/StreakBadge";
 import { CommandPalette, openCommandPalette } from "@/components/nav/CommandPalette";
 import { Breadcrumbs } from "@/components/nav/Breadcrumbs";
 import { MobileFab } from "@/components/nav/MobileFab";
+import { OnboardingFlow } from "@/components/onboarding/OnboardingFlow";
 
 type NavItem = { to: string; label: string; icon: any; accent: "school" | "sports" | "primary" };
 type NavGroup = { id: string; label: string; icon: any; items: NavItem[] };
@@ -95,6 +96,7 @@ export const AppShell = () => {
     <div className="flex min-h-screen w-full bg-background text-foreground">
       <CommandPalette />
       <MobileFab />
+      <OnboardingFlow />
 
       {/* Top-left floating profile button */}
       <button
