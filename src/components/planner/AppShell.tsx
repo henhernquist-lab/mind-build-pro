@@ -10,6 +10,7 @@ import { useTheme } from "@/lib/themes";
 import { useAuth } from "@/lib/auth";
 import { Button } from "@/components/ui/button";
 import { SwipeNav } from "@/components/SwipeNav";
+import { PageTransition } from "@/components/transitions/PageTransition";
 import { useRank } from "@/lib/ranks2";
 import { StreakBadge } from "@/components/academic/StreakBadge";
 import { CommandPalette, openCommandPalette } from "@/components/nav/CommandPalette";
@@ -293,7 +294,9 @@ export const AppShell = () => {
         </div>
         <Breadcrumbs />
         <SwipeNav>
-          <Outlet />
+          <PageTransition>
+            <Outlet />
+          </PageTransition>
         </SwipeNav>
       </main>
     </div>

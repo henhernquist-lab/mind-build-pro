@@ -314,6 +314,75 @@
   .rank-burst { animation: rankBurst 800ms ease-out; }
 }
 
+/* ----- Page transitions (snappy 150/200ms) ----- */
+@layer utilities {
+  .page-transition { will-change: transform, opacity; }
+  .page-transition-in {
+    animation: pageIn 200ms cubic-bezier(0.22, 1, 0.36, 1) both;
+  }
+  .page-transition-out {
+    animation: pageOut 150ms ease-in both;
+  }
+  @keyframes pageIn {
+    from { opacity: 0; transform: translateY(10px); }
+    to   { opacity: 1; transform: translateY(0); }
+  }
+  @keyframes pageOut {
+    from { opacity: 1; transform: translateY(0); }
+    to   { opacity: 0; transform: translateY(-10px); }
+  }
+
+  /* Glowing XP bar */
+  .xp-bar-track {
+    position: relative;
+    overflow: hidden;
+    border-radius: 9999px;
+    background: hsl(var(--muted) / 0.6);
+    box-shadow: inset 0 1px 2px hsl(var(--background) / 0.5);
+  }
+  .xp-bar-fill {
+    position: relative;
+    height: 100%;
+    border-radius: 9999px;
+    background: linear-gradient(
+      90deg,
+      hsl(var(--primary)) 0%,
+      hsl(var(--accent)) 50%,
+      hsl(var(--primary)) 100%
+    );
+    background-size: 200% 100%;
+    animation: xpGradient 3s linear infinite;
+    box-shadow:
+      0 0 12px hsl(var(--primary) / 0.55),
+      0 0 28px hsl(var(--primary) / 0.35),
+      inset 0 1px 0 hsl(var(--foreground) / 0.25);
+    transition: width 600ms cubic-bezier(0.22, 1, 0.36, 1);
+  }
+  .xp-bar-fill::after {
+    content: "";
+    position: absolute;
+    inset: 0;
+    border-radius: inherit;
+    background: linear-gradient(
+      90deg,
+      transparent 0%,
+      hsl(0 0% 100% / 0.45) 50%,
+      transparent 100%
+    );
+    transform: translateX(-100%);
+    animation: xpShimmer 2.4s ease-in-out infinite;
+  }
+  @keyframes xpGradient {
+    0%   { background-position: 0% 50%; }
+    100% { background-position: 200% 50%; }
+  }
+  @keyframes xpShimmer {
+    0%   { transform: translateX(-100%); }
+    60%  { transform: translateX(120%); }
+    100% { transform: translateX(120%); }
+  }
+}
+
 /* ----- Custom themed scrollbar (global) ----- */
 @layer base {
   /* WebKit */
