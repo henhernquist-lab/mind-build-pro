@@ -240,6 +240,9 @@ const Profile = () => {
       {/* Live Athlete Card */}
       <div className="mb-8">
         <AthleteCard ref={cardRef} data={cardData} />
+        <div className="mt-2 flex justify-end">
+          <RankCountdown periodStart={athleticRank.periodStart} label="Athletic resets in" />
+        </div>
         <div className="mt-3 flex flex-wrap gap-2 justify-end">
           <Button variant="outline" size="sm" onClick={downloadCard}>
             <Download className="h-3.5 w-3.5 mr-1.5" /> Download PNG
@@ -247,6 +250,24 @@ const Profile = () => {
           <Button variant="outline" size="sm" onClick={copyShareLink}>
             <Link2 className="h-3.5 w-3.5 mr-1.5" /> Copy share link
           </Button>
+        </div>
+      </div>
+
+      {/* Academic Card */}
+      <div className="mb-8">
+        <AcademicCard data={{
+          displayName: cardData.displayName,
+          gradeLevel: academicData.p?.grade_level,
+          gpa: academicData.p?.gpa,
+          gpaWeighted: academicData.p?.gpa_weighted,
+          classes: academicData.classes.map((c: any) => ({ class_name: c.class_name, current_grade: c.current_grade })),
+          goals: academicData.p?.academic_goals ?? [],
+          strongest: academicData.p?.strongest_subject,
+          needs: academicData.p?.needs_improvement,
+          academicXp: academicRank.xp,
+        }} />
+        <div className="mt-2 flex justify-end">
+          <RankCountdown periodStart={academicRank.periodStart} label="Academic resets in" />
         </div>
       </div>
 
