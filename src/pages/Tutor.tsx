@@ -17,7 +17,7 @@ import {
 import {
   Lightbulb, RefreshCcw, Send, Sparkles, Loader2, Settings, Plus, Trash2,
   ArrowUp, ArrowDown, Globe, Eye, EyeOff, Info, ExternalLink, Bookmark,
-  BookmarkPlus, Video, History, X, MessageSquare, Network, Gamepad2,
+  BookmarkPlus, Video, History, X, MessageSquare, Network,
 } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import ReactMarkdown from "react-markdown";
@@ -35,7 +35,6 @@ import { listSavedChats, saveChat, deleteSavedChat, type SavedChat } from "@/lib
 import { DesmosGraph } from "@/components/tutor/DesmosGraph";
 import { VideoResults } from "@/components/tutor/VideoResults";
 import { MindMap } from "@/components/tutor/MindMap";
-import { GamesPlaceholder } from "@/components/tutor/GamesPlaceholder";
 
 type Msg = { role: "user" | "assistant"; content: string };
 type Subject = { id: string; label: string; emoji: string; color: string; description?: string; slug?: string };
@@ -838,7 +837,6 @@ const Tutor = () => {
         {([
           { id: "chat", label: "Chat", icon: MessageSquare },
           { id: "mindmap", label: "Mind Map", icon: Network },
-          { id: "games", label: "Games", icon: Gamepad2 },
         ] as const).map((m) => {
           const Icon = m.icon;
           const isActive = view === m.id;
@@ -859,9 +857,7 @@ const Tutor = () => {
         })}
       </div>
 
-      {view === "games" ? (
-        <GamesPlaceholder />
-      ) : view === "mindmap" ? (
+      {view === "mindmap" ? (
         <MindMap subjectLabel={activeSubject?.label} />
       ) : !subjectsLoaded ? (
         <div className="text-center py-10 text-sm text-muted-foreground">Loading…</div>
