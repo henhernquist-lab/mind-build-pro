@@ -4,6 +4,8 @@ import { useEffect, useState, useCallback } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/lib/auth";
 import { toast } from "sonner";
+import { sfx } from "@/lib/sounds";
+import { showFloatingXp } from "@/components/fx/FloatingXp";
 
 export type Rank = { name: string; icon: string; xpRequired: number; color: string };
 
@@ -156,8 +158,12 @@ export const useRank = (type: RankType) => {
     const afterRank = getRank(after, ranks);
     setXpState(after);
     await setStats(user.id, type, after, periodStart);
+    if (amount > 0) {
+      showFloatingXp(amount, { color: afterRank.color });
+    }
     if (beforeRank.name !== afterRank.name && after > before) {
       const label = type === "athletic" ? "Athletic" : "Academic";
+      sfx.rankUp();
       toast.success(`${type === "academic" ? "🎓" : "💪"} ${label} Rank Up!`, {
         description: `You are now ${afterRank.icon} ${afterRank.name}`,
         duration: 6000,
