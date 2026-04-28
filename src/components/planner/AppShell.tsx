@@ -16,6 +16,7 @@ import { CommandPalette, openCommandPalette } from "@/components/nav/CommandPale
 import { Breadcrumbs } from "@/components/nav/Breadcrumbs";
 import { MobileFab } from "@/components/nav/MobileFab";
 import { OnboardingFlow } from "@/components/onboarding/OnboardingFlow";
+import { FocusToggle } from "@/components/focus/FocusToggle";
 
 type NavItem = { to: string; label: string; icon: any; accent: "school" | "sports" | "primary" };
 type NavGroup = { id: string; label: string; icon: any; items: NavItem[] };
@@ -245,6 +246,7 @@ export const AppShell = () => {
       <main className="flex-1 min-w-0 pb-20 md:pb-0">
         <div className="fixed top-3 right-3 z-40 flex gap-2 items-center">
           <ThemeSwitcher />
+          <FocusToggle />
           <button
             onClick={signOut}
             className="md:hidden h-9 w-9 rounded-full bg-card border border-border flex items-center justify-center text-xs font-bold"
