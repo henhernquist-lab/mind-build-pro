@@ -44,6 +44,7 @@ export const THEMES: Theme[] = [
 ];
 
 const KEY = "app:theme";
+const HUE_KEY = "app:accentHue";
 const VALID: ThemeId[] = ["midnight", "neon", "forest", "solar", "arctic"];
 const isValid = (v: string | null): v is ThemeId => !!v && (VALID as string[]).includes(v);
 
@@ -58,14 +59,59 @@ const readLocal = (): ThemeId => {
   }
 };
 
+const readLocalHue = (): number | null => {
+  try {
+    const raw = localStorage.getItem(HUE_KEY);
+    if (!raw) return null;
+    const n = Number(JSON.parse(raw));
+    return Number.isFinite(n) ? n : null;
+  } catch {
+    return null;
+  }
+};
+
+const STYLE_ID = "lov-accent-override";
+const applyAccentHue = (hue: number | null) => {
+  if (typeof document === "undefined") return;
+  let tag = document.getElementById(STYLE_ID) as HTMLStyleElement | null;
+  if (hue == null) {
+    tag?.remove();
+    return;
+  }
+  if (!tag) {
+    tag = document.createElement("style");
+    tag.id = STYLE_ID;
+    document.head.appendChild(tag);
+  }
+  // Override key tokens with the chosen hue. Saturation/lightness
+  // are tuned to read well across all 5 themes.
+  tag.textContent = `:root, [data-theme] {
+    --primary: ${hue} 85% 60% !important;
+    --ring: ${hue} 85% 60% !important;
+    --sidebar-primary: ${hue} 85% 60% !important;
+    --sidebar-ring: ${hue} 85% 60% !important;
+    --accent: ${hue} 70% 50% !important;
+  }`;
+};
+
 export const useTheme = () => {
   const [theme, setThemeState] = useState<ThemeId>(readLocal);
+  const [accentHue, setAccentHueState] = useState<number | null>(readLocalHue);
 
   // Apply to <html>
   useEffect(() => {
     document.documentElement.setAttribute("data-theme", theme);
     try { localStorage.setItem(KEY, JSON.stringify(theme)); } catch {}
   }, [theme]);
+
+  // Apply accent override
+  useEffect(() => {
+    applyAccentHue(accentHue);
+    try {
+      if (accentHue == null) localStorage.removeItem(HUE_KEY);
+      else localStorage.setItem(HUE_KEY, JSON.stringify(accentHue));
+    } catch {}
+  }, [accentHue]);
 
   // Pull from DB on mount if signed in
   useEffect(() => {
@@ -75,12 +121,16 @@ export const useTheme = () => {
       if (!user || cancelled) return;
       const { data } = await supabase
         .from("user_preferences")
-        .select("theme")
+        .select("theme, accent_hue")
         .eq("user_id", user.id)
         .maybeSingle();
       if (cancelled) return;
       if (data?.theme && isValid(data.theme)) {
         setThemeState(data.theme);
+      }
+      if (data && (data as any).accent_hue !== undefined) {
+        const h = (data as any).accent_hue;
+        setAccentHueState(h == null ? null : Number(h));
       }
     })();
     return () => { cancelled = true; };
@@ -96,5 +146,14 @@ export const useTheme = () => {
     })();
   };
 
-  return { theme, setTheme };
+  const setAccentHue = (h: number | null) => {
+    setAccentHueState(h);
+    (async () => {
+      const { data: { user } } = await supabase.auth.getUser();
+      if (!user) return;
+      await supabase.from("user_preferences").upsert({ user_id: user.id, accent_hue: h });
+    })();
+  };
+
+  return { theme, setTheme, accentHue, setAccentHue };
 };
