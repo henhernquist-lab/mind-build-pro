@@ -20,6 +20,7 @@ import { AthleteCard } from "@/components/profile/AthleteCard";
 import { AcademicCard } from "@/components/profile/AcademicCard";
 import { AcademicProfileSection } from "@/components/profile/AcademicProfileSection";
 import { RankCountdown } from "@/components/profile/RankCountdown";
+import { RankHistoryTimeline } from "@/components/profile/RankHistoryTimeline";
 import { useRank } from "@/lib/ranks2";
 import { useState as useStateAcademic } from "react";
 import html2canvas from "html2canvas";
@@ -586,6 +587,11 @@ const Profile = () => {
           setAcademicData({ p, classes });
           if (typeof window !== "undefined") window.dispatchEvent(new CustomEvent("classes-changed"));
         }} />
+      </div>
+
+      {/* Rank history */}
+      <div className="mt-6">
+        <RankHistoryTimeline />
       </div>
     </div>
   );
