@@ -85,6 +85,21 @@ export const sfx = {
   },
   click:   () => { tone(1100, 0.04, "square", 0.06); },
   xp:      () => { tone(660, 0.06, "sine", 0.1); tone(990, 0.08, "sine", 0.08, 0.05); },
+  combo:   (n: number) => {
+    const base = 660 + Math.min(n, 12) * 80;
+    tone(base, 0.08, "square", 0.12);
+    tone(base * 1.5, 0.1, "triangle", 0.1, 0.04);
+  },
+  tick:    () => { tone(1500, 0.02, "square", 0.04); },
+  gameStart: () => {
+    tone(440, 0.08, "triangle", 0.12);
+    tone(660, 0.08, "triangle", 0.12, 0.08);
+    tone(880, 0.12, "triangle", 0.14, 0.16);
+  },
+  gameOver: () => {
+    slide(880, 220, 0.5, "sawtooth", 0.14);
+    tone(196, 0.3, "triangle", 0.12, 0.3);
+  },
 };
 
 // Hook to load + persist mute pref
