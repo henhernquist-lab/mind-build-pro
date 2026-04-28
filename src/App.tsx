@@ -16,6 +16,8 @@ import GamesIndex from "./pages/games/GamesIndex";
 import BossBattles from "./pages/games/BossBattles";
 import FlashcardBattle from "./pages/games/FlashcardBattle";
 import DebateClub from "./pages/games/DebateClub";
+import GeorgiaConquest from "./pages/games/GeorgiaConquest";
+import AlgebraDungeon from "./pages/games/AlgebraDungeon";
 import { AuthProvider } from "@/lib/auth";
 import { AuthGate } from "@/components/auth/AuthGate";
 
@@ -41,6 +43,8 @@ const App = () => (
               <Route path="/games/bosses" element={<BossBattles />} />
               <Route path="/games/flashcards" element={<FlashcardBattle />} />
               <Route path="/games/debate" element={<DebateClub />} />
+              <Route path="/games/georgia" element={<GeorgiaConquest />} />
+              <Route path="/games/dungeon" element={<AlgebraDungeon />} />
             </Route>
             <Route path="*" element={<NotFound />} />
           </Routes>
