@@ -10,6 +10,8 @@ import Workouts from "./pages/Workouts";
 import Tutor from "./pages/Tutor";
 import Auth from "./pages/Auth";
 import ResetPassword from "./pages/ResetPassword";
+import Profile from "./pages/Profile";
+import PublicAthlete from "./pages/PublicAthlete";
 import { AuthProvider } from "@/lib/auth";
 import { AuthGate } from "@/components/auth/AuthGate";
 
@@ -25,10 +27,12 @@ const App = () => (
           <Routes>
             <Route path="/auth" element={<Auth />} />
             <Route path="/reset-password" element={<ResetPassword />} />
+            <Route path="/athlete/:username" element={<PublicAthlete />} />
             <Route element={<AuthGate><AppShell /></AuthGate>}>
               <Route path="/" element={<DailyPlanner />} />
               <Route path="/workouts" element={<Workouts />} />
               <Route path="/tutor" element={<Tutor />} />
+              <Route path="/profile" element={<Profile />} />
             </Route>
             <Route path="*" element={<NotFound />} />
           </Routes>
