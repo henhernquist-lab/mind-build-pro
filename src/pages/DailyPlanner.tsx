@@ -24,6 +24,7 @@ import {
 import { toast } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
 import { AiSuggestions } from "@/components/planner/AiSuggestions";
+import { NutritionTodayCard } from "@/components/planner/NutritionTodayCard";
 
 const CAT_META: Record<Category, { label: string; emoji: string; color: string }> = {
   school: { label: "School", emoji: "🔵", color: "hsl(var(--school))" },
@@ -250,6 +251,8 @@ const DailyPlanner = () => {
         busyTimes={resolved.map((r: any) => ({ start: r.startTime, end: r.endTime, label: r.label }))}
         onAdded={() => refresh()}
       />
+
+      <NutritionTodayCard />
 
       {/* Schedule list — shows resolved blocks + "+ Add" buttons for empty regions */}
       <motion.div
