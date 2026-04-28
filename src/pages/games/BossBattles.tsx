@@ -15,6 +15,7 @@ import { QuestionPrompt, type Q } from "@/components/games/QuestionPrompt";
 import { motion, AnimatePresence } from "framer-motion";
 import { toast } from "sonner";
 import { cn } from "@/lib/utils";
+import { ComboCounter } from "@/components/games/ComboCounter";
 
 type Boss = { name: string; personality: string; emoji: string };
 
@@ -166,15 +167,53 @@ const BossBattles = () => {
                 <Heart key={i} className={cn("h-5 w-5", i < battle.playerHp ? "text-red-500 fill-red-500" : "text-muted-foreground/30")} />
               ))}
             </div>
-            {battle.streak >= 2 && <div className="text-xs mt-1 text-orange-500 font-bold animate-pulse">🔥 Streak {battle.streak}</div>}
-          </div>
-          <motion.div animate={battle.defeated === 1 ? { opacity: 0.3, scale: 0.9 } : {}} className="rounded-2xl border border-border bg-card p-4 text-center">
-            <div className="h-16 w-16 mx-auto rounded-2xl border-2 border-destructive bg-destructive/10 flex items-center justify-center text-3xl">{battle.boss.emoji}</div>
-            <div className="mt-2 text-sm font-semibold">{battle.boss.name}</div>
-            <div className="mt-2 h-3 rounded-full bg-muted overflow-hidden">
-              <motion.div className="h-full bg-destructive" initial={{ width: "100%" }} animate={{ width: `${(battle.bossHp / 10) * 100}%` }} />
+            <div className="mt-2 flex justify-center min-h-[28px]">
+              <ComboCounter streak={battle.streak} compact />
             </div>
-            <div className="text-[10px] mt-1 text-muted-foreground">{battle.bossHp}/10</div>
+          </div>
+          <motion.div
+            animate={
+              battle.defeated === 1
+                ? { opacity: 0.3, scale: 0.9 }
+                : battle.bossHp <= 3 && battle.bossHp > 0
+                ? { x: [0, -2, 2, -2, 0], boxShadow: ["0 0 0 hsl(var(--destructive)/0)", "0 0 24px hsl(var(--destructive)/0.6)", "0 0 0 hsl(var(--destructive)/0)"] }
+                : {}
+            }
+            transition={battle.bossHp <= 3 ? { duration: 0.9, repeat: Infinity } : undefined}
+            className={cn(
+              "rounded-2xl border bg-card p-4 text-center transition-colors",
+              battle.bossHp <= 3 && battle.bossHp > 0 ? "border-destructive" : "border-border"
+            )}
+          >
+            <motion.div
+              animate={battle.bossHp <= 3 && battle.bossHp > 0 ? { rotate: [0, -4, 4, 0] } : {}}
+              transition={{ duration: 0.6, repeat: Infinity }}
+              className="h-16 w-16 mx-auto rounded-2xl border-2 border-destructive bg-destructive/10 flex items-center justify-center text-3xl"
+            >
+              {battle.boss.emoji}
+            </motion.div>
+            <div className="mt-2 text-sm font-semibold">{battle.boss.name}</div>
+            <div className="mt-2 h-3 rounded-full bg-muted overflow-hidden relative">
+              <motion.div
+                className={cn(
+                  "h-full bg-gradient-to-r",
+                  battle.bossHp <= 3
+                    ? "from-rose-600 to-red-500"
+                    : battle.bossHp <= 6
+                    ? "from-amber-500 to-orange-500"
+                    : "from-emerald-500 to-emerald-400"
+                )}
+                initial={{ width: "100%" }}
+                animate={{ width: `${(battle.bossHp / 10) * 100}%` }}
+                transition={{ type: "spring", stiffness: 220, damping: 24 }}
+              />
+            </div>
+            <div className={cn(
+              "text-[10px] mt-1 tabular-nums",
+              battle.bossHp <= 3 && battle.bossHp > 0 ? "text-destructive font-bold animate-pulse" : "text-muted-foreground"
+            )}>
+              {battle.bossHp}/10 HP {battle.bossHp <= 3 && battle.bossHp > 0 && "⚠️"}
+            </div>
           </motion.div>
         </div>
 

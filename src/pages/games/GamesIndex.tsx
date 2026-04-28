@@ -5,6 +5,7 @@ const GAMES = [
   { to: "/games/bosses", title: "Boss Battles", emoji: "⚔️", desc: "Defeat a boss per subject." , ready: true},
   { to: "/games/flashcards", title: "Flashcard Battle", emoji: "🃏", desc: "Head-to-head AI rounds." , ready: true},
   { to: "/games/debate", title: "Debate Club", emoji: "🎤", desc: "3-round debate, judge scorecard." , ready: true},
+  { to: "/games/blitz", title: "Speed Math Blitz", emoji: "⚡", desc: "60-second mental math sprint. Build streaks for bonus XP.", ready: true},
   { to: "#", title: "Georgia Conquest", emoji: "🗺️", desc: "Coming next — capture GA regions." , ready: false},
   { to: "#", title: "Algebra Dungeon", emoji: "🎮", desc: "Coming next — math-gated dungeon crawler." , ready: false},
 ];
