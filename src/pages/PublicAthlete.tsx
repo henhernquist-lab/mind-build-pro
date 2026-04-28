@@ -3,6 +3,7 @@ import { useParams, Link } from "react-router-dom";
 import { Loader2, Sparkles } from "lucide-react";
 import { fetchPublicCard, PublicAthleteCard } from "@/lib/profile";
 import { AthleteCard } from "@/components/profile/AthleteCard";
+import { AcademicCard } from "@/components/profile/AcademicCard";
 import { useTheme } from "@/lib/themes";
 
 const PublicAthlete = () => {
@@ -64,6 +65,18 @@ const PublicAthlete = () => {
             totalXp: data.total_xp,
           }}
         />
+        {((data.academic_xp ?? 0) > 0 || data.gpa != null || data.grade_level) && (
+          <div className="mt-6">
+            <AcademicCard
+              data={{
+                displayName: data.display_name || data.username,
+                gradeLevel: data.grade_level,
+                gpa: data.gpa,
+                academicXp: data.academic_xp ?? 0,
+              }}
+            />
+          </div>
+        )}
         <div className="mt-6 text-center">
           <Link
             to="/"

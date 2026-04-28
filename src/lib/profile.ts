@@ -157,6 +157,9 @@ export type PublicAthleteCard = {
   fitness_goals: string[] | null;
   training_days_per_week: number | null;
   total_xp: number;
+  academic_xp?: number;
+  gpa?: number | null;
+  grade_level?: string | null;
 };
 
 export const fetchPublicCard = async (username: string): Promise<PublicAthleteCard | null> => {
