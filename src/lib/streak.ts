@@ -78,6 +78,48 @@ export const isMultiplierActive = (row: StreakRow | null): boolean => {
 
 export const xpMultiplier = (row: StreakRow | null): number => (isMultiplierActive(row) ? 1.5 : 1);
 
+// Daily login XP — once per UTC day, +5 academic XP for opening the app.
+// Tracked via localStorage to avoid extra DB columns; streak is bumped via recordStudyActivity.
+const LOGIN_KEY = (uid: string) => `daily_login_xp:${uid}`;
+
+export const claimDailyLoginXp = async (
+  userId: string
+): Promise<{ awarded: number; streak: number; bumped: boolean } | null> => {
+  const today = todayISO();
+  try {
+    if (typeof window !== "undefined" && localStorage.getItem(LOGIN_KEY(userId)) === today) {
+      return null;
+    }
+  } catch {}
+  // Mark first so concurrent mounts don't double-award
+  try { localStorage.setItem(LOGIN_KEY(userId), today); } catch {}
+
+  // Bump streak (also records study activity)
+  const { row, bumped } = await recordStudyActivity(userId);
+
+  // Award +5 academic XP directly to the stats table (avoid circular import on ranks2)
+  const AWARD = 5;
+  try {
+    const { data } = await supabase
+      .from("academic_stats")
+      .select("xp, period_start")
+      .eq("user_id", userId)
+      .maybeSingle();
+    if (!data) {
+      await supabase.from("academic_stats").upsert({
+        user_id: userId, xp: AWARD, period_start: today,
+      });
+    } else {
+      await supabase
+        .from("academic_stats")
+        .update({ xp: ((data as any).xp ?? 0) + AWARD })
+        .eq("user_id", userId);
+    }
+  } catch {}
+
+  return { awarded: AWARD, streak: row.current_streak, bumped };
+};
+
 export const useStreak = () => {
   const { user } = useAuth();
   const [row, setRow] = useState<StreakRow | null>(null);

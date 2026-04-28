@@ -1,8 +1,8 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { NavLink, Outlet, useLocation, useNavigate } from "react-router-dom";
 import {
   Calendar, Dumbbell, Brain, Sparkles, LogOut, User, Gamepad2,
-  CalendarDays, BookText, NotebookPen, ChevronDown, Search, GraduationCap, Trophy,
+  CalendarDays, BookText, NotebookPen, ChevronDown, Search, GraduationCap, Trophy, Apple,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { ThemeSwitcher } from "@/components/ThemeSwitcher";
@@ -17,6 +17,9 @@ import { Breadcrumbs } from "@/components/nav/Breadcrumbs";
 import { MobileFab } from "@/components/nav/MobileFab";
 import { OnboardingFlow } from "@/components/onboarding/OnboardingFlow";
 import { FocusToggle } from "@/components/focus/FocusToggle";
+import { claimDailyLoginXp } from "@/lib/streak";
+import { showFloatingXp } from "@/components/fx/FloatingXp";
+import { toast } from "sonner";
 
 type NavItem = { to: string; label: string; icon: any; accent: "school" | "sports" | "primary" };
 type NavGroup = { id: string; label: string; icon: any; items: NavItem[] };
@@ -32,7 +35,10 @@ const GROUPS: NavGroup[] = [
     id: "athletic",
     label: "Athletic",
     icon: Dumbbell,
-    items: [{ to: "/workouts", label: "Workouts", icon: Dumbbell, accent: "sports" }],
+    items: [
+      { to: "/workouts", label: "Workouts", icon: Dumbbell, accent: "sports" },
+      { to: "/macros", label: "Macro Calculator", icon: Apple, accent: "sports" },
+    ],
   },
   {
     id: "academic",
@@ -85,6 +91,24 @@ export const AppShell = () => {
   const avatarUrl = profile?.avatar_url;
   const athleticRank = useRank("athletic");
   const academicRank = useRank("academic");
+
+  // Daily login bonus: +5 academic XP once per day, bumps streak.
+  useEffect(() => {
+    if (!user) return;
+    let cancelled = false;
+    (async () => {
+      const result = await claimDailyLoginXp(user.id);
+      if (cancelled || !result) return;
+      showFloatingXp(result.awarded, { color: "hsl(var(--primary))" });
+      toast.success(`☀️ Daily login +${result.awarded} XP`, {
+        description: result.streak > 1 ? `🔥 ${result.streak}-day streak` : "Welcome back!",
+        duration: 4000,
+      });
+      academicRank.reload();
+    })();
+    return () => { cancelled = true; };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [user?.id]);
 
   // Group expand/collapse state — auto-expand the group containing current route
   const activeGroup = GROUPS.find((g) => g.items.some((i) => location.pathname === i.to || (i.to !== "/" && location.pathname.startsWith(i.to))))?.id;

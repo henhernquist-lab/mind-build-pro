@@ -23,6 +23,7 @@ import Leaderboard from "./pages/Leaderboard";
 import TestCalendar from "./pages/academic/TestCalendar";
 import VocabBuilder from "./pages/academic/VocabBuilder";
 import Notes from "./pages/academic/Notes";
+import MacroCalculator from "./pages/MacroCalculator";
 import { AuthProvider } from "@/lib/auth";
 import { AuthGate } from "@/components/auth/AuthGate";
 import { FloatingXpLayer } from "@/components/fx/FloatingXp";
@@ -44,6 +45,7 @@ const App = () => (
             <Route element={<AuthGate><AppShell /></AuthGate>}>
               <Route path="/" element={<DailyPlanner />} />
               <Route path="/workouts" element={<Workouts />} />
+              <Route path="/macros" element={<MacroCalculator />} />
               <Route path="/tutor" element={<Tutor />} />
               <Route path="/profile" element={<Profile />} />
               <Route path="/games" element={<GamesIndex />} />
