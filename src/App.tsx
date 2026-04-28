@@ -20,6 +20,7 @@ import GeorgiaConquest from "./pages/games/GeorgiaConquest";
 import AlgebraDungeon from "./pages/games/AlgebraDungeon";
 import { AuthProvider } from "@/lib/auth";
 import { AuthGate } from "@/components/auth/AuthGate";
+import { FloatingXpLayer } from "@/components/fx/FloatingXp";
 
 const queryClient = new QueryClient();
 
@@ -28,6 +29,7 @@ const App = () => (
     <TooltipProvider>
       <Toaster />
       <Sonner />
+      <FloatingXpLayer />
       <BrowserRouter>
         <AuthProvider>
           <Routes>
