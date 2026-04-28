@@ -12,6 +12,10 @@ import Auth from "./pages/Auth";
 import ResetPassword from "./pages/ResetPassword";
 import Profile from "./pages/Profile";
 import PublicAthlete from "./pages/PublicAthlete";
+import GamesIndex from "./pages/games/GamesIndex";
+import BossBattles from "./pages/games/BossBattles";
+import FlashcardBattle from "./pages/games/FlashcardBattle";
+import DebateClub from "./pages/games/DebateClub";
 import { AuthProvider } from "@/lib/auth";
 import { AuthGate } from "@/components/auth/AuthGate";
 
@@ -33,6 +37,10 @@ const App = () => (
               <Route path="/workouts" element={<Workouts />} />
               <Route path="/tutor" element={<Tutor />} />
               <Route path="/profile" element={<Profile />} />
+              <Route path="/games" element={<GamesIndex />} />
+              <Route path="/games/bosses" element={<BossBattles />} />
+              <Route path="/games/flashcards" element={<FlashcardBattle />} />
+              <Route path="/games/debate" element={<DebateClub />} />
             </Route>
             <Route path="*" element={<NotFound />} />
           </Routes>

@@ -14,6 +14,123 @@ export type Database = {
   }
   public: {
     Tables: {
+      academic_classes: {
+        Row: {
+          class_name: string
+          created_at: string
+          current_grade: string | null
+          current_grade_pct: number | null
+          difficulty: string
+          id: string
+          period: string | null
+          sort_order: number
+          teacher: string | null
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          class_name: string
+          created_at?: string
+          current_grade?: string | null
+          current_grade_pct?: number | null
+          difficulty?: string
+          id?: string
+          period?: string | null
+          sort_order?: number
+          teacher?: string | null
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          class_name?: string
+          created_at?: string
+          current_grade?: string | null
+          current_grade_pct?: number | null
+          difficulty?: string
+          id?: string
+          period?: string | null
+          sort_order?: number
+          teacher?: string | null
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
+      academic_profile: {
+        Row: {
+          academic_goals: string[]
+          gpa: number | null
+          gpa_weighted: boolean
+          grade_level: string | null
+          homework_load: string | null
+          needs_improvement: string | null
+          needs_improvement_override: boolean
+          strongest_subject: string | null
+          strongest_subject_override: boolean
+          study_hours_per_day: number
+          study_style: string | null
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          academic_goals?: string[]
+          gpa?: number | null
+          gpa_weighted?: boolean
+          grade_level?: string | null
+          homework_load?: string | null
+          needs_improvement?: string | null
+          needs_improvement_override?: boolean
+          strongest_subject?: string | null
+          strongest_subject_override?: boolean
+          study_hours_per_day?: number
+          study_style?: string | null
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          academic_goals?: string[]
+          gpa?: number | null
+          gpa_weighted?: boolean
+          grade_level?: string | null
+          homework_load?: string | null
+          needs_improvement?: string | null
+          needs_improvement_override?: boolean
+          strongest_subject?: string | null
+          strongest_subject_override?: boolean
+          study_hours_per_day?: number
+          study_style?: string | null
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
+      academic_stats: {
+        Row: {
+          period_start: string
+          tutor_xp_date: string
+          tutor_xp_today: number
+          updated_at: string
+          user_id: string
+          xp: number
+        }
+        Insert: {
+          period_start?: string
+          tutor_xp_date?: string
+          tutor_xp_today?: number
+          updated_at?: string
+          user_id: string
+          xp?: number
+        }
+        Update: {
+          period_start?: string
+          tutor_xp_date?: string
+          tutor_xp_today?: number
+          updated_at?: string
+          user_id?: string
+          xp?: number
+        }
+        Relationships: []
+      }
       athlete_profile: {
         Row: {
           age: number
@@ -62,6 +179,39 @@ export type Database = {
           user_id?: string
           weight_lbs?: number
           years_experience?: string | null
+        }
+        Relationships: []
+      }
+      boss_customizations: {
+        Row: {
+          boss_emoji: string | null
+          boss_name: string | null
+          boss_personality: string | null
+          created_at: string
+          id: string
+          subject_id: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          boss_emoji?: string | null
+          boss_name?: string | null
+          boss_personality?: string | null
+          created_at?: string
+          id?: string
+          subject_id: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          boss_emoji?: string | null
+          boss_name?: string | null
+          boss_personality?: string | null
+          created_at?: string
+          id?: string
+          subject_id?: string
+          updated_at?: string
+          user_id?: string
         }
         Relationships: []
       }
@@ -268,6 +418,9 @@ export type Database = {
           id: string
           month_key: string
           month_name: string
+          period_end: string | null
+          period_start: string | null
+          rank_type: string
           user_id: string
         }
         Insert: {
@@ -278,6 +431,9 @@ export type Database = {
           id?: string
           month_key: string
           month_name: string
+          period_end?: string | null
+          period_start?: string | null
+          rank_type?: string
           user_id: string
         }
         Update: {
@@ -288,6 +444,9 @@ export type Database = {
           id?: string
           month_key?: string
           month_name?: string
+          period_end?: string | null
+          period_start?: string | null
+          rank_type?: string
           user_id?: string
         }
         Relationships: []
@@ -394,18 +553,21 @@ export type Database = {
       user_stats: {
         Row: {
           current_month: string
+          period_start: string
           updated_at: string
           user_id: string
           xp: number
         }
         Insert: {
           current_month?: string
+          period_start?: string
           updated_at?: string
           user_id: string
           xp?: number
         }
         Update: {
           current_month?: string
+          period_start?: string
           updated_at?: string
           user_id?: string
           xp?: number
@@ -471,12 +633,15 @@ export type Database = {
       get_public_athlete_card: {
         Args: { _username: string }
         Returns: {
+          academic_xp: number
           age: number
           avatar_url: string
           bio: string
           display_name: string
           fitness_goals: string[]
+          gpa: number
           grade: string
+          grade_level: string
           height_ft: number
           height_in: number
           other_sport: string
