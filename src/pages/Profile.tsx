@@ -235,7 +235,7 @@ const Profile = () => {
     <div className="p-6 md:p-10 max-w-4xl mx-auto pb-24">
       <header className="mb-6">
         <p className="text-xs uppercase tracking-widest text-muted-foreground">Profile</p>
-        <h1 className="text-3xl font-bold mt-1">Your Athlete Hub</h1>
+        <h1 className="gradient-text text-3xl font-bold mt-1">Your Athlete Hub</h1>
       </header>
 
       {/* Live Athlete Card */}
