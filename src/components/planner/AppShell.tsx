@@ -1,5 +1,5 @@
 import { NavLink, Outlet, useLocation, useNavigate } from "react-router-dom";
-import { Calendar, Dumbbell, Brain, Sparkles, LogOut, User, Gamepad2 } from "lucide-react";
+import { Calendar, Dumbbell, Brain, Sparkles, LogOut, User, Gamepad2, CalendarDays, BookText, NotebookPen } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { ThemeSwitcher } from "@/components/ThemeSwitcher";
 import { useTheme } from "@/lib/themes";
@@ -7,11 +7,15 @@ import { useAuth } from "@/lib/auth";
 import { Button } from "@/components/ui/button";
 import { SwipeNav } from "@/components/SwipeNav";
 import { useRank } from "@/lib/ranks2";
+import { StreakBadge } from "@/components/academic/StreakBadge";
 
 const NAV = [
   { to: "/", label: "Daily Planner", icon: Calendar, accent: "school" },
   { to: "/workouts", label: "Workouts", icon: Dumbbell, accent: "sports" },
   { to: "/tutor", label: "AI Tutor", icon: Brain, accent: "primary" },
+  { to: "/tests", label: "Tests", icon: CalendarDays, accent: "school" },
+  { to: "/vocab", label: "Vocab", icon: BookText, accent: "school" },
+  { to: "/notes", label: "Notes", icon: NotebookPen, accent: "school" },
   { to: "/games", label: "Games", icon: Gamepad2, accent: "primary" },
 ] as const;
 
@@ -53,6 +57,7 @@ export const AppShell = () => {
               <div className="text-[11px] text-muted-foreground truncate">{user?.email}</div>
             </div>
           </div>
+          <StreakBadge />
         </div>
         <nav className="px-3 flex-1 space-y-1">
           {NAV.map((item) => (

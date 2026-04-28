@@ -131,6 +131,51 @@ export type Database = {
         }
         Relationships: []
       }
+      academic_tests: {
+        Row: {
+          completed: boolean
+          created_at: string
+          difficulty: string
+          id: string
+          notes: string | null
+          score: number | null
+          subject: string
+          test_date: string
+          title: string
+          topics: string | null
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          completed?: boolean
+          created_at?: string
+          difficulty?: string
+          id?: string
+          notes?: string | null
+          score?: number | null
+          subject: string
+          test_date: string
+          title: string
+          topics?: string | null
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          completed?: boolean
+          created_at?: string
+          difficulty?: string
+          id?: string
+          notes?: string | null
+          score?: number | null
+          subject?: string
+          test_date?: string
+          title?: string
+          topics?: string | null
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       athlete_profile: {
         Row: {
           age: number
@@ -487,6 +532,69 @@ export type Database = {
         }
         Relationships: []
       }
+      study_notes: {
+        Row: {
+          ai_summary: string | null
+          content: string
+          created_at: string
+          id: string
+          subject: string
+          title: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          ai_summary?: string | null
+          content?: string
+          created_at?: string
+          id?: string
+          subject: string
+          title: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          ai_summary?: string | null
+          content?: string
+          created_at?: string
+          id?: string
+          subject?: string
+          title?: string
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
+      study_streak: {
+        Row: {
+          current_streak: number
+          last_study_date: string | null
+          longest_streak: number
+          multiplier_active_until: string | null
+          total_study_days: number
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          current_streak?: number
+          last_study_date?: string | null
+          longest_streak?: number
+          multiplier_active_until?: string | null
+          total_study_days?: number
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          current_streak?: number
+          last_study_date?: string | null
+          longest_streak?: number
+          multiplier_active_until?: string | null
+          total_study_days?: number
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       subjects: {
         Row: {
           color: string
@@ -574,6 +682,54 @@ export type Database = {
           updated_at?: string
           user_id?: string
           xp?: number
+        }
+        Relationships: []
+      }
+      vocab_words: {
+        Row: {
+          created_at: string
+          deck: string
+          definition: string
+          due_at: string
+          ease: number
+          example: string | null
+          id: string
+          interval_days: number
+          last_reviewed_at: string | null
+          mastered: boolean
+          reps: number
+          user_id: string
+          word: string
+        }
+        Insert: {
+          created_at?: string
+          deck?: string
+          definition: string
+          due_at?: string
+          ease?: number
+          example?: string | null
+          id?: string
+          interval_days?: number
+          last_reviewed_at?: string | null
+          mastered?: boolean
+          reps?: number
+          user_id: string
+          word: string
+        }
+        Update: {
+          created_at?: string
+          deck?: string
+          definition?: string
+          due_at?: string
+          ease?: number
+          example?: string | null
+          id?: string
+          interval_days?: number
+          last_reviewed_at?: string | null
+          mastered?: boolean
+          reps?: number
+          user_id?: string
+          word?: string
         }
         Relationships: []
       }
