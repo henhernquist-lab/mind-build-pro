@@ -85,6 +85,10 @@ export default function TestCalendar() {
     }
     sfx.click();
     toast.success("Test added");
+    try {
+      const { unlockBadge } = await import("@/lib/achievements");
+      await unlockBadge(user.id, "test_logged");
+    } catch {}
     setAdding(false);
     setDraft({ subject: "", title: "", test_date: todayISO(), topics: "", difficulty: "medium" });
     reload();
