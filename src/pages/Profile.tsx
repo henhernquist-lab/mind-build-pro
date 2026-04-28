@@ -21,6 +21,7 @@ import { AcademicCard } from "@/components/profile/AcademicCard";
 import { AcademicProfileSection } from "@/components/profile/AcademicProfileSection";
 import { RankCountdown } from "@/components/profile/RankCountdown";
 import { RankHistoryTimeline } from "@/components/profile/RankHistoryTimeline";
+import { WeeklyReportCard } from "@/components/profile/WeeklyReportCard";
 import { useRank } from "@/lib/ranks2";
 import { useState as useStateAcademic } from "react";
 import html2canvas from "html2canvas";
@@ -592,6 +593,11 @@ const Profile = () => {
       {/* Rank history */}
       <div className="mt-6">
         <RankHistoryTimeline />
+      </div>
+
+      {/* AI Report Card */}
+      <div className="mt-6">
+        <WeeklyReportCard />
       </div>
     </div>
   );
