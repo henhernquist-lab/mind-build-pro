@@ -1,5 +1,9 @@
+import { useState } from "react";
 import { NavLink, Outlet, useLocation, useNavigate } from "react-router-dom";
-import { Calendar, Dumbbell, Brain, Sparkles, LogOut, User, Gamepad2, CalendarDays, BookText, NotebookPen } from "lucide-react";
+import {
+  Calendar, Dumbbell, Brain, Sparkles, LogOut, User, Gamepad2,
+  CalendarDays, BookText, NotebookPen, ChevronDown, Search, GraduationCap,
+} from "lucide-react";
 import { cn } from "@/lib/utils";
 import { ThemeSwitcher } from "@/components/ThemeSwitcher";
 import { useTheme } from "@/lib/themes";
@@ -8,19 +12,64 @@ import { Button } from "@/components/ui/button";
 import { SwipeNav } from "@/components/SwipeNav";
 import { useRank } from "@/lib/ranks2";
 import { StreakBadge } from "@/components/academic/StreakBadge";
+import { CommandPalette, openCommandPalette } from "@/components/nav/CommandPalette";
+import { Breadcrumbs } from "@/components/nav/Breadcrumbs";
+import { MobileFab } from "@/components/nav/MobileFab";
+import { OnboardingFlow } from "@/components/onboarding/OnboardingFlow";
 
-const NAV = [
-  { to: "/", label: "Daily Planner", icon: Calendar, accent: "school" },
+type NavItem = { to: string; label: string; icon: any; accent: "school" | "sports" | "primary" };
+type NavGroup = { id: string; label: string; icon: any; items: NavItem[] };
+
+const GROUPS: NavGroup[] = [
+  {
+    id: "plan",
+    label: "Plan",
+    icon: Calendar,
+    items: [{ to: "/", label: "Daily Planner", icon: Calendar, accent: "school" }],
+  },
+  {
+    id: "athletic",
+    label: "Athletic",
+    icon: Dumbbell,
+    items: [{ to: "/workouts", label: "Workouts", icon: Dumbbell, accent: "sports" }],
+  },
+  {
+    id: "academic",
+    label: "Academic",
+    icon: GraduationCap,
+    items: [
+      { to: "/tutor", label: "AI Tutor", icon: Brain, accent: "primary" },
+      { to: "/tests", label: "Test Calendar", icon: CalendarDays, accent: "school" },
+      { to: "/vocab", label: "Vocab Builder", icon: BookText, accent: "school" },
+      { to: "/notes", label: "Notes", icon: NotebookPen, accent: "school" },
+    ],
+  },
+  {
+    id: "games",
+    label: "Games",
+    icon: Gamepad2,
+    items: [{ to: "/games", label: "All Games", icon: Gamepad2, accent: "primary" }],
+  },
+];
+
+// Trimmed mobile bottom nav — only the 4 most-used routes
+const MOBILE_NAV: NavItem[] = [
+  { to: "/", label: "Plan", icon: Calendar, accent: "school" },
   { to: "/workouts", label: "Workouts", icon: Dumbbell, accent: "sports" },
-  { to: "/tutor", label: "AI Tutor", icon: Brain, accent: "primary" },
-  { to: "/tests", label: "Tests", icon: CalendarDays, accent: "school" },
-  { to: "/vocab", label: "Vocab", icon: BookText, accent: "school" },
-  { to: "/notes", label: "Notes", icon: NotebookPen, accent: "school" },
+  { to: "/tutor", label: "Tutor", icon: Brain, accent: "primary" },
   { to: "/games", label: "Games", icon: Gamepad2, accent: "primary" },
-] as const;
+];
 
 const accentColor = (a: string) =>
   a === "sports" ? "hsl(var(--sports))" : a === "primary" ? "hsl(var(--primary))" : "hsl(var(--school))";
+
+const navItemClass = ({ isActive }: { isActive: boolean }) =>
+  cn(
+    "group flex items-center gap-3 rounded-lg px-3 py-2 text-sm transition-colors",
+    isActive
+      ? "bg-sidebar-accent text-sidebar-accent-foreground"
+      : "text-sidebar-foreground hover:bg-sidebar-accent/60 hover:text-sidebar-accent-foreground"
+  );
 
 export const AppShell = () => {
   const location = useLocation();
@@ -32,8 +81,23 @@ export const AppShell = () => {
   const avatarUrl = profile?.avatar_url;
   const athleticRank = useRank("athletic");
   const academicRank = useRank("academic");
+
+  // Group expand/collapse state — auto-expand the group containing current route
+  const activeGroup = GROUPS.find((g) => g.items.some((i) => location.pathname === i.to || (i.to !== "/" && location.pathname.startsWith(i.to))))?.id;
+  const [openGroups, setOpenGroups] = useState<Record<string, boolean>>({
+    plan: true,
+    athletic: true,
+    academic: true,
+    games: true,
+  });
+  const toggleGroup = (id: string) => setOpenGroups((s) => ({ ...s, [id]: !s[id] }));
+
   return (
     <div className="flex min-h-screen w-full bg-background text-foreground">
+      <CommandPalette />
+      <MobileFab />
+      <OnboardingFlow />
+
       {/* Top-left floating profile button */}
       <button
         onClick={() => navigate("/profile")}
@@ -59,52 +123,70 @@ export const AppShell = () => {
           </div>
           <StreakBadge />
         </div>
-        <nav className="px-3 flex-1 space-y-1">
-          {NAV.map((item) => (
-            <NavLink
-              key={item.to}
-              to={item.to}
-              end={item.to === "/"}
-              className={({ isActive }) =>
-                cn(
-                  "group flex items-center gap-3 rounded-lg px-3 py-2.5 text-sm transition-colors",
-                  isActive
-                    ? "bg-sidebar-accent text-sidebar-accent-foreground"
-                    : "text-sidebar-foreground hover:bg-sidebar-accent/60 hover:text-sidebar-accent-foreground"
-                )
-              }
-            >
-              {({ isActive }) => (
-                <>
-                  <span
-                    className="h-2 w-2 rounded-full transition-all"
-                    style={{
-                      backgroundColor: accentColor(item.accent),
-                      boxShadow: isActive ? `0 0 12px ${accentColor(item.accent)}` : "none",
-                    }}
+
+        {/* Cmd+K search trigger */}
+        <button
+          onClick={openCommandPalette}
+          className="mx-3 mb-2 flex items-center gap-2 rounded-lg border border-sidebar-border bg-card/40 px-3 py-2 text-xs text-muted-foreground hover:border-primary/40 hover:text-foreground transition-colors"
+        >
+          <Search className="h-3.5 w-3.5" />
+          <span>Quick search...</span>
+          <kbd className="ml-auto text-[10px] rounded bg-muted px-1.5 py-0.5 font-mono">⌘K</kbd>
+        </button>
+
+        <nav className="px-3 flex-1 space-y-2 overflow-y-auto">
+          {GROUPS.map((g) => {
+            const isOpen = openGroups[g.id];
+            const isActiveGroup = activeGroup === g.id;
+            return (
+              <div key={g.id}>
+                <button
+                  onClick={() => toggleGroup(g.id)}
+                  className={cn(
+                    "w-full flex items-center gap-2 px-2 py-1 text-[10px] uppercase tracking-wider transition-colors",
+                    isActiveGroup ? "text-foreground" : "text-muted-foreground hover:text-foreground"
+                  )}
+                >
+                  <g.icon className="h-3 w-3" />
+                  <span>{g.label}</span>
+                  <ChevronDown
+                    className={cn("h-3 w-3 ml-auto transition-transform", isOpen ? "" : "-rotate-90")}
                   />
-                  <item.icon className="h-4 w-4" />
-                  <span className="font-medium">{item.label}</span>
-                </>
-              )}
+                </button>
+                {isOpen && (
+                  <div className="space-y-0.5 mt-1 animate-fade-in">
+                    {g.items.map((item) => (
+                      <NavLink key={item.to} to={item.to} end={item.to === "/"} className={navItemClass}>
+                        {({ isActive }) => (
+                          <>
+                            <span
+                              className="h-2 w-2 rounded-full transition-all"
+                              style={{
+                                backgroundColor: accentColor(item.accent),
+                                boxShadow: isActive ? `0 0 12px ${accentColor(item.accent)}` : "none",
+                              }}
+                            />
+                            <item.icon className="h-4 w-4" />
+                            <span className="font-medium">{item.label}</span>
+                          </>
+                        )}
+                      </NavLink>
+                    ))}
+                  </div>
+                )}
+              </div>
+            );
+          })}
+
+          <div className="pt-2 border-t border-sidebar-border/60">
+            <NavLink to="/profile" className={navItemClass}>
+              <span className="h-2 w-2 rounded-full bg-primary" />
+              <User className="h-4 w-4" />
+              <span className="font-medium">Profile</span>
             </NavLink>
-          ))}
-          <NavLink
-            to="/profile"
-            className={({ isActive }) =>
-              cn(
-                "group flex items-center gap-3 rounded-lg px-3 py-2.5 text-sm transition-colors",
-                isActive
-                  ? "bg-sidebar-accent text-sidebar-accent-foreground"
-                  : "text-sidebar-foreground hover:bg-sidebar-accent/60 hover:text-sidebar-accent-foreground"
-              )
-            }
-          >
-            <span className="h-2 w-2 rounded-full bg-primary" />
-            <User className="h-4 w-4" />
-            <span className="font-medium">Profile</span>
-          </NavLink>
+          </div>
         </nav>
+
         <div className="p-3 border-t border-sidebar-border space-y-2">
           <div className="flex gap-2 px-1">
             <NavLink
@@ -133,9 +215,9 @@ export const AppShell = () => {
         </div>
       </aside>
 
-      {/* Mobile top nav */}
-      <div className="md:hidden fixed bottom-0 inset-x-0 z-50 bg-sidebar/95 backdrop-blur border-t border-sidebar-border flex">
-        {NAV.map((item) => (
+      {/* Mobile bottom nav — trimmed to 4 items, FAB handles the rest */}
+      <div className="md:hidden fixed bottom-0 inset-x-0 z-40 bg-sidebar/95 backdrop-blur border-t border-sidebar-border flex">
+        {MOBILE_NAV.map((item) => (
           <NavLink
             key={item.to}
             to={item.to}
@@ -153,14 +235,14 @@ export const AppShell = () => {
                   className="h-5 w-5"
                   style={{ color: isActive ? accentColor(item.accent) : undefined }}
                 />
-                <span>{item.label.split(" ")[0]}</span>
+                <span>{item.label}</span>
               </>
             )}
           </NavLink>
         ))}
       </div>
 
-      <main className="flex-1 min-w-0 pb-16 md:pb-0">
+      <main className="flex-1 min-w-0 pb-20 md:pb-0">
         <div className="fixed top-3 right-3 z-40 flex gap-2 items-center">
           <ThemeSwitcher />
           <button
@@ -172,6 +254,7 @@ export const AppShell = () => {
             {avatarUrl ? <img src={avatarUrl} alt="" className="h-9 w-9 rounded-full" /> : initials}
           </button>
         </div>
+        <Breadcrumbs />
         <SwipeNav>
           <Outlet />
         </SwipeNav>
