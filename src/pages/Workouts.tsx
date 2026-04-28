@@ -26,6 +26,7 @@ import {
 } from "@/lib/workouts";
 import { useAuth } from "@/lib/auth";
 import { RANKS, getRank, getNextRank, XP_PR_BONUS, type Rank } from "@/lib/rank";
+import { AthleticProfileBar } from "@/components/profile/AthleticProfileBar";
 
 const isLowerBetter = (u: Unit) => u === "seconds" || u === "minutes";
 
@@ -541,6 +542,8 @@ const Workouts = () => {
       </header>
 
       <RankCard rank={rank} xp={xp} next={next} />
+
+      <AthleticProfileBar />
 
       <Tabs value={sport} onValueChange={(v) => setSport(v as Sport)}>
         <TabsList className="grid grid-cols-2 w-full mb-6">
