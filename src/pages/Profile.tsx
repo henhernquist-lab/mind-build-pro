@@ -57,7 +57,7 @@ const Profile = () => {
     setSchoolName(profile.school_name || "");
     setUsername(profile.username || "");
     setAvatarUrl(profile.avatar_url || null);
-  }, [user?.id, profile?.user_id]);
+  }, [user?.id, profile?.display_name, profile?.avatar_url]);
 
   useEffect(() => {
     if (!user) return;
