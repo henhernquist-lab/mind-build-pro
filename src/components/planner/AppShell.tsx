@@ -6,6 +6,7 @@ import { useTheme } from "@/lib/themes";
 import { useAuth } from "@/lib/auth";
 import { Button } from "@/components/ui/button";
 import { SwipeNav } from "@/components/SwipeNav";
+import { useRank } from "@/lib/ranks2";
 
 const NAV = [
   { to: "/", label: "Daily Planner", icon: Calendar, accent: "school" },
@@ -25,6 +26,8 @@ export const AppShell = () => {
   const displayName = profile?.display_name || user?.email?.split("@")[0] || "You";
   const initials = displayName.slice(0, 2).toUpperCase();
   const avatarUrl = profile?.avatar_url;
+  const athleticRank = useRank("athletic");
+  const academicRank = useRank("academic");
   return (
     <div className="flex min-h-screen w-full bg-background text-foreground">
       {/* Top-left floating profile button */}
@@ -98,6 +101,26 @@ export const AppShell = () => {
           </NavLink>
         </nav>
         <div className="p-3 border-t border-sidebar-border space-y-2">
+          <div className="flex gap-2 px-1">
+            <NavLink
+              to="/profile"
+              className="flex-1 rounded-lg border border-border bg-card/60 px-2 py-1.5 text-center hover:border-primary transition-colors"
+              style={{ borderLeft: `3px solid ${athleticRank.rank.color}` }}
+              title={`Athletic: ${athleticRank.rank.name} • ${athleticRank.xp} XP`}
+            >
+              <div className="text-base leading-none">{athleticRank.rank.icon}</div>
+              <div className="text-[9px] uppercase tracking-wider text-muted-foreground mt-0.5">{athleticRank.xp} XP</div>
+            </NavLink>
+            <NavLink
+              to="/profile"
+              className="flex-1 rounded-lg border border-border bg-card/60 px-2 py-1.5 text-center hover:border-primary transition-colors"
+              style={{ borderLeft: `3px solid ${academicRank.rank.color}` }}
+              title={`Academic: ${academicRank.rank.name} • ${academicRank.xp} XP`}
+            >
+              <div className="text-base leading-none">{academicRank.rank.icon}</div>
+              <div className="text-[9px] uppercase tracking-wider text-muted-foreground mt-0.5">{academicRank.xp} XP</div>
+            </NavLink>
+          </div>
           <Button variant="ghost" size="sm" onClick={signOut} className="w-full justify-start">
             <LogOut className="h-4 w-4 mr-2" /> Sign out
           </Button>
