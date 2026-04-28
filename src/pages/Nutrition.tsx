@@ -1,5 +1,5 @@
-import { useEffect, useMemo, useState } from "react";
-import { Apple, Loader2, Sparkles, Plus, Trash2, ChefHat, TrendingUp, Settings2, AlertCircle } from "lucide-react";
+import { useEffect, useMemo, useRef, useState } from "react";
+import { Apple, Loader2, Sparkles, Plus, Trash2, ChefHat, TrendingUp, Settings2, AlertCircle, Camera, Upload, X, ScanLine } from "lucide-react";
 import { Link } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -84,6 +84,18 @@ const Nutrition = () => {
   const [mealType, setMealType] = useState<MealType>("breakfast");
   const [estimating, setEstimating] = useState(false);
 
+  // Scan a meal (camera / upload)
+  const cameraInputRef = useRef<HTMLInputElement | null>(null);
+  const uploadInputRef = useRef<HTMLInputElement | null>(null);
+  const [scanPreview, setScanPreview] = useState<string | null>(null); // data URL
+  const [scanMediaType, setScanMediaType] = useState<string>("image/jpeg");
+  const [scanning, setScanning] = useState(false);
+  const [scanResult, setScanResult] = useState<{
+    meal_name: string; items: string[]; calories: number; protein_g: number;
+    carbs_g: number; fat_g: number; confidence: "high" | "medium" | "low" | string; notes?: string;
+  } | null>(null);
+  const [scanMealType, setScanMealType] = useState<MealType>("lunch");
+
   // Prefs
   const [prefsOpen, setPrefsOpen] = useState(false);
   const [prefs, setPrefs] = useState<NutritionPrefs>({ preferences: "", allergies: "" });
@@ -129,6 +141,118 @@ const Nutrition = () => {
 
   const totals = useMemo(() => sumDay(meals), [meals]);
   const left = useMemo(() => targets ? remaining(targets, totals) : null, [targets, totals]);
+
+  // ---- Scan helpers ----
+  const compressImage = (file: File, maxDim = 1280, quality = 0.85): Promise<{ dataUrl: string; mediaType: string }> =>
+    new Promise((resolve, reject) => {
+      const reader = new FileReader();
+      reader.onload = () => {
+        const img = new Image();
+        img.onload = () => {
+          let { width, height } = img;
+          if (width > maxDim || height > maxDim) {
+            const scale = Math.min(maxDim / width, maxDim / height);
+            width = Math.round(width * scale);
+            height = Math.round(height * scale);
+          }
+          const canvas = document.createElement("canvas");
+          canvas.width = width; canvas.height = height;
+          const ctx = canvas.getContext("2d");
+          if (!ctx) return reject(new Error("Canvas unavailable"));
+          ctx.drawImage(img, 0, 0, width, height);
+          const dataUrl = canvas.toDataURL("image/jpeg", quality);
+          resolve({ dataUrl, mediaType: "image/jpeg" });
+        };
+        img.onerror = () => reject(new Error("Could not read image"));
+        img.src = reader.result as string;
+      };
+      reader.onerror = () => reject(new Error("Could not read file"));
+      reader.readAsDataURL(file);
+    });
+
+  const handleScanFile = async (file: File | undefined | null) => {
+    if (!file) return;
+    if (!file.type.startsWith("image/")) {
+      toast.error("Please choose an image");
+      return;
+    }
+    setScanResult(null);
+    try {
+      // Always compress: ensures < 5MB and reasonable upload size
+      const { dataUrl, mediaType } = await compressImage(file);
+      setScanPreview(dataUrl);
+      setScanMediaType(mediaType);
+    } catch (e: any) {
+      toast.error("Couldn't load photo", { description: e.message });
+    }
+  };
+
+  const clearScan = () => {
+    setScanPreview(null);
+    setScanResult(null);
+    setScanning(false);
+    if (cameraInputRef.current) cameraInputRef.current.value = "";
+    if (uploadInputRef.current) uploadInputRef.current.value = "";
+  };
+
+  const analyzeScan = async () => {
+    if (!scanPreview) return;
+    setScanning(true);
+    setScanResult(null);
+    try {
+      const base64 = scanPreview.includes(",") ? scanPreview.split(",")[1] : scanPreview;
+      const data = await callFn("scan-meal-image", {
+        image_data: base64,
+        media_type: scanMediaType,
+      });
+      if (data?.error === "no_food") {
+        toast.error("No food detected. Try a clearer photo of your meal");
+        return;
+      }
+      if (!data || typeof data.calories !== "number") {
+        toast.error("Couldn't read that photo", { description: "Try a clearer shot of your meal" });
+        return;
+      }
+      setScanResult({
+        meal_name: String(data.meal_name ?? "Scanned meal").slice(0, 60),
+        items: Array.isArray(data.items) ? data.items.map(String) : [],
+        calories: Math.max(0, Math.round(Number(data.calories) || 0)),
+        protein_g: Math.max(0, Math.round(Number(data.protein_g) || 0)),
+        carbs_g: Math.max(0, Math.round(Number(data.carbs_g) || 0)),
+        fat_g: Math.max(0, Math.round(Number(data.fat_g) || 0)),
+        confidence: (data.confidence ?? "medium"),
+        notes: data.notes ? String(data.notes) : undefined,
+      });
+    } catch (e: any) {
+      toast.error("Scan failed", { description: e.message });
+    } finally {
+      setScanning(false);
+    }
+  };
+
+  const addScanToLog = async () => {
+    if (!user || !scanResult) return;
+    try {
+      const meal = await insertMeal(user.id, {
+        log_date: activeDate,
+        meal_type: scanMealType,
+        description: scanResult.meal_name || "Scanned meal",
+        calories: scanResult.calories,
+        protein_g: scanResult.protein_g,
+        carbs_g: scanResult.carbs_g,
+        fat_g: scanResult.fat_g,
+        ai_estimated: true,
+      });
+      setMeals((prev) => [...prev, meal]);
+      setWeekMeals((prev) => [...prev, meal]);
+      toast.success(`Logged: ${meal.description}`, {
+        description: `${meal.calories} kcal · ${meal.protein_g}p ${meal.carbs_g}c ${meal.fat_g}f`,
+      });
+      clearScan();
+    } catch (e: any) {
+      toast.error("Couldn't add to log", { description: e.message });
+    }
+  };
 
   const recalc = async () => {
     if (!user) return;
@@ -410,6 +534,201 @@ const Nutrition = () => {
 
       {/* Log a meal */}
       <div className="rounded-2xl glass p-5 mb-6">
+        {/* Scan Your Meal */}
+        <div className="mb-5">
+          <h3 className="text-sm font-semibold uppercase tracking-wider text-muted-foreground mb-3 flex items-center gap-2">
+            <Camera className="h-4 w-4" /> Scan Your Meal
+          </h3>
+
+          {!scanPreview && (
+            <div className="grid grid-cols-2 gap-2">
+              <input
+                ref={cameraInputRef}
+                type="file"
+                accept="image/*"
+                capture="environment"
+                className="hidden"
+                onChange={(e) => handleScanFile(e.target.files?.[0])}
+              />
+              <input
+                ref={uploadInputRef}
+                type="file"
+                accept="image/*"
+                className="hidden"
+                onChange={(e) => handleScanFile(e.target.files?.[0])}
+              />
+              <Button
+                type="button"
+                variant="premium"
+                className="h-20 text-base flex-col gap-1"
+                onClick={() => cameraInputRef.current?.click()}
+              >
+                <Camera className="h-6 w-6" />
+                <span>📷 Take Photo</span>
+              </Button>
+              <Button
+                type="button"
+                variant="outline"
+                className="h-20 text-base flex-col gap-1"
+                onClick={() => uploadInputRef.current?.click()}
+              >
+                <Upload className="h-6 w-6" />
+                <span>Upload Photo</span>
+              </Button>
+            </div>
+          )}
+
+          {scanPreview && (
+            <div className="space-y-3">
+              <div className="relative rounded-2xl overflow-hidden border border-border/60">
+                <img src={scanPreview} alt="Meal preview" className="w-full max-h-80 object-cover" />
+                <button
+                  type="button"
+                  onClick={clearScan}
+                  className="absolute top-2 right-2 h-8 w-8 rounded-full bg-background/80 backdrop-blur flex items-center justify-center hover:bg-background"
+                  aria-label="Remove photo"
+                >
+                  <X className="h-4 w-4" />
+                </button>
+
+                <AnimatePresence>
+                  {scanning && (
+                    <motion.div
+                      initial={{ opacity: 0 }}
+                      animate={{ opacity: 1 }}
+                      exit={{ opacity: 0 }}
+                      className="absolute inset-0 flex flex-col items-center justify-center bg-background/55 backdrop-blur-sm"
+                    >
+                      <motion.div
+                        animate={{ scale: [1, 1.15, 1], opacity: [0.8, 1, 0.8] }}
+                        transition={{ duration: 1.4, repeat: Infinity, ease: "easeInOut" }}
+                        className="h-16 w-16 rounded-full bg-sports/20 flex items-center justify-center mb-3"
+                      >
+                        <ScanLine className="h-8 w-8 text-sports" />
+                      </motion.div>
+                      <div className="text-sm font-semibold">🔍 Analyzing your meal...</div>
+                    </motion.div>
+                  )}
+                </AnimatePresence>
+              </div>
+
+              {!scanResult && (
+                <Button onClick={analyzeScan} disabled={scanning} className="w-full">
+                  {scanning ? (
+                    <><Loader2 className="h-4 w-4 mr-1.5 animate-spin" /> Analyzing…</>
+                  ) : (
+                    <><Sparkles className="h-4 w-4 mr-1.5" /> Analyze Meal</>
+                  )}
+                </Button>
+              )}
+
+              {scanResult && (
+                <div className="rounded-2xl border border-border/60 p-4 space-y-3 animate-fade-in">
+                  <div className="flex items-start justify-between gap-2 flex-wrap">
+                    <div className="font-semibold text-base">{scanResult.meal_name}</div>
+                    <span
+                      className={`text-[10px] uppercase tracking-wider font-bold px-2 py-1 rounded-full ${
+                        scanResult.confidence === "high"
+                          ? "bg-emerald-500/15 text-emerald-500"
+                          : scanResult.confidence === "medium"
+                          ? "bg-amber-500/15 text-amber-500"
+                          : "bg-destructive/15 text-destructive"
+                      }`}
+                    >
+                      {scanResult.confidence} confidence
+                    </span>
+                  </div>
+
+                  {scanResult.items.length > 0 && (
+                    <div className="flex flex-wrap gap-1.5">
+                      {scanResult.items.map((it, i) => (
+                        <span
+                          key={`${it}-${i}`}
+                          className="text-xs px-2.5 py-1 rounded-full bg-muted text-foreground/80"
+                        >
+                          {it}
+                        </span>
+                      ))}
+                    </div>
+                  )}
+
+                  {scanResult.notes && (
+                    <div className="text-xs text-muted-foreground italic border-l-2 border-border pl-3">
+                      {scanResult.notes}
+                    </div>
+                  )}
+
+                  <div className="grid grid-cols-2 gap-2">
+                    <div>
+                      <Label className="text-[10px] uppercase tracking-wider text-muted-foreground">Name</Label>
+                      <Input
+                        value={scanResult.meal_name}
+                        onChange={(e) => setScanResult({ ...scanResult, meal_name: e.target.value })}
+                      />
+                    </div>
+                    <div>
+                      <Label className="text-[10px] uppercase tracking-wider text-muted-foreground">Meal type</Label>
+                      <Select value={scanMealType} onValueChange={(v) => setScanMealType(v as MealType)}>
+                        <SelectTrigger><SelectValue /></SelectTrigger>
+                        <SelectContent>
+                          {MEAL_TYPES.map((m) => (
+                            <SelectItem key={m.id} value={m.id}>{m.emoji} {m.label}</SelectItem>
+                          ))}
+                        </SelectContent>
+                      </Select>
+                    </div>
+                    <div>
+                      <Label className="text-[10px] uppercase tracking-wider text-muted-foreground">Calories</Label>
+                      <Input
+                        type="number"
+                        value={scanResult.calories}
+                        onChange={(e) => setScanResult({ ...scanResult, calories: Math.max(0, Number(e.target.value) || 0) })}
+                      />
+                    </div>
+                    <div>
+                      <Label className="text-[10px] uppercase tracking-wider text-muted-foreground">Protein (g)</Label>
+                      <Input
+                        type="number"
+                        value={scanResult.protein_g}
+                        onChange={(e) => setScanResult({ ...scanResult, protein_g: Math.max(0, Number(e.target.value) || 0) })}
+                      />
+                    </div>
+                    <div>
+                      <Label className="text-[10px] uppercase tracking-wider text-muted-foreground">Carbs (g)</Label>
+                      <Input
+                        type="number"
+                        value={scanResult.carbs_g}
+                        onChange={(e) => setScanResult({ ...scanResult, carbs_g: Math.max(0, Number(e.target.value) || 0) })}
+                      />
+                    </div>
+                    <div>
+                      <Label className="text-[10px] uppercase tracking-wider text-muted-foreground">Fat (g)</Label>
+                      <Input
+                        type="number"
+                        value={scanResult.fat_g}
+                        onChange={(e) => setScanResult({ ...scanResult, fat_g: Math.max(0, Number(e.target.value) || 0) })}
+                      />
+                    </div>
+                  </div>
+
+                  <div className="text-[10px] text-muted-foreground">
+                    Macro estimates are AI-generated approximations. Adjust values as needed for accuracy.
+                  </div>
+
+                  <div className="flex gap-2">
+                    <Button onClick={addScanToLog} className="flex-1">
+                      <Plus className="h-4 w-4 mr-1.5" /> Add to Log
+                    </Button>
+                    <Button variant="outline" onClick={clearScan}>Cancel</Button>
+                  </div>
+                </div>
+              )}
+            </div>
+          )}
+
+          <div className="my-5 h-px bg-border/60" />
+        </div>
+
         <h3 className="text-sm font-semibold uppercase tracking-wider text-muted-foreground mb-3 flex items-center gap-2">
           <Plus className="h-4 w-4" /> Log a Meal
         </h3>
