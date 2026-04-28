@@ -594,6 +594,11 @@ const Profile = () => {
       <div className="mt-6">
         <RankHistoryTimeline />
       </div>
+
+      {/* AI Report Card */}
+      <div className="mt-6">
+        <WeeklyReportCard />
+      </div>
     </div>
   );
 };
