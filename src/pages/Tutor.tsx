@@ -30,6 +30,7 @@ import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/comp
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/lib/auth";
 import { fetchPrefs, savePrefs } from "@/lib/workouts";
+import { fetchAthletic } from "@/lib/profile";
 import { listSavedChats, saveChat, deleteSavedChat, type SavedChat } from "@/lib/savedChats";
 import { DesmosGraph } from "@/components/tutor/DesmosGraph";
 import { VideoResults } from "@/components/tutor/VideoResults";
@@ -116,6 +117,7 @@ const SubjectChat = ({
   readOnly,
   onSaveRequested,
   onExitReadOnly,
+  studentProfile,
 }: {
   subject: Subject;
   videosEnabled: boolean;
@@ -123,6 +125,7 @@ const SubjectChat = ({
   readOnly?: boolean;
   onSaveRequested?: (messages: Msg[]) => void;
   onExitReadOnly?: () => void;
+  studentProfile?: any;
 }) => {
   const [messages, setMessages] = useState<Msg[]>(initialMessages ?? []);
   const [input, setInput] = useState("");
@@ -161,6 +164,7 @@ const SubjectChat = ({
           mode,
           deepSearch: useDeep,
           videosEnabled,
+          studentProfile,
         }),
       });
 
