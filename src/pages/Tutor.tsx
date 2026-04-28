@@ -624,7 +624,7 @@ const Tutor = () => {
   const [viewingChat, setViewingChat] = useState<SavedChat | null>(null);
   const [saveTitleFor, setSaveTitleFor] = useState<{ messages: Msg[] } | null>(null);
   const [titleInput, setTitleInput] = useState("");
-  const [view, setView] = useState<"chat" | "mindmap" | "games">("chat");
+  const [view, setView] = useState<"chat" | "mindmap">("chat");
   const [studentProfile, setStudentProfile] = useState<any>(null);
 
   // Load subjects from Supabase (or seed defaults)
