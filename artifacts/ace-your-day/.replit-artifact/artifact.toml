@@ -1,0 +1,31 @@
+kind = "web"
+previewPath = "/"
+title = "Ace Your Day"
+version = "1.0.0"
+id = "artifacts/ace-your-day"
+router = "path"
+
+[[integratedSkills]]
+name = "react-vite"
+version = "1.0.0"
+
+[[services]]
+name = "web"
+paths = [ "/" ]
+localPort = 21469
+
+[services.development]
+run = "pnpm --filter @workspace/ace-your-day run dev"
+
+[services.production]
+build = [ "pnpm", "--filter", "@workspace/ace-your-day", "run", "build" ]
+publicDir = "artifacts/ace-your-day/dist/public"
+serve = "static"
+
+[[services.production.rewrites]]
+from = "/*"
+to = "/index.html"
+
+[services.env]
+PORT = "21469"
+BASE_PATH = "/"

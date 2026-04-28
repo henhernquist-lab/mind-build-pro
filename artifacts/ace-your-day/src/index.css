@@ -1,0 +1,404 @@
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;700&family=Quicksand:wght@400;500;600;700&family=Oswald:wght@400;500;600;700&family=Space+Grotesk:wght@400;500;600;700&display=swap');
+@import "katex/dist/katex.min.css";
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* Design system + 5 swappable visual themes.
+   Theme is set via <html data-theme="..."> by ThemeProvider.
+   All colors MUST be HSL. */
+
+@layer base {
+  /* ---------- Midnight Pro (default) ---------- */
+  :root,
+  [data-theme="midnight"] {
+    --background: 222 47% 7%;
+    --foreground: 210 40% 98%;
+
+    --card: 222 40% 10%;
+    --card-foreground: 210 40% 98%;
+
+    --popover: 222 40% 10%;
+    --popover-foreground: 210 40% 98%;
+
+    --primary: 217 91% 60%;
+    --primary-foreground: 222 47% 7%;
+
+    --secondary: 222 30% 14%;
+    --secondary-foreground: 210 40% 98%;
+
+    --muted: 222 30% 14%;
+    --muted-foreground: 215 20% 65%;
+
+    --accent: 222 30% 16%;
+    --accent-foreground: 210 40% 98%;
+
+    --destructive: 0 75% 55%;
+    --destructive-foreground: 210 40% 98%;
+
+    --border: 222 30% 18%;
+    --input: 222 30% 16%;
+    --ring: 217 91% 60%;
+
+    --radius: 0.75rem;
+
+    --school: 217 91% 60%;
+    --sports: 21 90% 54%;
+    --coding: 142 71% 45%;
+    --free: 215 20% 45%;
+
+    --sidebar-background: 222 50% 5%;
+    --sidebar-foreground: 215 20% 75%;
+    --sidebar-primary: 217 91% 60%;
+    --sidebar-primary-foreground: 0 0% 100%;
+    --sidebar-accent: 222 35% 12%;
+    --sidebar-accent-foreground: 210 40% 98%;
+    --sidebar-border: 222 35% 12%;
+    --sidebar-ring: 217 91% 60%;
+
+    --gradient-hero: linear-gradient(135deg, hsl(217 91% 60% / 0.15), hsl(142 71% 45% / 0.1));
+    --shadow-glow: 0 0 40px -10px hsl(217 91% 60% / 0.5);
+
+    --font-display: 'Inter', system-ui, sans-serif;
+    --font-body: 'Inter', system-ui, sans-serif;
+  }
+
+  /* ---------- Neon Arcade ---------- */
+  [data-theme="neon"] {
+    --background: 0 0% 5%;
+    --foreground: 0 0% 98%;
+    --card: 0 0% 8%;
+    --card-foreground: 0 0% 98%;
+    --popover: 0 0% 8%;
+    --popover-foreground: 0 0% 98%;
+    --primary: 300 100% 50%;
+    --primary-foreground: 0 0% 5%;
+    --secondary: 0 0% 12%;
+    --secondary-foreground: 0 0% 98%;
+    --muted: 0 0% 12%;
+    --muted-foreground: 180 30% 65%;
+    --accent: 180 100% 45%;
+    --accent-foreground: 0 0% 5%;
+    --destructive: 0 100% 55%;
+    --destructive-foreground: 0 0% 98%;
+    --border: 300 60% 20%;
+    --input: 0 0% 14%;
+    --ring: 300 100% 50%;
+    --school: 180 100% 50%;
+    --sports: 300 100% 50%;
+    --coding: 90 100% 50%;
+    --free: 240 20% 40%;
+    --sidebar-background: 0 0% 3%;
+    --sidebar-foreground: 180 30% 75%;
+    --sidebar-primary: 300 100% 50%;
+    --sidebar-primary-foreground: 0 0% 0%;
+    --sidebar-accent: 0 0% 10%;
+    --sidebar-accent-foreground: 180 100% 70%;
+    --sidebar-border: 300 50% 18%;
+    --sidebar-ring: 300 100% 50%;
+    --font-display: 'JetBrains Mono', monospace;
+    --font-body: 'JetBrains Mono', monospace;
+  }
+
+  /* ---------- Forest Focus ---------- */
+  [data-theme="forest"] {
+    --background: 120 25% 8%;
+    --foreground: 100 30% 96%;
+    --card: 120 25% 11%;
+    --card-foreground: 100 30% 96%;
+    --popover: 120 25% 11%;
+    --popover-foreground: 100 30% 96%;
+    --primary: 142 70% 55%;
+    --primary-foreground: 120 30% 8%;
+    --secondary: 120 20% 15%;
+    --secondary-foreground: 100 30% 96%;
+    --muted: 120 20% 15%;
+    --muted-foreground: 100 15% 65%;
+    --accent: 142 50% 65%;
+    --accent-foreground: 120 30% 8%;
+    --destructive: 0 70% 55%;
+    --destructive-foreground: 100 30% 96%;
+    --border: 120 20% 20%;
+    --input: 120 20% 16%;
+    --ring: 142 70% 55%;
+    --school: 142 70% 55%;
+    --sports: 30 80% 60%;
+    --coding: 90 60% 55%;
+    --free: 100 15% 45%;
+    --sidebar-background: 120 30% 6%;
+    --sidebar-foreground: 100 20% 75%;
+    --sidebar-primary: 142 70% 55%;
+    --sidebar-primary-foreground: 120 30% 5%;
+    --sidebar-accent: 120 25% 13%;
+    --sidebar-accent-foreground: 100 30% 96%;
+    --sidebar-border: 120 25% 13%;
+    --sidebar-ring: 142 70% 55%;
+    --font-display: 'Quicksand', system-ui, sans-serif;
+    --font-body: 'Quicksand', system-ui, sans-serif;
+    --radius: 1rem;
+  }
+
+  /* ---------- Solar Flare ---------- */
+  [data-theme="solar"] {
+    --background: 20 60% 6%;
+    --foreground: 40 90% 96%;
+    --card: 20 50% 10%;
+    --card-foreground: 40 90% 96%;
+    --popover: 20 50% 10%;
+    --popover-foreground: 40 90% 96%;
+    --primary: 21 95% 55%;
+    --primary-foreground: 20 60% 6%;
+    --secondary: 20 40% 14%;
+    --secondary-foreground: 40 90% 96%;
+    --muted: 20 40% 14%;
+    --muted-foreground: 35 30% 70%;
+    --accent: 45 95% 60%;
+    --accent-foreground: 20 60% 6%;
+    --destructive: 0 80% 55%;
+    --destructive-foreground: 40 90% 96%;
+    --border: 20 40% 20%;
+    --input: 20 40% 16%;
+    --ring: 21 95% 55%;
+    --school: 21 95% 55%;
+    --sports: 45 95% 60%;
+    --coding: 10 90% 60%;
+    --free: 30 25% 45%;
+    --sidebar-background: 20 65% 4%;
+    --sidebar-foreground: 35 30% 75%;
+    --sidebar-primary: 21 95% 55%;
+    --sidebar-primary-foreground: 20 60% 6%;
+    --sidebar-accent: 20 50% 12%;
+    --sidebar-accent-foreground: 45 95% 70%;
+    --sidebar-border: 20 50% 14%;
+    --sidebar-ring: 21 95% 55%;
+    --font-display: 'Oswald', sans-serif;
+    --font-body: 'Inter', system-ui, sans-serif;
+  }
+
+  /* ---------- Arctic Clean (light) ---------- */
+  [data-theme="arctic"] {
+    --background: 210 40% 98%;
+    --foreground: 220 30% 15%;
+    --card: 0 0% 100%;
+    --card-foreground: 220 30% 15%;
+    --popover: 0 0% 100%;
+    --popover-foreground: 220 30% 15%;
+    --primary: 199 90% 48%;
+    --primary-foreground: 0 0% 100%;
+    --secondary: 210 30% 94%;
+    --secondary-foreground: 220 30% 15%;
+    --muted: 210 30% 94%;
+    --muted-foreground: 220 15% 45%;
+    --accent: 199 80% 92%;
+    --accent-foreground: 199 90% 30%;
+    --destructive: 0 70% 50%;
+    --destructive-foreground: 0 0% 100%;
+    --border: 210 25% 88%;
+    --input: 210 25% 92%;
+    --ring: 199 90% 48%;
+    --school: 199 90% 48%;
+    --sports: 21 85% 55%;
+    --coding: 142 65% 45%;
+    --free: 220 15% 65%;
+    --sidebar-background: 0 0% 100%;
+    --sidebar-foreground: 220 15% 40%;
+    --sidebar-primary: 199 90% 48%;
+    --sidebar-primary-foreground: 0 0% 100%;
+    --sidebar-accent: 210 30% 95%;
+    --sidebar-accent-foreground: 220 30% 15%;
+    --sidebar-border: 210 25% 90%;
+    --sidebar-ring: 199 90% 48%;
+    --font-display: 'Space Grotesk', system-ui, sans-serif;
+    --font-body: 'Inter', system-ui, sans-serif;
+  }
+}
+
+@layer base {
+  * {
+    @apply border-border;
+  }
+
+  body {
+    @apply bg-background text-foreground antialiased;
+    font-family: var(--font-body);
+    transition: background-color 0.4s ease, color 0.4s ease;
+    font-feature-settings: "cv02", "cv03", "cv04", "cv11";
+  }
+
+  h1, h2, h3, h4, h5 {
+    font-family: var(--font-display);
+  }
+}
+
+@layer utilities {
+  .scrollbar-thin::-webkit-scrollbar { width: 6px; height: 6px; }
+  .scrollbar-thin::-webkit-scrollbar-thumb { background: hsl(var(--border)); border-radius: 3px; }
+  .scrollbar-thin::-webkit-scrollbar-track { background: transparent; }
+
+  .deep-search-glow {
+    box-shadow: 0 0 0 2px hsl(var(--primary) / 0.3), 0 0 24px hsl(var(--primary) / 0.4);
+    animation: deepSearchPulse 2s ease-in-out infinite;
+  }
+  @keyframes deepSearchPulse {
+    0%, 100% { box-shadow: 0 0 0 2px hsl(var(--primary) / 0.3), 0 0 24px hsl(var(--primary) / 0.3); }
+    50% { box-shadow: 0 0 0 2px hsl(var(--primary) / 0.6), 0 0 32px hsl(var(--primary) / 0.6); }
+  }
+
+  /* ----- Polish pass utilities ----- */
+
+  /* Glassmorphism — frosted card */
+  .glass {
+    background: hsl(var(--card) / 0.55);
+    backdrop-filter: blur(14px) saturate(140%);
+    -webkit-backdrop-filter: blur(14px) saturate(140%);
+    border: 1px solid hsl(var(--foreground) / 0.08);
+    box-shadow:
+      inset 0 1px 0 0 hsl(var(--foreground) / 0.06),
+      0 8px 30px -10px hsl(var(--background) / 0.8);
+  }
+  .glass-strong {
+    background: hsl(var(--card) / 0.7);
+    backdrop-filter: blur(20px) saturate(160%);
+    -webkit-backdrop-filter: blur(20px) saturate(160%);
+    border: 1px solid hsl(var(--primary) / 0.18);
+    box-shadow:
+      inset 0 1px 0 0 hsl(var(--foreground) / 0.08),
+      0 12px 40px -12px hsl(var(--primary) / 0.25);
+  }
+
+  /* Animated gradient text */
+  .gradient-text {
+    background: linear-gradient(
+      90deg,
+      hsl(var(--primary)) 0%,
+      hsl(var(--accent)) 50%,
+      hsl(var(--primary)) 100%
+    );
+    background-size: 200% auto;
+    -webkit-background-clip: text;
+    background-clip: text;
+    -webkit-text-fill-color: transparent;
+    color: transparent;
+    animation: gradientShift 6s linear infinite;
+  }
+  @keyframes gradientShift {
+    0% { background-position: 0% center; }
+    100% { background-position: 200% center; }
+  }
+
+  /* Button micro-press */
+  .press {
+    transition: transform 120ms cubic-bezier(0.34, 1.56, 0.64, 1), box-shadow 120ms ease;
+  }
+  .press:active:not(:disabled) {
+    transform: scale(0.96);
+  }
+
+  /* Floating XP number */
+  @keyframes xpFloat {
+    0%   { transform: translate(-50%, 0) scale(0.7); opacity: 0; }
+    15%  { transform: translate(-50%, -8px) scale(1.15); opacity: 1; }
+    100% { transform: translate(-50%, -80px) scale(0.95); opacity: 0; }
+  }
+  .xp-float {
+    animation: xpFloat 1400ms cubic-bezier(0.22, 1, 0.36, 1) forwards;
+  }
+
+  /* Rank-up burst */
+  @keyframes rankBurst {
+    0%   { transform: scale(1); box-shadow: 0 0 0 0 hsl(var(--primary) / 0.8); }
+    50%  { transform: scale(1.04); box-shadow: 0 0 0 12px hsl(var(--primary) / 0); }
+    100% { transform: scale(1); box-shadow: 0 0 0 0 hsl(var(--primary) / 0); }
+  }
+  .rank-burst { animation: rankBurst 800ms ease-out; }
+}
+
+/* ----- Page transitions (snappy 150/200ms) ----- */
+@layer utilities {
+  .page-transition { will-change: transform, opacity; }
+  .page-transition-in {
+    animation: pageIn 200ms cubic-bezier(0.22, 1, 0.36, 1) both;
+  }
+  .page-transition-out {
+    animation: pageOut 150ms ease-in both;
+  }
+  @keyframes pageIn {
+    from { opacity: 0; transform: translateY(10px); }
+    to   { opacity: 1; transform: translateY(0); }
+  }
+  @keyframes pageOut {
+    from { opacity: 1; transform: translateY(0); }
+    to   { opacity: 0; transform: translateY(-10px); }
+  }
+
+  /* Glowing XP bar */
+  .xp-bar-track {
+    position: relative;
+    overflow: hidden;
+    border-radius: 9999px;
+    background: hsl(var(--muted) / 0.6);
+    box-shadow: inset 0 1px 2px hsl(var(--background) / 0.5);
+  }
+  .xp-bar-fill {
+    position: relative;
+    height: 100%;
+    border-radius: 9999px;
+    background: linear-gradient(
+      90deg,
+      hsl(var(--primary)) 0%,
+      hsl(var(--accent)) 50%,
+      hsl(var(--primary)) 100%
+    );
+    background-size: 200% 100%;
+    animation: xpGradient 3s linear infinite;
+    box-shadow:
+      0 0 12px hsl(var(--primary) / 0.55),
+      0 0 28px hsl(var(--primary) / 0.35),
+      inset 0 1px 0 hsl(var(--foreground) / 0.25);
+    transition: width 600ms cubic-bezier(0.22, 1, 0.36, 1);
+  }
+  .xp-bar-fill::after {
+    content: "";
+    position: absolute;
+    inset: 0;
+    border-radius: inherit;
+    background: linear-gradient(
+      90deg,
+      transparent 0%,
+      hsl(0 0% 100% / 0.45) 50%,
+      transparent 100%
+    );
+    transform: translateX(-100%);
+    animation: xpShimmer 2.4s ease-in-out infinite;
+  }
+  @keyframes xpGradient {
+    0%   { background-position: 0% 50%; }
+    100% { background-position: 200% 50%; }
+  }
+  @keyframes xpShimmer {
+    0%   { transform: translateX(-100%); }
+    60%  { transform: translateX(120%); }
+    100% { transform: translateX(120%); }
+  }
+}
+
+/* ----- Custom themed scrollbar (global) ----- */
+@layer base {
+  /* WebKit */
+  ::-webkit-scrollbar { width: 10px; height: 10px; }
+  ::-webkit-scrollbar-track { background: transparent; }
+  ::-webkit-scrollbar-thumb {
+    background: hsl(var(--primary) / 0.35);
+    border-radius: 6px;
+    border: 2px solid transparent;
+    background-clip: content-box;
+  }
+  ::-webkit-scrollbar-thumb:hover {
+    background: hsl(var(--primary) / 0.6);
+    background-clip: content-box;
+  }
+  ::-webkit-scrollbar-corner { background: transparent; }
+  /* Firefox */
+  * { scrollbar-color: hsl(var(--primary) / 0.4) transparent; scrollbar-width: thin; }
+}

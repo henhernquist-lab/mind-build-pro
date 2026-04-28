@@ -1,27 +1,24 @@
-# Workspace
+# Ace Your Day (LifeStack)
 
-## Overview
+Student-athlete companion app — daily planner, workouts, nutrition, AI tutor, academic tools, and gamified learning. Originally built on Lovable.dev and ported to the Replit pnpm workspace.
 
-pnpm workspace monorepo using TypeScript. Each package manages its own dependencies.
+## Project structure
 
-## Stack
+- `artifacts/ace-your-day/` — React + Vite frontend (the main app, served at `/`)
+- `artifacts/api-server/` — empty Express scaffold (not used yet — backend is still Supabase)
+- `artifacts/mockup-sandbox/` — design sandbox (unused)
+- `lib/api-spec/`, `lib/api-client-react/`, `lib/api-zod/`, `lib/db/` — shared scaffolding (unused so far)
 
-- **Monorepo tool**: pnpm workspaces
-- **Node.js version**: 24
-- **Package manager**: pnpm
-- **TypeScript version**: 5.9
-- **API framework**: Express 5
-- **Database**: PostgreSQL + Drizzle ORM
-- **Validation**: Zod (`zod/v4`), `drizzle-zod`
-- **API codegen**: Orval (from OpenAPI spec)
-- **Build**: esbuild (CJS bundle)
+## Backend
 
-## Key Commands
+The app currently talks to the **original Supabase project** (`vgqtoqskssjdkzmsegck.supabase.co`) for auth, data, storage, and edge functions. The Supabase URL and anon key are configured as shared env vars (`VITE_SUPABASE_URL`, `VITE_SUPABASE_PUBLISHABLE_KEY`, `VITE_SUPABASE_PROJECT_ID`).
 
-- `pnpm run typecheck` — full typecheck across all packages
-- `pnpm run build` — typecheck + build all packages
-- `pnpm --filter @workspace/api-spec run codegen` — regenerate API hooks and Zod schemas from OpenAPI spec
-- `pnpm --filter @workspace/db run push` — push DB schema changes (dev only)
-- `pnpm --filter @workspace/api-server run dev` — run API server locally
+Migrating this off Supabase to Replit primitives (Postgres + Clerk + Express routes) is a large piece of work — there are 10+ tables, 10+ edge functions for AI, and Supabase auth across the app. Tracked as a follow-up task.
 
-See the `pnpm-workspace` skill for workspace structure, TypeScript setup, and package details.
+## Tech
+
+- React 18 + Vite 7 + TypeScript
+- Tailwind v3 + shadcn/ui
+- react-router-dom v7
+- Framer Motion, Recharts, KaTeX, react-markdown
+- Supabase JS client (auth + data + storage + functions)
