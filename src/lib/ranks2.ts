@@ -7,6 +7,8 @@ import { toast } from "sonner";
 import { sfx } from "@/lib/sounds";
 import { showFloatingXp } from "@/components/fx/FloatingXp";
 import { recordStudyActivity, isMultiplierActive } from "@/lib/streak";
+import { unlockBadge } from "@/lib/achievements";
+import { incrementChallengeProgress } from "@/lib/dailyChallenges";
 
 export type Rank = { name: string; icon: string; xpRequired: number; color: string };
 
@@ -177,6 +179,10 @@ export const useRank = (type: RankType) => {
       showFloatingXp(amt, { color: afterRank.color });
       // Any positive XP counts as study activity → bumps streak
       try { await recordStudyActivity(user.id); } catch {}
+      // First-XP badge
+      if (before === 0) { try { await unlockBadge(user.id, "first_xp"); } catch {} }
+      // Daily challenge: earn XP
+      try { await incrementChallengeProgress(user.id, "earn_xp", amt); } catch {}
     }
     if (beforeRank.name !== afterRank.name && after > before) {
       const label = type === "athletic" ? "Athletic" : "Academic";
@@ -185,6 +191,8 @@ export const useRank = (type: RankType) => {
         description: `You are now ${afterRank.icon} ${afterRank.name}`,
         duration: 6000,
       });
+      // Rank-up badges
+      try { await unlockBadge(user.id, type === "academic" ? "rank_up_academic" : "rank_up_athletic"); } catch {}
     }
     return { rankedUp: beforeRank.name !== afterRank.name, newRank: afterRank };
   }, [user, type, xp, periodStart]);
