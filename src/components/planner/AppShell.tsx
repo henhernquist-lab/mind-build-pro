@@ -122,6 +122,7 @@ export const AppShell = () => {
   const [openGroups, setOpenGroups] = useState<Record<string, boolean>>({
     plan: true,
     athletic: true,
+    nutrition: true,
     academic: true,
     games: true,
   });
