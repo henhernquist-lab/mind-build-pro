@@ -17,30 +17,51 @@ export type Database = {
       athlete_profile: {
         Row: {
           age: number
+          fitness_goals: string[]
           gender: string
           height_ft: number
           height_in: number
+          injuries: string | null
+          other_sport: string | null
+          position_event: string | null
+          primary_sports: string[]
+          training_days_per_week: number
           updated_at: string
           user_id: string
           weight_lbs: number
+          years_experience: string | null
         }
         Insert: {
           age?: number
+          fitness_goals?: string[]
           gender?: string
           height_ft?: number
           height_in?: number
+          injuries?: string | null
+          other_sport?: string | null
+          position_event?: string | null
+          primary_sports?: string[]
+          training_days_per_week?: number
           updated_at?: string
           user_id: string
           weight_lbs?: number
+          years_experience?: string | null
         }
         Update: {
           age?: number
+          fitness_goals?: string[]
           gender?: string
           height_ft?: number
           height_in?: number
+          injuries?: string | null
+          other_sport?: string | null
+          position_event?: string | null
+          primary_sports?: string[]
+          training_days_per_week?: number
           updated_at?: string
           user_id?: string
           weight_lbs?: number
+          years_experience?: string | null
         }
         Relationships: []
       }
@@ -202,27 +223,39 @@ export type Database = {
       profiles: {
         Row: {
           avatar_url: string | null
+          bio: string | null
           created_at: string
           display_name: string | null
+          grade: string | null
           id: string
+          school_name: string | null
           updated_at: string
           user_id: string
+          username: string | null
         }
         Insert: {
           avatar_url?: string | null
+          bio?: string | null
           created_at?: string
           display_name?: string | null
+          grade?: string | null
           id?: string
+          school_name?: string | null
           updated_at?: string
           user_id: string
+          username?: string | null
         }
         Update: {
           avatar_url?: string | null
+          bio?: string | null
           created_at?: string
           display_name?: string | null
+          grade?: string | null
           id?: string
+          school_name?: string | null
           updated_at?: string
           user_id?: string
+          username?: string | null
         }
         Relationships: []
       }
@@ -435,7 +468,28 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
-      [_ in never]: never
+      get_public_athlete_card: {
+        Args: { _username: string }
+        Returns: {
+          age: number
+          avatar_url: string
+          bio: string
+          display_name: string
+          fitness_goals: string[]
+          grade: string
+          height_ft: number
+          height_in: number
+          other_sport: string
+          position_event: string
+          primary_sports: string[]
+          school_name: string
+          total_xp: number
+          training_days_per_week: number
+          username: string
+          weight_lbs: number
+          years_experience: string
+        }[]
+      }
     }
     Enums: {
       [_ in never]: never
