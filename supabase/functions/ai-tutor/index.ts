@@ -103,7 +103,7 @@ serve(async (req) => {
   }
 
   try {
-    const { subject, customLabel, messages, mode, deepSearch, videosEnabled, mindmap } = await req.json();
+    const { subject, customLabel, messages, mode, deepSearch, videosEnabled, mindmap, studentProfile } = await req.json();
 
     const LOVABLE_API_KEY = Deno.env.get("LOVABLE_API_KEY");
     if (!LOVABLE_API_KEY) {
@@ -160,6 +160,22 @@ serve(async (req) => {
       }. Keep explanations clear and encouraging. Break things down step-by-step, use simple analogies, and check for understanding.`;
     let systemPrompt = basePrompt + MATH_INSTRUCTION + VISUAL_INSTRUCTION;
     if (subject === "algebra") systemPrompt += GRAPH_INSTRUCTION;
+
+    // Personalization: inject student profile
+    if (studentProfile && typeof studentProfile === "object") {
+      const sp = studentProfile;
+      const lines: string[] = [];
+      if (sp.name) lines.push(`- Name: ${sp.name}`);
+      if (sp.grade) lines.push(`- Grade: ${sp.grade}`);
+      if (sp.bio) lines.push(`- Bio: ${sp.bio}`);
+      if (Array.isArray(sp.sports) && sp.sports.length) lines.push(`- Sports: ${sp.sports.join(", ")}`);
+      if (Array.isArray(sp.goals) && sp.goals.length) lines.push(`- Fitness Goals: ${sp.goals.join(", ")}`);
+      if (sp.school) lines.push(`- School: ${sp.school}`);
+      if (sp.injuries) lines.push(`- Injuries/Limitations: ${sp.injuries}`);
+      if (lines.length) {
+        systemPrompt += `\n\nAbout this student:\n${lines.join("\n")}\n\nUse this to personalize tutoring. Use sport analogies when relevant (e.g. football yardage for math). Reference their goals to motivate. Address them by name. Match the tone to an 8th grader. If injuries are listed, never suggest exercises that could aggravate them.`;
+      }
+    }
 
     if (videosEnabled) {
       systemPrompt += `\n\nVIDEO RECOMMENDATIONS:\nIf a short YouTube video would help the student understand a concept you just taught, append a single VIDEO tag on its own line at the END of your message (after any [GRAPH:] or [VISUAL] block):\n\n[VIDEOS: <short search query>]\n\nKeep the query under 8 words and focused on the specific concept (e.g. "[VIDEOS: solving two-step equations]"). Only include this when a video would genuinely help — skip for trivial answers, casual chat, or pure practice problems. Maximum one [VIDEOS:] tag per response.`;
