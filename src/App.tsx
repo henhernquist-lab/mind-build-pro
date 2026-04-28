@@ -19,6 +19,7 @@ import DebateClub from "./pages/games/DebateClub";
 import GeorgiaConquest from "./pages/games/GeorgiaConquest";
 import AlgebraDungeon from "./pages/games/AlgebraDungeon";
 import SpeedMathBlitz from "./pages/games/SpeedMathBlitz";
+import Leaderboard from "./pages/Leaderboard";
 import TestCalendar from "./pages/academic/TestCalendar";
 import VocabBuilder from "./pages/academic/VocabBuilder";
 import Notes from "./pages/academic/Notes";
@@ -52,6 +53,7 @@ const App = () => (
               <Route path="/games/georgia" element={<GeorgiaConquest />} />
               <Route path="/games/dungeon" element={<AlgebraDungeon />} />
               <Route path="/games/blitz" element={<SpeedMathBlitz />} />
+              <Route path="/leaderboard" element={<Leaderboard />} />
               <Route path="/tests" element={<TestCalendar />} />
               <Route path="/vocab" element={<VocabBuilder />} />
               <Route path="/notes" element={<Notes />} />
