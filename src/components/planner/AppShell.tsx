@@ -1,5 +1,5 @@
 import { NavLink, Outlet, useLocation, useNavigate } from "react-router-dom";
-import { Calendar, Dumbbell, Brain, Sparkles, LogOut, User } from "lucide-react";
+import { Calendar, Dumbbell, Brain, Sparkles, LogOut, User, Gamepad2 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { ThemeSwitcher } from "@/components/ThemeSwitcher";
 import { useTheme } from "@/lib/themes";
@@ -11,6 +11,7 @@ const NAV = [
   { to: "/", label: "Daily Planner", icon: Calendar, accent: "school" },
   { to: "/workouts", label: "Workouts", icon: Dumbbell, accent: "sports" },
   { to: "/tutor", label: "AI Tutor", icon: Brain, accent: "primary" },
+  { to: "/games", label: "Games", icon: Gamepad2, accent: "primary" },
 ] as const;
 
 const accentColor = (a: string) =>
