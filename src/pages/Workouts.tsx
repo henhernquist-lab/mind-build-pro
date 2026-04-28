@@ -546,7 +546,7 @@ const Workouts = () => {
 
       <AthleticProfileBar />
 
-      <Tabs value={sport} onValueChange={(v) => setSport(v as Sport)}>
+      <Tabs value={sport} onValueChange={(v) => setSport(v as Sport)} >
         <TabsList className="grid grid-cols-3 w-full mb-6">
           <TabsTrigger value="weightlifting">🏋️ Weightlifting</TabsTrigger>
           <TabsTrigger value="running">🏃 Running</TabsTrigger>
