@@ -57,6 +57,7 @@ export const AppShell = () => {
               <div className="text-[11px] text-muted-foreground truncate">{user?.email}</div>
             </div>
           </div>
+          <StreakBadge />
         </div>
         <nav className="px-3 flex-1 space-y-1">
           {NAV.map((item) => (
