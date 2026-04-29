@@ -1,5 +1,4 @@
 import { useEffect, useState } from "react";
-import { supabase } from "@/integrations/supabase/client";
 import { Loader2, Play } from "lucide-react";
 
 type Video = {
@@ -29,12 +28,16 @@ export const VideoResults = ({
     let cancelled = false;
     (async () => {
       try {
-        const { data, error } = await supabase.functions.invoke("youtube-search", {
-          body: { query, maxResults: 4 },
-        });
+        const base = import.meta.env.BASE_URL ?? "/";
+        const url = `${base}api/youtube/search?query=${encodeURIComponent(query)}&maxResults=4`;
+        const res = await fetch(url);
         if (cancelled) return;
-        if (error) throw error;
-        const vids = (data?.videos as Video[]) ?? [];
+        if (!res.ok) {
+          const j = await res.json().catch(() => ({}));
+          throw new Error(j?.error || `Video search failed (${res.status})`);
+        }
+        const data = (await res.json()) as { videos?: Video[] };
+        const vids = data?.videos ?? [];
         setVideos(vids);
         onCache?.(vids);
       } catch (e: any) {
