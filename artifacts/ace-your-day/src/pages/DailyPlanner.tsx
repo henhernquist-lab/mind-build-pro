@@ -25,6 +25,7 @@ import { toast } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
 import { AiSuggestions } from "@/components/planner/AiSuggestions";
 import { NutritionTodayCard } from "@/components/planner/NutritionTodayCard";
+import { WeatherCheckCard } from "@/components/planner/WeatherCheckCard";
 
 const CAT_META: Record<Category, { label: string; emoji: string; color: string }> = {
   school: { label: "School", emoji: "🔵", color: "hsl(var(--school))" },
@@ -245,6 +246,20 @@ const DailyPlanner = () => {
           </motion.div>
         ))}
       </div>
+
+      <WeatherCheckCard
+        dateKey={dateKey}
+        resolvedBlocks={resolved.map((r) => ({
+          id: r.id,
+          recurringId: r.recurringId,
+          startTime: r.startTime,
+          endTime: r.endTime,
+          label: r.label,
+          category: r.category,
+        }))}
+        userId={user?.id}
+        onChanged={() => refresh()}
+      />
 
       <AiSuggestions
         dateKey={dateKey}
