@@ -7,7 +7,7 @@ import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Card } from "@/components/ui/card";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { NotebookPen, Plus, Sparkles, Trash2, Save, Wand2, Brain } from "lucide-react";
+import { NotebookPen, Plus, Sparkles, Trash2, Save, Wand2, Brain, Headphones, Download } from "lucide-react";
 import { toast } from "sonner";
 import { sfx } from "@/lib/sounds";
 import { useRank } from "@/lib/ranks2";
@@ -32,6 +32,9 @@ export default function Notes() {
   const [saving, setSaving] = useState(false);
   const [aiBusy, setAiBusy] = useState<"summary" | "flashcards" | "quiz" | null>(null);
   const [aiResult, setAiResult] = useState<string>("");
+  const [podcastBusy, setPodcastBusy] = useState(false);
+  const [podcastUrl, setPodcastUrl] = useState<string>("");
+  const [podcastTitle, setPodcastTitle] = useState<string>("");
 
   const reload = useCallback(async () => {
     if (!user) return;
@@ -131,6 +134,48 @@ export default function Notes() {
     }
   };
 
+  const generatePodcast = async () => {
+    if (!active || !active.content.trim()) {
+      toast.error("Write some notes first");
+      return;
+    }
+    setPodcastBusy(true);
+    if (podcastUrl) {
+      URL.revokeObjectURL(podcastUrl);
+      setPodcastUrl("");
+    }
+    try {
+      const base = import.meta.env.BASE_URL ?? "/";
+      const res = await fetch(`${base}api/podcast/generate`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          text: active.content,
+          title: active.title || "Study Note",
+        }),
+      });
+      if (!res.ok) {
+        let msg = `Podcast generation failed (${res.status})`;
+        try {
+          const j = await res.json();
+          if (j?.error) msg = j.error;
+        } catch {}
+        throw new Error(msg);
+      }
+      const blob = await res.blob();
+      const url = URL.createObjectURL(blob);
+      setPodcastUrl(url);
+      setPodcastTitle(active.title || "Study Note");
+      sfx.xp();
+      await academic.addXp(3);
+      toast.success("Podcast ready");
+    } catch (e: any) {
+      toast.error(e.message || "Podcast generation failed");
+    } finally {
+      setPodcastBusy(false);
+    }
+  };
+
   return (
     <div className="max-w-7xl mx-auto p-4 md:p-6">
       <header className="mb-4 flex items-center justify-between flex-wrap gap-2">
@@ -222,7 +267,27 @@ export default function Notes() {
                 <Button onClick={() => runAI("quiz")} disabled={aiBusy !== null} variant="outline" className="press">
                   <Brain className="h-4 w-4 mr-1" /> {aiBusy === "quiz" ? "..." : "Quiz Me"}
                 </Button>
+                <Button onClick={generatePodcast} disabled={podcastBusy} variant="outline" className="press">
+                  <Headphones className="h-4 w-4 mr-1" /> {podcastBusy ? "Generating..." : "Generate Podcast"}
+                </Button>
               </div>
+              {podcastUrl && (
+                <div className="p-4 rounded-lg bg-muted/40 border border-border space-y-2">
+                  <div className="flex items-center justify-between gap-2">
+                    <div className="text-xs uppercase tracking-wider text-muted-foreground flex items-center gap-1">
+                      <Headphones className="h-3 w-3" /> Podcast: {podcastTitle}
+                    </div>
+                    <a
+                      href={podcastUrl}
+                      download={`${podcastTitle.replace(/[^a-z0-9-_]+/gi, "_") || "podcast"}.mp3`}
+                      className="text-xs text-primary hover:underline flex items-center gap-1"
+                    >
+                      <Download className="h-3 w-3" /> Download
+                    </a>
+                  </div>
+                  <audio controls src={podcastUrl} className="w-full" />
+                </div>
+              )}
               {(aiResult || active.ai_summary) && (
                 <div className="p-4 rounded-lg bg-muted/40 border border-border">
                   <div className="text-xs uppercase tracking-wider text-muted-foreground mb-2">AI Output</div>

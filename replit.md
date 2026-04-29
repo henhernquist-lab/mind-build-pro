@@ -5,15 +5,19 @@ Student-athlete companion app — daily planner, workouts, nutrition, AI tutor, 
 ## Project structure
 
 - `artifacts/ace-your-day/` — React + Vite frontend (the main app, served at `/`)
-- `artifacts/api-server/` — empty Express scaffold (not used yet — backend is still Supabase)
+- `artifacts/api-server/` — Express server at `/api` (hosts the podcast TTS endpoint)
 - `artifacts/mockup-sandbox/` — design sandbox (unused)
 - `lib/api-spec/`, `lib/api-client-react/`, `lib/api-zod/`, `lib/db/` — shared scaffolding (unused so far)
 
 ## Backend
 
-The app currently talks to the **original Supabase project** (`vgqtoqskssjdkzmsegck.supabase.co`) for auth, data, storage, and edge functions. The Supabase URL and anon key are configured as shared env vars (`VITE_SUPABASE_URL`, `VITE_SUPABASE_PUBLISHABLE_KEY`, `VITE_SUPABASE_PROJECT_ID`).
+The app talks to the **original Supabase project** (`vgqtoqskssjdkzmsegck.supabase.co`) for auth, data, storage, and most AI edge functions. The Supabase URL and anon key are configured as shared env vars (`VITE_SUPABASE_URL`, `VITE_SUPABASE_PUBLISHABLE_KEY`, `VITE_SUPABASE_PROJECT_ID`).
 
-Migrating this off Supabase to Replit primitives (Postgres + Clerk + Express routes) is a large piece of work — there are 10+ tables, 10+ edge functions for AI, and Supabase auth across the app. Tracked as a follow-up task.
+User confirmed (Apr 29, 2026) to ship as-is on Supabase rather than rewriting tables / auth / edge functions onto Replit primitives.
+
+New Replit-native features are added under `artifacts/api-server/` (Express). Currently:
+
+- `POST /api/podcast/generate` — body `{ text, title, voiceId? }`, returns `audio/mpeg`. Uses the `ELEVENLABS_API_KEY` secret. Default voice id `JBFqnCBsd6RMkjVDRZzb` (works on free tier; "library" voices like Rachel `21m00Tcm4TlvDq8ikWAM` return 402 on free plans). Wired into the Notes page ("Generate Podcast" button).
 
 ## Tech
 
