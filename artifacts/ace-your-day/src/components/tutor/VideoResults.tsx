@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import { Bookmark, BookmarkCheck, Loader2, Play } from "lucide-react";
 import { cn } from "@/lib/utils";
+import { supabase } from "@/integrations/supabase/client";
 import {
   addToWatchLater,
   isInWatchLater,
@@ -50,16 +51,12 @@ export const VideoResults = ({
     let cancelled = false;
     (async () => {
       try {
-        const base = import.meta.env.BASE_URL ?? "/";
-        const url = `${base}api/youtube/search?query=${encodeURIComponent(query)}&maxResults=4`;
-        const res = await fetch(url);
+        const { data, error } = await supabase.functions.invoke("youtube-search", {
+          body: { query, maxResults: 4 },
+        });
         if (cancelled) return;
-        if (!res.ok) {
-          const j = await res.json().catch(() => ({}));
-          throw new Error(j?.error || `Video search failed (${res.status})`);
-        }
-        const data = (await res.json()) as { videos?: Video[] };
-        const vids = data?.videos ?? [];
+        if (error) throw error;
+        const vids = ((data as any)?.videos as Video[]) ?? [];
         setVideos(vids);
         onCache?.(vids);
       } catch (e: any) {
