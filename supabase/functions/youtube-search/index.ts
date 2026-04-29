@@ -38,9 +38,12 @@ Deno.serve(async (req) => {
 
   const upstream = await fetch(url.toString());
   if (!upstream.ok) {
-    return new Response(JSON.stringify({ error: `YouTube API error (${upstream.status})` }), {
-      status: 502, headers: { ...corsHeaders, "Content-Type": "application/json" },
-    });
+    const detail = await upstream.text().catch(() => "");
+    console.error("YouTube API error", upstream.status, detail);
+    return new Response(
+      JSON.stringify({ error: `YouTube API error (${upstream.status})`, detail }),
+      { status: 502, headers: { ...corsHeaders, "Content-Type": "application/json" } },
+    );
   }
   const j = await upstream.json();
   const videos = (j.items ?? [])
