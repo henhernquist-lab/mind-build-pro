@@ -17,7 +17,7 @@ import {
 import {
   Lightbulb, RefreshCcw, Send, Sparkles, Loader2, Settings, Plus, Trash2,
   ArrowUp, ArrowDown, Globe, Eye, EyeOff, Info, ExternalLink, Bookmark,
-  BookmarkPlus, Video, History, X, MessageSquare, Network,
+  BookmarkPlus, Video, History, X, MessageSquare, Network, Play,
 } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import ReactMarkdown from "react-markdown";
@@ -32,6 +32,13 @@ import { useAuth } from "@/lib/auth";
 import { fetchPrefs, savePrefs } from "@/lib/workouts";
 import { fetchAthletic } from "@/lib/profile";
 import { listSavedChats, saveChat, deleteSavedChat, type SavedChat } from "@/lib/savedChats";
+import {
+  listWatchLater,
+  removeFromWatchLater,
+  clearWatchLater,
+  subscribeWatchLater,
+  type WatchLaterVideo,
+} from "@/lib/watchLater";
 import { DesmosGraph } from "@/components/tutor/DesmosGraph";
 import { VideoResults } from "@/components/tutor/VideoResults";
 import { MindMap } from "@/components/tutor/MindMap";
@@ -611,6 +618,108 @@ const SavedChatsDrawer = ({
   );
 };
 
+const WatchLaterDrawer = ({
+  videos, open, setOpen, onRemove, onClear,
+}: {
+  videos: WatchLaterVideo[];
+  open: boolean;
+  setOpen: (o: boolean) => void;
+  onRemove: (id: string) => void;
+  onClear: () => void;
+}) => {
+  const [active, setActive] = useState<string | null>(null);
+  const [confirmClear, setConfirmClear] = useState(false);
+  return (
+    <>
+    <Sheet open={open} onOpenChange={setOpen}>
+      <SheetContent side="right" className="w-full sm:max-w-md overflow-y-auto">
+        <SheetHeader>
+          <SheetTitle className="flex items-center gap-2"><Video className="h-4 w-4" /> Watch Later</SheetTitle>
+        </SheetHeader>
+        <div className="mt-6 space-y-3">
+          {videos.length === 0 && (
+            <div className="text-center py-12 text-sm text-muted-foreground">
+              Nothing saved yet. Tap <Bookmark className="inline h-3.5 w-3.5" /> on any tutor video to save it here.
+            </div>
+          )}
+          {videos.length > 0 && (
+            <div className="flex justify-end">
+              <button onClick={() => setConfirmClear(true)} className="text-[11px] text-muted-foreground hover:text-destructive flex items-center gap-1">
+                <Trash2 className="h-3 w-3" /> Clear all
+              </button>
+            </div>
+          )}
+          {videos.map((v) => (
+            <div key={v.id} className="rounded-lg border border-border bg-card overflow-hidden">
+              {active === v.id ? (
+                <div className="aspect-video">
+                  <iframe
+                    src={`https://www.youtube.com/embed/${v.id}?autoplay=1`}
+                    className="w-full h-full"
+                    allow="accelerometer; autoplay; encrypted-media; picture-in-picture"
+                    allowFullScreen
+                    title={v.title}
+                  />
+                </div>
+              ) : (
+                <button onClick={() => setActive(v.id)} className="block w-full text-left group">
+                  <div className="aspect-video relative bg-muted">
+                    {v.thumbnail && <img src={v.thumbnail} alt={v.title} className="w-full h-full object-cover" />}
+                    <div className="absolute inset-0 flex items-center justify-center bg-black/30 group-hover:bg-black/50 transition-colors">
+                      <div className="h-10 w-10 rounded-full bg-white/90 flex items-center justify-center">
+                        <Play className="h-4 w-4 text-black ml-0.5" fill="currentColor" />
+                      </div>
+                    </div>
+                  </div>
+                </button>
+              )}
+              <div className="p-3 space-y-1">
+                <div className="text-sm font-medium line-clamp-2 leading-snug">{v.title}</div>
+                <div className="text-[11px] text-muted-foreground truncate">{v.channel}</div>
+                {v.query && (
+                  <div className="text-[10px] text-muted-foreground truncate">From: "{v.query}"</div>
+                )}
+                <div className="flex items-center justify-between pt-1">
+                  <span className="text-[10px] text-muted-foreground">{new Date(v.savedAt).toLocaleDateString()}</span>
+                  <div className="flex items-center gap-3">
+                    <a
+                      href={v.url}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="text-[11px] text-muted-foreground hover:text-foreground flex items-center gap-1"
+                    >
+                      <ExternalLink className="h-3 w-3" /> YouTube
+                    </a>
+                    <button
+                      onClick={() => onRemove(v.id)}
+                      className="text-[11px] text-muted-foreground hover:text-destructive flex items-center gap-1"
+                    >
+                      <Trash2 className="h-3 w-3" /> Remove
+                    </button>
+                  </div>
+                </div>
+              </div>
+            </div>
+          ))}
+        </div>
+      </SheetContent>
+    </Sheet>
+    <AlertDialog open={confirmClear} onOpenChange={setConfirmClear}>
+      <AlertDialogContent>
+        <AlertDialogHeader>
+          <AlertDialogTitle>Clear your Watch Later list?</AlertDialogTitle>
+          <AlertDialogDescription>This removes all {videos.length} saved videos.</AlertDialogDescription>
+        </AlertDialogHeader>
+        <AlertDialogFooter>
+          <AlertDialogCancel>Cancel</AlertDialogCancel>
+          <AlertDialogAction onClick={() => { onClear(); setConfirmClear(false); }}>Clear all</AlertDialogAction>
+        </AlertDialogFooter>
+      </AlertDialogContent>
+    </AlertDialog>
+    </>
+  );
+};
+
 const Tutor = () => {
   const { user } = useAuth();
   const { toast } = useToast();
@@ -619,6 +728,8 @@ const Tutor = () => {
   const [active, setActive] = useState<string>("");
   const [manageOpen, setManageOpen] = useState(false);
   const [savedOpen, setSavedOpen] = useState(false);
+  const [watchLaterOpen, setWatchLaterOpen] = useState(false);
+  const [watchLater, setWatchLater] = useState<WatchLaterVideo[]>(() => listWatchLater());
   const [videosEnabled, setVideosEnabled] = useState(false);
   const [savedChats, setSavedChats] = useState<SavedChat[]>([]);
   const [viewingChat, setViewingChat] = useState<SavedChat | null>(null);
@@ -668,6 +779,11 @@ const Tutor = () => {
       try { setSavedChats(await listSavedChats()); } catch (e) { console.error(e); }
     })();
   }, [user]);
+
+  // Keep watch-later list in sync across the page
+  useEffect(() => {
+    return subscribeWatchLater(() => setWatchLater(listWatchLater()));
+  }, []);
 
   // Build student profile for AI personalization
   useEffect(() => {
@@ -826,6 +942,10 @@ const Tutor = () => {
             <Bookmark className="h-4 w-4 mr-1.5" /> Saved
             {savedChats.length > 0 && <span className="ml-1.5 text-[10px] bg-primary/20 text-primary rounded-full px-1.5">{savedChats.length}</span>}
           </Button>
+          <Button variant="outline" size="sm" onClick={() => setWatchLaterOpen(true)}>
+            <Video className="h-4 w-4 mr-1.5" /> Watch Later
+            {watchLater.length > 0 && <span className="ml-1.5 text-[10px] bg-primary/20 text-primary rounded-full px-1.5">{watchLater.length}</span>}
+          </Button>
           <Button variant="outline" size="sm" onClick={() => setManageOpen(true)} disabled={view !== "chat"}>
             <Settings className="h-4 w-4 mr-1.5" /> Manage subjects
           </Button>
@@ -916,6 +1036,14 @@ const Tutor = () => {
         onDelete={handleDelete}
         open={savedOpen}
         setOpen={setSavedOpen}
+      />
+
+      <WatchLaterDrawer
+        videos={watchLater}
+        open={watchLaterOpen}
+        setOpen={setWatchLaterOpen}
+        onRemove={(id) => removeFromWatchLater(id)}
+        onClear={() => clearWatchLater()}
       />
 
       <Dialog open={!!saveTitleFor} onOpenChange={(o) => !o && setSaveTitleFor(null)}>
