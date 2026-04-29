@@ -3,6 +3,7 @@ import { Cloud, CloudRain, MapPin, AlertTriangle, CheckCircle2, X, Loader2 } fro
 import { Button } from "@/components/ui/button";
 import { toast } from "sonner";
 import { deleteBlock, upsertOverride } from "@/lib/planner";
+import { supabase } from "@/integrations/supabase/client";
 
 type Verdict = {
   date: string;
@@ -129,15 +130,11 @@ export const WeatherCheckCard = ({
       setLoading(true);
       setError("");
       try {
-        const base = import.meta.env.BASE_URL ?? "/";
-        const url = `${base}api/weather/forecast?lat=${encodeURIComponent(location.lat)}&lon=${encodeURIComponent(location.lon)}&date=${encodeURIComponent(dateKey)}`;
-        const res = await fetch(url);
-        if (!res.ok) {
-          const j = await res.json().catch(() => ({}));
-          throw new Error(j?.error || `Weather lookup failed (${res.status})`);
-        }
-        const j = (await res.json()) as { target: Verdict | null };
-        if (!cancel) setVerdict(j.target);
+        const { data, error } = await supabase.functions.invoke("weather-forecast", {
+          body: { lat: location.lat, lon: location.lon, date: dateKey },
+        });
+        if (error) throw error;
+        if (!cancel) setVerdict(((data as any)?.target ?? null) as Verdict | null);
       } catch (e: any) {
         if (!cancel) setError(e.message || "Weather lookup failed");
       } finally {
