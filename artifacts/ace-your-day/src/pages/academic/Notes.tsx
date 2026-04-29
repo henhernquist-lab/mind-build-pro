@@ -145,25 +145,13 @@ export default function Notes() {
       setPodcastUrl("");
     }
     try {
-      const base = import.meta.env.BASE_URL ?? "/";
-      const res = await fetch(`${base}api/podcast/generate`, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          text: active.content,
-          title: active.title || "Study Note",
-        }),
+      const { data, error } = await supabase.functions.invoke("podcast-generate", {
+        body: { text: active.content, title: active.title || "Study Note" },
       });
-      if (!res.ok) {
-        let msg = `Podcast generation failed (${res.status})`;
-        try {
-          const j = await res.json();
-          if (j?.error) msg = j.error;
-        } catch {}
-        throw new Error(msg);
-      }
-      const blob = await res.blob();
-      const url = URL.createObjectURL(blob);
+      if (error) throw error;
+      const audioBase64 = (data as any)?.audioBase64;
+      if (!audioBase64) throw new Error("No audio returned");
+      const url = `data:audio/mpeg;base64,${audioBase64}`;
       setPodcastUrl(url);
       setPodcastTitle(active.title || "Study Note");
       sfx.xp();
