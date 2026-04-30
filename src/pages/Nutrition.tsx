@@ -1,5 +1,7 @@
 import { useEffect, useMemo, useRef, useState } from "react";
 import { Apple, Loader2, Sparkles, Plus, Trash2, ChefHat, TrendingUp, Settings2, AlertCircle, Camera, Upload, X, ScanLine } from "lucide-react";
+import { useOnlineStatus } from "@/lib/offline/useOnlineStatus";
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
 import { Link } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
