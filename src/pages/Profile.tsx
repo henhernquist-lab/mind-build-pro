@@ -33,6 +33,7 @@ import { useRank } from "@/lib/ranks2";
 import { ATHLETIC_RANKS, ACADEMIC_RANKS, getNextRank } from "@/lib/ranks2";
 import { useState as useStateAcademic } from "react";
 import html2canvas from "html2canvas";
+import { InstallButton } from "@/components/offline/InstallButton";
 
 const slugifyUsername = (s: string) =>
   s.toLowerCase().replace(/[^a-z0-9_-]/g, "").slice(0, 24);
@@ -632,6 +633,15 @@ const Profile = () => {
             <Link2 className="h-3.5 w-3.5 mr-1.5" /> Copy Share Link
           </Button>
         </div>
+      </section>
+
+      {/* Install as App */}
+      <section className="mt-6 rounded-2xl border border-border bg-card p-5">
+        <h3 className="text-sm font-semibold mb-1">Install LifeStack</h3>
+        <p className="text-xs text-muted-foreground mb-3">
+          Add LifeStack to your home screen for a full-screen, app-like experience that works offline.
+        </p>
+        <InstallButton />
       </section>
 
       {/* Academic Profile editor */}

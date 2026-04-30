@@ -22,6 +22,7 @@ import { FocusToggle } from "@/components/focus/FocusToggle";
 import { claimDailyLoginXp } from "@/lib/streak";
 import { showFloatingXp } from "@/components/fx/FloatingXp";
 import { toast } from "sonner";
+import { OfflineBanner, OnlineDot } from "@/components/offline/OfflineBanner";
 
 type NavItem = { to: string; label: string; icon: any; accent: "school" | "sports" | "primary" };
 type NavGroup = { id: string; label: string; icon: any; items: NavItem[] };
@@ -131,14 +132,19 @@ export const AppShell = () => {
       {/* Top-left floating profile button */}
       <button
         onClick={() => navigate("/profile")}
-        className="fixed top-3 left-3 z-40 h-10 w-10 rounded-full border-2 border-border bg-card shadow-lg hover:border-primary transition-colors overflow-hidden flex items-center justify-center text-xs font-bold"
+        className="fixed top-3 left-3 z-40 h-10 w-10 rounded-full border-2 border-border bg-card shadow-lg hover:border-primary transition-colors flex items-center justify-center text-xs font-bold"
         title="Open profile"
         aria-label="Open profile"
       >
-        {avatarUrl
-          ? <img src={avatarUrl} alt={displayName} className="h-full w-full object-cover" />
-          : <span className="text-foreground">{initials}</span>}
+        <span className="relative h-full w-full rounded-full overflow-hidden flex items-center justify-center">
+          {avatarUrl
+            ? <img src={avatarUrl} alt={displayName} className="h-full w-full object-cover" />
+            : <span className="text-foreground">{initials}</span>}
+        </span>
+        <OnlineDot className="absolute -bottom-0.5 -right-0.5 ring-2 ring-background" />
       </button>
+
+      <OfflineBanner />
 
       <aside className="hidden md:flex w-60 flex-col border-r border-sidebar-border bg-sidebar">
         <div className="p-5 pl-16 flex items-center gap-2 justify-between">

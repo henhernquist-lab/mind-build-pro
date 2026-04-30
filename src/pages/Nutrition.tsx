@@ -1,5 +1,6 @@
 import { useEffect, useMemo, useRef, useState } from "react";
 import { Apple, Loader2, Sparkles, Plus, Trash2, ChefHat, TrendingUp, Settings2, AlertCircle, Camera, Upload, X, ScanLine } from "lucide-react";
+import { useOnlineStatus } from "@/lib/offline/useOnlineStatus";
 import { Link } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -83,6 +84,7 @@ const Nutrition = () => {
   const [mealDesc, setMealDesc] = useState("");
   const [mealType, setMealType] = useState<MealType>("breakfast");
   const [estimating, setEstimating] = useState(false);
+  const online = useOnlineStatus();
 
   // Scan a meal (camera / upload)
   const cameraInputRef = useRef<HTMLInputElement | null>(null);
@@ -562,15 +564,19 @@ const Nutrition = () => {
                 variant="premium"
                 className="h-20 text-base flex-col gap-1"
                 onClick={() => cameraInputRef.current?.click()}
+                disabled={!online}
+                title={!online ? "Camera scan requires an internet connection" : undefined}
               >
                 <Camera className="h-6 w-6" />
-                <span>📷 Take Photo</span>
+                <span>{online ? "📷 Take Photo" : "📷 Photo (offline)"}</span>
               </Button>
               <Button
                 type="button"
                 variant="outline"
                 className="h-20 text-base flex-col gap-1"
                 onClick={() => uploadInputRef.current?.click()}
+                disabled={!online}
+                title={!online ? "Upload scan requires an internet connection" : undefined}
               >
                 <Upload className="h-6 w-6" />
                 <span>Upload Photo</span>

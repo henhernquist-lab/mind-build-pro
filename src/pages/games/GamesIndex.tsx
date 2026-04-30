@@ -1,5 +1,6 @@
 import { Link } from "react-router-dom";
 import { Swords, Zap, Mic, Map, Gamepad2 } from "lucide-react";
+import { RequiresOnlineBanner } from "@/components/offline/RequiresOnline";
 
 const GAMES = [
   { to: "/games/bosses", title: "Boss Battles", emoji: "⚔️", desc: "Defeat a boss per subject." , ready: true},
@@ -12,6 +13,10 @@ const GAMES = [
 
 const GamesIndex = () => (
   <div className="p-4 md:p-8 max-w-4xl mx-auto pb-24">
+    <RequiresOnlineBanner
+      feature="Games"
+      message="You're offline — games require an internet connection."
+    />
     <header className="mb-6">
       <p className="text-xs uppercase tracking-widest text-muted-foreground">Games</p>
       <h1 className="text-3xl font-bold mt-1">🎮 Study Games</h1>
