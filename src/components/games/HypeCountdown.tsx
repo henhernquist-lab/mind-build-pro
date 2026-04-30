@@ -33,7 +33,8 @@ export const HypeCountdown = ({
       if (cancelled) return;
       setN(seq[i]);
       try {
-        sfx.play(i === 3 ? "success" : "click");
+        if (i === 3) sfx.gameStart();
+        else sfx.tick();
       } catch {}
       i++;
       if (i < seq.length) {
