@@ -2,7 +2,7 @@ import { useEffect, useState } from "react";
 import { NavLink, Outlet, useLocation, useNavigate } from "react-router-dom";
 import {
   Calendar, Dumbbell, Brain, Sparkles, LogOut, User, Gamepad2,
-  CalendarDays, BookText, NotebookPen, ChevronDown, Search, GraduationCap, Trophy, Apple, Utensils,
+  CalendarDays, BookText, NotebookPen, ChevronDown, Search, GraduationCap, Trophy, Apple, Utensils, Crown,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { ThemeSwitcher } from "@/components/ThemeSwitcher";
@@ -61,6 +61,7 @@ const GROUPS: NavGroup[] = [
     items: [
       { to: "/games", label: "Games", icon: Gamepad2, accent: "primary" },
       { to: "/leaderboard", label: "Leaderboard", icon: Trophy, accent: "primary" },
+      { to: "/championship", label: "Championship", icon: Crown, accent: "primary" },
     ],
   },
 ];
