@@ -142,6 +142,8 @@ const AlgebraDungeon = () => {
       grid[ny][nx] = "floor";
       setFloor({ ...floor, grid });
       academic.addXp(5);
+      spawnFloat(nx, ny, `+${reward}`, "gold");
+      try { sfx.correct(); } catch {}
       toast.success(`💰 +${reward} gold`);
     }
   };
@@ -156,9 +158,14 @@ const AlgebraDungeon = () => {
         grid[y][x] = "floor";
         setFloor({ ...floor, grid });
         await academic.addXp(10);
+        spawnFloat(x, y, "+10 XP", "good");
+        try { sfx.correct(); } catch {}
         toast.success("⚔️ Monster defeated! +10 XP");
       } else if (pendingType === "exit") {
         await academic.addXp(30);
+        try { sfx.rankUp(); } catch {}
+        setFloorFlash(true);
+        setTimeout(() => setFloorFlash(false), 700);
         const nextLevel = level + 1;
         if (nextLevel > 5) {
           await academic.addXp(150);
@@ -176,8 +183,12 @@ const AlgebraDungeon = () => {
     } else {
       const newHp = hp - 1;
       setHp(newHp);
+      const [x, y] = pos;
+      spawnFloat(x, y, "-1 ❤️", "bad");
+      try { sfx.wrong(); } catch {}
       toast.error(`❌ Wrong! Answer was ${problem.answer}. -1 HP`);
       if (newHp <= 0) {
+        try { sfx.gameOver(); } catch {}
         setPhase("lost");
         return;
       }
