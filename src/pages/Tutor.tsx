@@ -28,6 +28,7 @@ import { cn } from "@/lib/utils";
 import { Switch } from "@/components/ui/switch";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
 import { supabase } from "@/integrations/supabase/client";
+import { RequiresOnlineBanner } from "@/components/offline/RequiresOnline";
 import { useAuth } from "@/lib/auth";
 import { fetchPrefs, savePrefs } from "@/lib/workouts";
 import { fetchAthletic } from "@/lib/profile";
@@ -924,6 +925,15 @@ const Tutor = () => {
 
   return (
     <div className="p-6 md:p-10 max-w-5xl mx-auto">
+      <RequiresOnlineBanner
+        feature="AI Tutor"
+        message="AI Tutor requires an internet connection."
+        action={
+          <Button size="sm" variant="outline" onClick={() => setSavedOpen(true)}>
+            <Bookmark className="h-3.5 w-3.5 mr-1.5" /> View saved chats
+          </Button>
+        }
+      />
       <header className="mb-6 flex items-start justify-between gap-4 flex-wrap">
         <div>
           <p className="text-xs uppercase tracking-widest text-muted-foreground">Powered by AI</p>
