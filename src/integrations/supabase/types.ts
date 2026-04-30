@@ -284,6 +284,51 @@ export type Database = {
         }
         Relationships: []
       }
+      colleges: {
+        Row: {
+          created_at: string
+          division: string | null
+          id: string
+          location: string | null
+          name: string
+          notes: string | null
+          priority: number
+          sport: string | null
+          status: string
+          updated_at: string
+          user_id: string
+          website: string | null
+        }
+        Insert: {
+          created_at?: string
+          division?: string | null
+          id?: string
+          location?: string | null
+          name: string
+          notes?: string | null
+          priority?: number
+          sport?: string | null
+          status?: string
+          updated_at?: string
+          user_id: string
+          website?: string | null
+        }
+        Update: {
+          created_at?: string
+          division?: string | null
+          id?: string
+          location?: string | null
+          name?: string
+          notes?: string | null
+          priority?: number
+          sport?: string | null
+          status?: string
+          updated_at?: string
+          user_id?: string
+          website?: string | null
+        }
+        Relationships: []
+      }
       daily_challenges: {
         Row: {
           category: string
@@ -669,6 +714,144 @@ export type Database = {
           user_id?: string
         }
         Relationships: []
+      }
+      recruitment_contacts: {
+        Row: {
+          college_id: string
+          created_at: string
+          email: string | null
+          id: string
+          last_contacted: string | null
+          name: string
+          notes: string | null
+          phone: string | null
+          role: string | null
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          college_id: string
+          created_at?: string
+          email?: string | null
+          id?: string
+          last_contacted?: string | null
+          name: string
+          notes?: string | null
+          phone?: string | null
+          role?: string | null
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          college_id?: string
+          created_at?: string
+          email?: string | null
+          id?: string
+          last_contacted?: string | null
+          name?: string
+          notes?: string | null
+          phone?: string | null
+          role?: string | null
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "recruitment_contacts_college_id_fkey"
+            columns: ["college_id"]
+            isOneToOne: false
+            referencedRelation: "colleges"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      recruitment_milestones: {
+        Row: {
+          college_id: string
+          created_at: string
+          description: string | null
+          event_type: string
+          id: string
+          occurred_on: string
+          title: string
+          user_id: string
+        }
+        Insert: {
+          college_id: string
+          created_at?: string
+          description?: string | null
+          event_type?: string
+          id?: string
+          occurred_on?: string
+          title: string
+          user_id: string
+        }
+        Update: {
+          college_id?: string
+          created_at?: string
+          description?: string | null
+          event_type?: string
+          id?: string
+          occurred_on?: string
+          title?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "recruitment_milestones_college_id_fkey"
+            columns: ["college_id"]
+            isOneToOne: false
+            referencedRelation: "colleges"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      recruitment_tasks: {
+        Row: {
+          college_id: string
+          completed: boolean
+          completed_at: string | null
+          created_at: string
+          due_date: string | null
+          id: string
+          notes: string | null
+          title: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          college_id: string
+          completed?: boolean
+          completed_at?: string | null
+          created_at?: string
+          due_date?: string | null
+          id?: string
+          notes?: string | null
+          title: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          college_id?: string
+          completed?: boolean
+          completed_at?: string | null
+          created_at?: string
+          due_date?: string | null
+          id?: string
+          notes?: string | null
+          title?: string
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "recruitment_tasks_college_id_fkey"
+            columns: ["college_id"]
+            isOneToOne: false
+            referencedRelation: "colleges"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       saved_chats: {
         Row: {
