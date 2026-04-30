@@ -264,9 +264,21 @@ const AlgebraDungeon = () => {
       </header>
 
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-        <div className="rounded-2xl border border-border bg-card p-3 select-none">
+        <div className="relative rounded-2xl border border-border bg-card p-3 select-none overflow-hidden">
+          {/* Floor-clear flash */}
+          <AnimatePresence>
+            {floorFlash && (
+              <motion.div
+                initial={{ opacity: 0 }}
+                animate={{ opacity: [0, 0.8, 0] }}
+                exit={{ opacity: 0 }}
+                transition={{ duration: 0.7 }}
+                className="pointer-events-none absolute inset-0 z-20 bg-gradient-to-br from-emerald-400/60 via-emerald-300/40 to-transparent"
+              />
+            )}
+          </AnimatePresence>
           <div
-            className="grid gap-0.5"
+            className="relative grid gap-0.5"
             style={{ gridTemplateColumns: `repeat(${W}, minmax(0, 1fr))` }}
           >
             {floor.grid.map((row, y) =>
@@ -279,13 +291,50 @@ const AlgebraDungeon = () => {
                 else if (cell === "monster") { bg = "hsl(0 70% 55% / 0.25)"; content = "👹"; }
                 else if (cell === "exit") { bg = "hsl(140 70% 45% / 0.25)"; content = "🚪"; }
                 return (
-                  <div
+                  <motion.div
                     key={`${x}-${y}`}
-                    className="aspect-square rounded text-center text-base flex items-center justify-center"
+                    className="relative aspect-square rounded text-center text-base flex items-center justify-center"
                     style={{ background: bg }}
+                    animate={cell === "treasure" ? { boxShadow: ["0 0 0 hsl(45 90% 55% / 0)", "0 0 12px hsl(45 90% 55% / 0.7)", "0 0 0 hsl(45 90% 55% / 0)"] } : undefined}
+                    transition={cell === "treasure" ? { duration: 1.6, repeat: Infinity } : undefined}
                   >
-                    {isPlayer ? "🧙" : content}
-                  </div>
+                    {isPlayer ? (
+                      <motion.span
+                        layoutId="wizard"
+                        transition={{ type: "spring", stiffness: 380, damping: 26 }}
+                        className="text-lg drop-shadow-[0_0_6px_hsl(var(--primary)/0.6)]"
+                      >🧙</motion.span>
+                    ) : cell === "monster" ? (
+                      <motion.span
+                        animate={{ rotate: [0, -8, 8, -6, 6, 0], y: [0, -1, 0, -1, 0] }}
+                        transition={{ duration: 2.2, repeat: Infinity, repeatDelay: 0.4 }}
+                      >{content}</motion.span>
+                    ) : cell === "exit" ? (
+                      <motion.span
+                        animate={{ scale: [1, 1.12, 1] }}
+                        transition={{ duration: 1.4, repeat: Infinity }}
+                      >{content}</motion.span>
+                    ) : (
+                      content
+                    )}
+                    {/* Floating numbers anchored to this cell */}
+                    <AnimatePresence>
+                      {floats.filter((f) => f.x === x && f.y === y).map((f) => (
+                        <motion.div
+                          key={f.id}
+                          initial={{ opacity: 0, y: 0, scale: 0.6 }}
+                          animate={{ opacity: [0, 1, 1, 0], y: -32, scale: 1.3 }}
+                          transition={{ duration: 1.0 }}
+                          className={cn(
+                            "pointer-events-none absolute left-1/2 top-0 -translate-x-1/2 text-xs font-black tabular-nums z-10 whitespace-nowrap",
+                            f.tone === "good" && "text-emerald-400 drop-shadow-[0_0_6px_rgba(52,211,153,0.7)]",
+                            f.tone === "bad" && "text-rose-500 drop-shadow-[0_0_6px_rgba(244,63,94,0.7)]",
+                            f.tone === "gold" && "text-amber-400 drop-shadow-[0_0_8px_rgba(251,191,36,0.8)]",
+                          )}
+                        >{f.text}</motion.div>
+                      ))}
+                    </AnimatePresence>
+                  </motion.div>
                 );
               }),
             )}
