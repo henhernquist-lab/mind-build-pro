@@ -4,9 +4,10 @@ import { useAuth } from "@/lib/auth";
 import { useRank } from "@/lib/ranks2";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { motion } from "framer-motion";
+import { motion, AnimatePresence } from "framer-motion";
 import { toast } from "sonner";
 import { cn } from "@/lib/utils";
+import { sfx } from "@/lib/sounds";
 
 type Cell = "wall" | "floor" | "exit" | "treasure" | "monster";
 
@@ -92,6 +93,14 @@ const AlgebraDungeon = () => {
   const [problem, setProblem] = useState<{ question: string; answer: string } | null>(null);
   const [pendingType, setPendingType] = useState<"monster" | "exit" | null>(null);
   const [text, setText] = useState("");
+  const [floats, setFloats] = useState<{ id: number; x: number; y: number; text: string; tone: "good" | "bad" | "gold" }[]>([]);
+  const [floorFlash, setFloorFlash] = useState(false);
+
+  const spawnFloat = (x: number, y: number, text: string, tone: "good" | "bad" | "gold") => {
+    const id = Date.now() + Math.random();
+    setFloats((f) => [...f, { id, x, y, text, tone }]);
+    setTimeout(() => setFloats((f) => f.filter((v) => v.id !== id)), 1100);
+  };
 
   const start = () => {
     const cfg = DIFFICULTY[academic.rank.name] ?? DIFFICULTY.Freshman;
@@ -133,6 +142,8 @@ const AlgebraDungeon = () => {
       grid[ny][nx] = "floor";
       setFloor({ ...floor, grid });
       academic.addXp(5);
+      spawnFloat(nx, ny, `+${reward}`, "gold");
+      try { sfx.correct(); } catch {}
       toast.success(`💰 +${reward} gold`);
     }
   };
@@ -147,9 +158,14 @@ const AlgebraDungeon = () => {
         grid[y][x] = "floor";
         setFloor({ ...floor, grid });
         await academic.addXp(10);
+        spawnFloat(x, y, "+10 XP", "good");
+        try { sfx.correct(); } catch {}
         toast.success("⚔️ Monster defeated! +10 XP");
       } else if (pendingType === "exit") {
         await academic.addXp(30);
+        try { sfx.rankUp(); } catch {}
+        setFloorFlash(true);
+        setTimeout(() => setFloorFlash(false), 700);
         const nextLevel = level + 1;
         if (nextLevel > 5) {
           await academic.addXp(150);
@@ -167,8 +183,12 @@ const AlgebraDungeon = () => {
     } else {
       const newHp = hp - 1;
       setHp(newHp);
+      const [x, y] = pos;
+      spawnFloat(x, y, "-1 ❤️", "bad");
+      try { sfx.wrong(); } catch {}
       toast.error(`❌ Wrong! Answer was ${problem.answer}. -1 HP`);
       if (newHp <= 0) {
+        try { sfx.gameOver(); } catch {}
         setPhase("lost");
         return;
       }
@@ -244,9 +264,21 @@ const AlgebraDungeon = () => {
       </header>
 
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-        <div className="rounded-2xl border border-border bg-card p-3 select-none">
+        <div className="relative rounded-2xl border border-border bg-card p-3 select-none overflow-hidden">
+          {/* Floor-clear flash */}
+          <AnimatePresence>
+            {floorFlash && (
+              <motion.div
+                initial={{ opacity: 0 }}
+                animate={{ opacity: [0, 0.8, 0] }}
+                exit={{ opacity: 0 }}
+                transition={{ duration: 0.7 }}
+                className="pointer-events-none absolute inset-0 z-20 bg-gradient-to-br from-emerald-400/60 via-emerald-300/40 to-transparent"
+              />
+            )}
+          </AnimatePresence>
           <div
-            className="grid gap-0.5"
+            className="relative grid gap-0.5"
             style={{ gridTemplateColumns: `repeat(${W}, minmax(0, 1fr))` }}
           >
             {floor.grid.map((row, y) =>
@@ -259,13 +291,50 @@ const AlgebraDungeon = () => {
                 else if (cell === "monster") { bg = "hsl(0 70% 55% / 0.25)"; content = "👹"; }
                 else if (cell === "exit") { bg = "hsl(140 70% 45% / 0.25)"; content = "🚪"; }
                 return (
-                  <div
+                  <motion.div
                     key={`${x}-${y}`}
-                    className="aspect-square rounded text-center text-base flex items-center justify-center"
+                    className="relative aspect-square rounded text-center text-base flex items-center justify-center"
                     style={{ background: bg }}
+                    animate={cell === "treasure" ? { boxShadow: ["0 0 0 hsl(45 90% 55% / 0)", "0 0 12px hsl(45 90% 55% / 0.7)", "0 0 0 hsl(45 90% 55% / 0)"] } : undefined}
+                    transition={cell === "treasure" ? { duration: 1.6, repeat: Infinity } : undefined}
                   >
-                    {isPlayer ? "🧙" : content}
-                  </div>
+                    {isPlayer ? (
+                      <motion.span
+                        layoutId="wizard"
+                        transition={{ type: "spring", stiffness: 380, damping: 26 }}
+                        className="text-lg drop-shadow-[0_0_6px_hsl(var(--primary)/0.6)]"
+                      >🧙</motion.span>
+                    ) : cell === "monster" ? (
+                      <motion.span
+                        animate={{ rotate: [0, -8, 8, -6, 6, 0], y: [0, -1, 0, -1, 0] }}
+                        transition={{ duration: 2.2, repeat: Infinity, repeatDelay: 0.4 }}
+                      >{content}</motion.span>
+                    ) : cell === "exit" ? (
+                      <motion.span
+                        animate={{ scale: [1, 1.12, 1] }}
+                        transition={{ duration: 1.4, repeat: Infinity }}
+                      >{content}</motion.span>
+                    ) : (
+                      content
+                    )}
+                    {/* Floating numbers anchored to this cell */}
+                    <AnimatePresence>
+                      {floats.filter((f) => f.x === x && f.y === y).map((f) => (
+                        <motion.div
+                          key={f.id}
+                          initial={{ opacity: 0, y: 0, scale: 0.6 }}
+                          animate={{ opacity: [0, 1, 1, 0], y: -32, scale: 1.3 }}
+                          transition={{ duration: 1.0 }}
+                          className={cn(
+                            "pointer-events-none absolute left-1/2 top-0 -translate-x-1/2 text-xs font-black tabular-nums z-10 whitespace-nowrap",
+                            f.tone === "good" && "text-emerald-400 drop-shadow-[0_0_6px_rgba(52,211,153,0.7)]",
+                            f.tone === "bad" && "text-rose-500 drop-shadow-[0_0_6px_rgba(244,63,94,0.7)]",
+                            f.tone === "gold" && "text-amber-400 drop-shadow-[0_0_8px_rgba(251,191,36,0.8)]",
+                          )}
+                        >{f.text}</motion.div>
+                      ))}
+                    </AnimatePresence>
+                  </motion.div>
                 );
               }),
             )}
@@ -283,11 +352,36 @@ const AlgebraDungeon = () => {
 
         <div className="rounded-2xl border border-border bg-card p-4 min-h-[200px]">
           {problem ? (
-            <motion.div initial={{ opacity: 0, scale: 0.95 }} animate={{ opacity: 1, scale: 1 }} className="space-y-3">
-              <div className="text-xs uppercase tracking-widest text-muted-foreground">
-                {pendingType === "monster" ? "⚔️ Monster encounter" : "🚪 Sealed door"}
-              </div>
-              <div className="text-2xl font-bold text-center py-2">{problem.question}</div>
+            <motion.div
+              key={problem.question}
+              initial={{ opacity: 0, scale: 0.9, y: 8 }}
+              animate={{ opacity: 1, scale: 1, y: 0 }}
+              transition={{ type: "spring", stiffness: 320, damping: 22 }}
+              className="space-y-3"
+            >
+              <motion.div
+                initial={{ opacity: 0, x: -10 }}
+                animate={{ opacity: 1, x: 0 }}
+                className={cn(
+                  "rounded-lg px-3 py-2 text-xs uppercase tracking-widest font-bold flex items-center gap-2",
+                  pendingType === "monster"
+                    ? "bg-destructive/15 text-destructive border border-destructive/40"
+                    : "bg-emerald-500/15 text-emerald-500 border border-emerald-500/40"
+                )}
+              >
+                <motion.span animate={{ scale: [1, 1.2, 1] }} transition={{ duration: 0.8, repeat: Infinity }}>
+                  {pendingType === "monster" ? "👹" : "🚪"}
+                </motion.span>
+                {pendingType === "monster" ? "Monster encounter!" : "Sealed door"}
+              </motion.div>
+              <motion.div
+                initial={{ scale: 0.8 }}
+                animate={{ scale: 1 }}
+                transition={{ type: "spring", stiffness: 260, damping: 18, delay: 0.1 }}
+                className="text-3xl font-black text-center py-3 tracking-wide"
+              >
+                {problem.question}
+              </motion.div>
               <Input
                 autoFocus
                 value={text}
