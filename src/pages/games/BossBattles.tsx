@@ -23,6 +23,8 @@ import confetti from "canvas-confetti";
 
 type Boss = { name: string; personality: string; emoji: string };
 
+type FloatingNum = { id: number; value: number; kind: "boss" | "player"; crit: boolean };
+
 const DEFAULT_BOSSES: Record<string, Boss> = {
   algebra: { name: "The Equation", personality: "Cold, robotic, speaks in math terms.", emoji: "🤖" },
   langlit: { name: "The Wordsmith", personality: "Dramatic, Shakespearean, loves riddles.", emoji: "📜" },
