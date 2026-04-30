@@ -188,7 +188,20 @@ const BossBattles = () => {
 
         {/* Health bars */}
         <div className="grid grid-cols-2 gap-4 mb-4">
-          <div className="rounded-2xl border border-border bg-card p-4 text-center">
+          <div className="relative overflow-visible rounded-2xl border border-border bg-card p-4 text-center">
+            <AnimatePresence>
+              {floats.filter((f) => f.kind === "player").map((f) => (
+                <motion.div
+                  key={f.id}
+                  initial={{ opacity: 0, y: 0, scale: 0.6 }}
+                  animate={{ opacity: [0, 1, 1, 0], y: -60, scale: 1.2 }}
+                  transition={{ duration: 1.0 }}
+                  className="pointer-events-none absolute left-1/2 top-2 -translate-x-1/2 z-10 text-xl font-black text-rose-500 tabular-nums"
+                >
+                  -{f.value} ❤️
+                </motion.div>
+              ))}
+            </AnimatePresence>
             <div className="h-16 w-16 mx-auto rounded-2xl border-2 border-primary overflow-hidden bg-primary/10 flex items-center justify-center text-2xl font-bold">
               {playerAvatar ? <img src={playerAvatar} className="h-full w-full object-cover" /> : (profile?.display_name?.[0] ?? "Y")}
             </div>
