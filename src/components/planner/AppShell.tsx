@@ -132,13 +132,15 @@ export const AppShell = () => {
       {/* Top-left floating profile button */}
       <button
         onClick={() => navigate("/profile")}
-        className="fixed top-3 left-3 z-40 h-10 w-10 rounded-full border-2 border-border bg-card shadow-lg hover:border-primary transition-colors overflow-hidden flex items-center justify-center text-xs font-bold"
+        className="fixed top-3 left-3 z-40 h-10 w-10 rounded-full border-2 border-border bg-card shadow-lg hover:border-primary transition-colors flex items-center justify-center text-xs font-bold"
         title="Open profile"
         aria-label="Open profile"
       >
-        {avatarUrl
-          ? <img src={avatarUrl} alt={displayName} className="h-full w-full object-cover" />
-          : <span className="text-foreground">{initials}</span>}
+        <span className="relative h-full w-full rounded-full overflow-hidden flex items-center justify-center">
+          {avatarUrl
+            ? <img src={avatarUrl} alt={displayName} className="h-full w-full object-cover" />
+            : <span className="text-foreground">{initials}</span>}
+        </span>
         <OnlineDot className="absolute -bottom-0.5 -right-0.5 ring-2 ring-background" />
       </button>
 
