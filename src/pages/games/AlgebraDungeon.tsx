@@ -93,6 +93,14 @@ const AlgebraDungeon = () => {
   const [problem, setProblem] = useState<{ question: string; answer: string } | null>(null);
   const [pendingType, setPendingType] = useState<"monster" | "exit" | null>(null);
   const [text, setText] = useState("");
+  const [floats, setFloats] = useState<{ id: number; x: number; y: number; text: string; tone: "good" | "bad" | "gold" }[]>([]);
+  const [floorFlash, setFloorFlash] = useState(false);
+
+  const spawnFloat = (x: number, y: number, text: string, tone: "good" | "bad" | "gold") => {
+    const id = Date.now() + Math.random();
+    setFloats((f) => [...f, { id, x, y, text, tone }]);
+    setTimeout(() => setFloats((f) => f.filter((v) => v.id !== id)), 1100);
+  };
 
   const start = () => {
     const cfg = DIFFICULTY[academic.rank.name] ?? DIFFICULTY.Freshman;
