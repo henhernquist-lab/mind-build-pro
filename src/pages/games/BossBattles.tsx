@@ -18,6 +18,8 @@ import { cn } from "@/lib/utils";
 import { ComboCounter } from "@/components/games/ComboCounter";
 import { unlockBadge } from "@/lib/achievements";
 import { incrementChallengeProgress } from "@/lib/dailyChallenges";
+import { sfx } from "@/lib/sounds";
+import confetti from "canvas-confetti";
 
 type Boss = { name: string; personality: string; emoji: string };
 
@@ -107,6 +109,11 @@ const BossBattles = () => {
       }
       const dialogue = await callGame({ mode: "boss_dialogue", bossName: boss.name, bossPersonality: boss.personality, event: "has been defeated by the player", bossHp: 0, playerHp, streak });
       toast.success(`🏆 You defeated ${boss.name}!`, { description: `+${xp} Academic XP` });
+      try { sfx.rankUp(); } catch {}
+      try {
+        confetti({ particleCount: 220, spread: 90, origin: { y: 0.6 }, startVelocity: 55 });
+        setTimeout(() => confetti({ particleCount: 120, spread: 120, origin: { y: 0.7 }, decay: 0.92 }), 200);
+      } catch {}
       setBattle({ ...battle, bossHp, playerHp, round, streak, asked, current: null, line: dialogue.line, defeated: 1 });
       return;
     }
@@ -114,6 +121,7 @@ const BossBattles = () => {
       await academic.addXp(10);
       const dialogue = await callGame({ mode: "boss_dialogue", bossName: boss.name, bossPersonality: boss.personality, event: "has defeated the player", bossHp, playerHp: 0, streak: 0 });
       toast.error(`Defeated by ${boss.name}`, { description: "+10 Academic XP consolation" });
+      try { sfx.gameOver(); } catch {}
       setBattle({ ...battle, bossHp, playerHp, round, streak, asked, current: null, line: dialogue.line, defeated: -1 });
       return;
     }
