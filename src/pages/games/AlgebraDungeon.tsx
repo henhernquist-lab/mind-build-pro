@@ -352,11 +352,36 @@ const AlgebraDungeon = () => {
 
         <div className="rounded-2xl border border-border bg-card p-4 min-h-[200px]">
           {problem ? (
-            <motion.div initial={{ opacity: 0, scale: 0.95 }} animate={{ opacity: 1, scale: 1 }} className="space-y-3">
-              <div className="text-xs uppercase tracking-widest text-muted-foreground">
-                {pendingType === "monster" ? "⚔️ Monster encounter" : "🚪 Sealed door"}
-              </div>
-              <div className="text-2xl font-bold text-center py-2">{problem.question}</div>
+            <motion.div
+              key={problem.question}
+              initial={{ opacity: 0, scale: 0.9, y: 8 }}
+              animate={{ opacity: 1, scale: 1, y: 0 }}
+              transition={{ type: "spring", stiffness: 320, damping: 22 }}
+              className="space-y-3"
+            >
+              <motion.div
+                initial={{ opacity: 0, x: -10 }}
+                animate={{ opacity: 1, x: 0 }}
+                className={cn(
+                  "rounded-lg px-3 py-2 text-xs uppercase tracking-widest font-bold flex items-center gap-2",
+                  pendingType === "monster"
+                    ? "bg-destructive/15 text-destructive border border-destructive/40"
+                    : "bg-emerald-500/15 text-emerald-500 border border-emerald-500/40"
+                )}
+              >
+                <motion.span animate={{ scale: [1, 1.2, 1] }} transition={{ duration: 0.8, repeat: Infinity }}>
+                  {pendingType === "monster" ? "👹" : "🚪"}
+                </motion.span>
+                {pendingType === "monster" ? "Monster encounter!" : "Sealed door"}
+              </motion.div>
+              <motion.div
+                initial={{ scale: 0.8 }}
+                animate={{ scale: 1 }}
+                transition={{ type: "spring", stiffness: 260, damping: 18, delay: 0.1 }}
+                className="text-3xl font-black text-center py-3 tracking-wide"
+              >
+                {problem.question}
+              </motion.div>
               <Input
                 autoFocus
                 value={text}
