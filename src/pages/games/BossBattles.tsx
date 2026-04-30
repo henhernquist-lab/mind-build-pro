@@ -23,6 +23,8 @@ import confetti from "canvas-confetti";
 
 type Boss = { name: string; personality: string; emoji: string };
 
+type FloatingNum = { id: number; value: number; kind: "boss" | "player"; crit: boolean };
+
 const DEFAULT_BOSSES: Record<string, Boss> = {
   algebra: { name: "The Equation", personality: "Cold, robotic, speaks in math terms.", emoji: "🤖" },
   langlit: { name: "The Wordsmith", personality: "Dramatic, Shakespearean, loves riddles.", emoji: "📜" },
@@ -47,6 +49,14 @@ const BossBattles = () => {
 
   // Battle state
   const [battle, setBattle] = useState<{ subject: Subject; boss: Boss; bossHp: number; playerHp: number; round: number; streak: number; asked: string[]; current: Q | null; loadingQ: boolean; line?: string; defeated?: number } | null>(null);
+  const [floats, setFloats] = useState<FloatingNum[]>([]);
+  const [bossHit, setBossHit] = useState(false);
+
+  const spawnFloat = (kind: "boss" | "player", value: number, crit = false) => {
+    const id = Date.now() + Math.random();
+    setFloats((f) => [...f, { id, value, kind, crit }]);
+    setTimeout(() => setFloats((f) => f.filter((x) => x.id !== id)), 1100);
+  };
 
   useEffect(() => {
     if (!user) return;
@@ -92,9 +102,13 @@ const BossBattles = () => {
       let dmg = 1;
       if (streak >= 3) { dmg = 2; crit = true; streak = 0; }
       bossHp = Math.max(0, bossHp - dmg);
+      spawnFloat("boss", dmg, crit);
+      setBossHit(true);
+      setTimeout(() => setBossHit(false), 350);
     } else {
       streak = 0;
       playerHp -= 1;
+      spawnFloat("player", 1);
     }
     round += 1;
 
@@ -174,7 +188,20 @@ const BossBattles = () => {
 
         {/* Health bars */}
         <div className="grid grid-cols-2 gap-4 mb-4">
-          <div className="rounded-2xl border border-border bg-card p-4 text-center">
+          <div className="relative overflow-visible rounded-2xl border border-border bg-card p-4 text-center">
+            <AnimatePresence>
+              {floats.filter((f) => f.kind === "player").map((f) => (
+                <motion.div
+                  key={f.id}
+                  initial={{ opacity: 0, y: 0, scale: 0.6 }}
+                  animate={{ opacity: [0, 1, 1, 0], y: -60, scale: 1.2 }}
+                  transition={{ duration: 1.0 }}
+                  className="pointer-events-none absolute left-1/2 top-2 -translate-x-1/2 z-10 text-xl font-black text-rose-500 tabular-nums"
+                >
+                  -{f.value} ❤️
+                </motion.div>
+              ))}
+            </AnimatePresence>
             <div className="h-16 w-16 mx-auto rounded-2xl border-2 border-primary overflow-hidden bg-primary/10 flex items-center justify-center text-2xl font-bold">
               {playerAvatar ? <img src={playerAvatar} className="h-full w-full object-cover" /> : (profile?.display_name?.[0] ?? "Y")}
             </div>
@@ -192,16 +219,35 @@ const BossBattles = () => {
             animate={
               battle.defeated === 1
                 ? { opacity: 0.3, scale: 0.9 }
+                : bossHit
+                ? { x: [0, -10, 10, -6, 6, 0], rotate: [0, -3, 3, -2, 2, 0] }
                 : battle.bossHp <= 3 && battle.bossHp > 0
                 ? { x: [0, -2, 2, -2, 0], boxShadow: ["0 0 0 hsl(var(--destructive)/0)", "0 0 24px hsl(var(--destructive)/0.6)", "0 0 0 hsl(var(--destructive)/0)"] }
                 : {}
             }
-            transition={battle.bossHp <= 3 ? { duration: 0.9, repeat: Infinity } : undefined}
+            transition={bossHit ? { duration: 0.35 } : battle.bossHp <= 3 ? { duration: 0.9, repeat: Infinity } : undefined}
             className={cn(
-              "rounded-2xl border bg-card p-4 text-center transition-colors",
+              "relative rounded-2xl border bg-card p-4 text-center transition-colors overflow-visible",
               battle.bossHp <= 3 && battle.bossHp > 0 ? "border-destructive" : "border-border"
             )}
           >
+            {/* Floating damage numbers over boss */}
+            <AnimatePresence>
+              {floats.filter((f) => f.kind === "boss").map((f) => (
+                <motion.div
+                  key={f.id}
+                  initial={{ opacity: 0, y: 0, scale: 0.6 }}
+                  animate={{ opacity: [0, 1, 1, 0], y: -60, scale: f.crit ? 1.6 : 1.2 }}
+                  transition={{ duration: 1.0 }}
+                  className={cn(
+                    "pointer-events-none absolute left-1/2 top-2 -translate-x-1/2 font-black tabular-nums z-10",
+                    f.crit ? "text-amber-400 drop-shadow-[0_0_8px_rgba(251,191,36,0.8)] text-2xl" : "text-rose-400 text-xl"
+                  )}
+                >
+                  -{f.value}{f.crit && " CRIT!"}
+                </motion.div>
+              ))}
+            </AnimatePresence>
             <motion.div
               animate={battle.bossHp <= 3 && battle.bossHp > 0 ? { rotate: [0, -4, 4, 0] } : {}}
               transition={{ duration: 0.6, repeat: Infinity }}

@@ -12,6 +12,7 @@ import { useLocalStorage } from "@/lib/storage";
 import { motion } from "framer-motion";
 import { toast } from "sonner";
 import { cn } from "@/lib/utils";
+import { ComboCounter } from "@/components/games/ComboCounter";
 
 const OPPONENTS = [
   { rank: "Recruit", name: "Rookie Bot", emoji: "🤖", accuracy: 0.4, taunt: "I'm just learning, go easy on me 😅" },
@@ -141,7 +142,7 @@ const FlashcardBattle = () => {
     <div className="p-4 md:p-8 max-w-3xl mx-auto pb-24">
       <div className="flex justify-between items-center mb-3">
         <div className="text-sm">Round <b>{round + 1}/10</b></div>
-        {streak >= 2 && <div className="text-orange-500 font-bold animate-pulse text-sm">🔥 x{streak}</div>}
+        <ComboCounter streak={streak} compact />
         <Button variant="ghost" size="sm" onClick={() => setPhase("select")}>Quit</Button>
       </div>
       <div className="grid grid-cols-2 gap-4 mb-4">
