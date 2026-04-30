@@ -1,9 +1,11 @@
-import { motion } from "framer-motion";
+import { motion, AnimatePresence } from "framer-motion";
 import { Play, ArrowLeft, Trophy, Zap } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Link } from "react-router-dom";
 import { cn } from "@/lib/utils";
-import type { ReactNode } from "react";
+import { useState, type ReactNode } from "react";
+import HypeCountdown from "./HypeCountdown";
+import analytics from "@/lib/analytics/mixpanel";
 
 export interface LobbyStat {
   label: string;
@@ -23,6 +25,12 @@ interface GameLobbyProps {
   starting?: boolean;
   back?: string;
   children?: ReactNode;
+  /** Optional context surfaced on the hype/countdown screen */
+  subject?: string;
+  rankLabel?: string;
+  rankIcon?: string;
+  /** Skip the 3-2-1 countdown (defaults to false) */
+  skipHype?: boolean;
 }
 
 export const GameLobby = ({
@@ -37,8 +45,24 @@ export const GameLobby = ({
   starting,
   back = "/games",
   children,
-}: GameLobbyProps) => (
-  <div className="p-4 md:p-8 max-w-3xl mx-auto pb-24">
+  subject,
+  rankLabel,
+  rankIcon,
+  skipHype,
+}: GameLobbyProps) => {
+  const [hyping, setHyping] = useState(false);
+
+  const handleStart = () => {
+    analytics.gameStart({ game: title, subject });
+    if (skipHype) {
+      onStart();
+      return;
+    }
+    setHyping(true);
+  };
+
+  return (
+    <div className="p-4 md:p-8 max-w-3xl mx-auto pb-24">
     <Link
       to={back}
       className="inline-flex items-center gap-2 text-sm text-muted-foreground hover:text-foreground mb-4"
@@ -103,7 +127,7 @@ export const GameLobby = ({
           size="lg"
           variant="premium"
           className="w-full text-base font-bold"
-          onClick={onStart}
+          onClick={handleStart}
           disabled={starting}
         >
           <Play className={cn("h-5 w-5 mr-2", starting && "animate-pulse")} />
@@ -111,7 +135,24 @@ export const GameLobby = ({
         </Button>
       </div>
     </motion.div>
-  </div>
-);
+
+    <AnimatePresence>
+      {hyping && (
+        <HypeCountdown
+          title={title}
+          emoji={emoji}
+          subject={subject}
+          rankLabel={rankLabel}
+          rankIcon={rankIcon}
+          onComplete={() => {
+            setHyping(false);
+            onStart();
+          }}
+        />
+      )}
+    </AnimatePresence>
+    </div>
+  );
+};
 
 export default GameLobby;

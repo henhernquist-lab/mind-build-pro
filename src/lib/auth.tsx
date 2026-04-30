@@ -1,4 +1,5 @@
 import { createContext, useContext, useEffect, useState, ReactNode } from "react";
+import analytics from "@/lib/analytics/mixpanel";
 import { Session, User } from "@supabase/supabase-js";
 import { supabase } from "@/integrations/supabase/client";
 
@@ -41,6 +42,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
       setSession(sess);
       setUser(sess?.user ?? null);
       if (sess?.user) {
+        analytics.identify(sess.user.id);
         // Defer profile fetch so callback returns fast
         setTimeout(() => fetchProfile(sess.user.id), 0);
       } else {
@@ -52,7 +54,10 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     supabase.auth.getSession().then(({ data: { session: existing } }) => {
       setSession(existing);
       setUser(existing?.user ?? null);
-      if (existing?.user) fetchProfile(existing.user.id);
+      if (existing?.user) {
+        analytics.identify(existing.user.id);
+        fetchProfile(existing.user.id);
+      }
       setLoading(false);
     });
 
