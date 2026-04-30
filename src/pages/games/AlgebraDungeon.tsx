@@ -4,9 +4,10 @@ import { useAuth } from "@/lib/auth";
 import { useRank } from "@/lib/ranks2";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { motion } from "framer-motion";
+import { motion, AnimatePresence } from "framer-motion";
 import { toast } from "sonner";
 import { cn } from "@/lib/utils";
+import { sfx } from "@/lib/sounds";
 
 type Cell = "wall" | "floor" | "exit" | "treasure" | "monster";
 
