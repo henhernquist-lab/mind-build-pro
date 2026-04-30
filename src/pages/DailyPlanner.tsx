@@ -26,6 +26,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { AiSuggestions } from "@/components/planner/AiSuggestions";
 import { NutritionTodayCard } from "@/components/planner/NutritionTodayCard";
 import { WeatherCheckCard } from "@/components/planner/WeatherCheckCard";
+import { ChampionshipBanner } from "@/components/seasons/ChampionshipBanner";
 
 const CAT_META: Record<Category, { label: string; emoji: string; color: string }> = {
   school: { label: "School", emoji: "🔵", color: "hsl(var(--school))" },
@@ -260,6 +261,8 @@ const DailyPlanner = () => {
         userId={user?.id}
         onChanged={() => refresh()}
       />
+
+      <ChampionshipBanner />
 
       <AiSuggestions
         dateKey={dateKey}

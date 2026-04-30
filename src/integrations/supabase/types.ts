@@ -706,6 +706,136 @@ export type Database = {
         }
         Relationships: []
       }
+      season_results: {
+        Row: {
+          badge_earned: string | null
+          bonus_xp_awarded: number
+          claimed: boolean
+          claimed_at: string | null
+          created_at: string
+          id: string
+          placement: number | null
+          rank_type: string
+          season_id: string
+          user_id: string
+          xp_earned: number
+        }
+        Insert: {
+          badge_earned?: string | null
+          bonus_xp_awarded?: number
+          claimed?: boolean
+          claimed_at?: string | null
+          created_at?: string
+          id?: string
+          placement?: number | null
+          rank_type: string
+          season_id: string
+          user_id: string
+          xp_earned?: number
+        }
+        Update: {
+          badge_earned?: string | null
+          bonus_xp_awarded?: number
+          claimed?: boolean
+          claimed_at?: string | null
+          created_at?: string
+          id?: string
+          placement?: number | null
+          rank_type?: string
+          season_id?: string
+          user_id?: string
+          xp_earned?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "season_results_season_id_fkey"
+            columns: ["season_id"]
+            isOneToOne: false
+            referencedRelation: "seasons"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      season_rewards: {
+        Row: {
+          badge_icon: string | null
+          badge_name: string | null
+          bonus_xp: number
+          created_at: string
+          id: string
+          placement: number
+          season_id: string
+        }
+        Insert: {
+          badge_icon?: string | null
+          badge_name?: string | null
+          bonus_xp?: number
+          created_at?: string
+          id?: string
+          placement: number
+          season_id: string
+        }
+        Update: {
+          badge_icon?: string | null
+          badge_name?: string | null
+          bonus_xp?: number
+          created_at?: string
+          id?: string
+          placement?: number
+          season_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "season_rewards_season_id_fkey"
+            columns: ["season_id"]
+            isOneToOne: false
+            referencedRelation: "seasons"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      seasons: {
+        Row: {
+          created_at: string
+          description: string | null
+          end_date: string
+          id: string
+          name: string
+          rank_type: string
+          season_type: string
+          start_date: string
+          status: string
+          theme_color: string | null
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          description?: string | null
+          end_date: string
+          id?: string
+          name: string
+          rank_type?: string
+          season_type: string
+          start_date: string
+          status?: string
+          theme_color?: string | null
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          description?: string | null
+          end_date?: string
+          id?: string
+          name?: string
+          rank_type?: string
+          season_type?: string
+          start_date?: string
+          status?: string
+          theme_color?: string | null
+          updated_at?: string
+        }
+        Relationships: []
+      }
       study_notes: {
         Row: {
           ai_summary: string | null
@@ -1003,6 +1133,17 @@ export type Database = {
           username: string
           weight_lbs: number
           years_experience: string
+        }[]
+      }
+      get_season_leaderboard: {
+        Args: { _limit?: number; _season_id: string }
+        Returns: {
+          avatar_url: string
+          display_name: string
+          rank_type: string
+          user_id: string
+          username: string
+          xp: number
         }[]
       }
     }
