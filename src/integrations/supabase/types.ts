@@ -634,6 +634,95 @@ export type Database = {
         }
         Relationships: []
       }
+      practice_attempts: {
+        Row: {
+          answers: Json
+          correct_count: number
+          created_at: string
+          duration_seconds: number
+          id: string
+          score_pct: number
+          subject: string
+          test_id: string
+          total_count: number
+          user_id: string
+          weak_topics: string[] | null
+        }
+        Insert: {
+          answers?: Json
+          correct_count?: number
+          created_at?: string
+          duration_seconds?: number
+          id?: string
+          score_pct?: number
+          subject: string
+          test_id: string
+          total_count?: number
+          user_id: string
+          weak_topics?: string[] | null
+        }
+        Update: {
+          answers?: Json
+          correct_count?: number
+          created_at?: string
+          duration_seconds?: number
+          id?: string
+          score_pct?: number
+          subject?: string
+          test_id?: string
+          total_count?: number
+          user_id?: string
+          weak_topics?: string[] | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "practice_attempts_test_id_fkey"
+            columns: ["test_id"]
+            isOneToOne: false
+            referencedRelation: "practice_tests"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      practice_tests: {
+        Row: {
+          created_at: string
+          difficulty: string
+          id: string
+          questions: Json
+          source: string
+          source_note_id: string | null
+          subject: string
+          topic: string | null
+          total_questions: number
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          difficulty?: string
+          id?: string
+          questions?: Json
+          source?: string
+          source_note_id?: string | null
+          subject: string
+          topic?: string | null
+          total_questions?: number
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          difficulty?: string
+          id?: string
+          questions?: Json
+          source?: string
+          source_note_id?: string | null
+          subject?: string
+          topic?: string | null
+          total_questions?: number
+          user_id?: string
+        }
+        Relationships: []
+      }
       profiles: {
         Row: {
           avatar_url: string | null
@@ -1077,6 +1166,36 @@ export type Database = {
           longest_streak?: number
           multiplier_active_until?: string | null
           total_study_days?: number
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
+      subject_weakness: {
+        Row: {
+          dismissed_at: string | null
+          flagged_for_review: boolean
+          id: string
+          last_two_scores: number[]
+          subject: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          dismissed_at?: string | null
+          flagged_for_review?: boolean
+          id?: string
+          last_two_scores?: number[]
+          subject: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          dismissed_at?: string | null
+          flagged_for_review?: boolean
+          id?: string
+          last_two_scores?: number[]
+          subject?: string
           updated_at?: string
           user_id?: string
         }
