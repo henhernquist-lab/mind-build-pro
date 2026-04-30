@@ -84,6 +84,7 @@ const Nutrition = () => {
   const [mealDesc, setMealDesc] = useState("");
   const [mealType, setMealType] = useState<MealType>("breakfast");
   const [estimating, setEstimating] = useState(false);
+  const online = useOnlineStatus();
 
   // Scan a meal (camera / upload)
   const cameraInputRef = useRef<HTMLInputElement | null>(null);
