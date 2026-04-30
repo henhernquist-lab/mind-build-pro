@@ -33,6 +33,7 @@ import { useRank } from "@/lib/ranks2";
 import { ATHLETIC_RANKS, ACADEMIC_RANKS, getNextRank } from "@/lib/ranks2";
 import { useState as useStateAcademic } from "react";
 import html2canvas from "html2canvas";
+import { InstallButton } from "@/components/offline/InstallButton";
 
 const slugifyUsername = (s: string) =>
   s.toLowerCase().replace(/[^a-z0-9_-]/g, "").slice(0, 24);
