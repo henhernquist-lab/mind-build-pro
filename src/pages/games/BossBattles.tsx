@@ -206,16 +206,35 @@ const BossBattles = () => {
             animate={
               battle.defeated === 1
                 ? { opacity: 0.3, scale: 0.9 }
+                : bossHit
+                ? { x: [0, -10, 10, -6, 6, 0], rotate: [0, -3, 3, -2, 2, 0] }
                 : battle.bossHp <= 3 && battle.bossHp > 0
                 ? { x: [0, -2, 2, -2, 0], boxShadow: ["0 0 0 hsl(var(--destructive)/0)", "0 0 24px hsl(var(--destructive)/0.6)", "0 0 0 hsl(var(--destructive)/0)"] }
                 : {}
             }
-            transition={battle.bossHp <= 3 ? { duration: 0.9, repeat: Infinity } : undefined}
+            transition={bossHit ? { duration: 0.35 } : battle.bossHp <= 3 ? { duration: 0.9, repeat: Infinity } : undefined}
             className={cn(
-              "rounded-2xl border bg-card p-4 text-center transition-colors",
+              "relative rounded-2xl border bg-card p-4 text-center transition-colors overflow-visible",
               battle.bossHp <= 3 && battle.bossHp > 0 ? "border-destructive" : "border-border"
             )}
           >
+            {/* Floating damage numbers over boss */}
+            <AnimatePresence>
+              {floats.filter((f) => f.kind === "boss").map((f) => (
+                <motion.div
+                  key={f.id}
+                  initial={{ opacity: 0, y: 0, scale: 0.6 }}
+                  animate={{ opacity: [0, 1, 1, 0], y: -60, scale: f.crit ? 1.6 : 1.2 }}
+                  transition={{ duration: 1.0 }}
+                  className={cn(
+                    "pointer-events-none absolute left-1/2 top-2 -translate-x-1/2 font-black tabular-nums z-10",
+                    f.crit ? "text-amber-400 drop-shadow-[0_0_8px_rgba(251,191,36,0.8)] text-2xl" : "text-rose-400 text-xl"
+                  )}
+                >
+                  -{f.value}{f.crit && " CRIT!"}
+                </motion.div>
+              ))}
+            </AnimatePresence>
             <motion.div
               animate={battle.bossHp <= 3 && battle.bossHp > 0 ? { rotate: [0, -4, 4, 0] } : {}}
               transition={{ duration: 0.6, repeat: Infinity }}
