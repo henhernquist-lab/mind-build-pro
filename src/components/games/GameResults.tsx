@@ -2,7 +2,9 @@ import { motion } from "framer-motion";
 import { Trophy, RotateCcw, ArrowLeft, Sparkles, Flame, Target } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Link } from "react-router-dom";
-import type { ReactNode } from "react";
+import { useEffect, type ReactNode } from "react";
+import confetti from "canvas-confetti";
+import analytics from "@/lib/analytics/mixpanel";
 
 export interface ResultStat {
   label: string;
@@ -21,6 +23,10 @@ interface GameResultsProps {
   isNewBest?: boolean;
   onPlayAgain: () => void;
   back?: string;
+  /** Subject played, surfaced to analytics. */
+  subject?: string;
+  /** If true, force-fire the win confetti regardless of accuracy. */
+  win?: boolean;
 }
 
 const grade = (acc: number): { letter: string; color: string } => {
@@ -42,8 +48,35 @@ export const GameResults = ({
   isNewBest,
   onPlayAgain,
   back = "/games",
+  subject,
+  win,
 }: GameResultsProps) => {
   const g = accuracy != null ? grade(accuracy) : null;
+
+  useEffect(() => {
+    analytics.gameEnd({
+      game: title,
+      subject,
+      score: xpEarned,
+      accuracy,
+      xpEarned,
+    });
+    const shouldCelebrate = win || (accuracy != null && accuracy >= 80);
+    if (!shouldCelebrate) return;
+    const fire = (ratio: number, opts: confetti.Options) => {
+      confetti({
+        particleCount: Math.floor(180 * ratio),
+        spread: 70,
+        origin: { y: 0.7 },
+        ...opts,
+      });
+    };
+    fire(0.25, { spread: 26, startVelocity: 55 });
+    fire(0.2, { spread: 60 });
+    fire(0.35, { spread: 100, decay: 0.91, scalar: 0.8 });
+    fire(0.1, { spread: 120, startVelocity: 45 });
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   return (
     <motion.div
