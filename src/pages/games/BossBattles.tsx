@@ -102,9 +102,13 @@ const BossBattles = () => {
       let dmg = 1;
       if (streak >= 3) { dmg = 2; crit = true; streak = 0; }
       bossHp = Math.max(0, bossHp - dmg);
+      spawnFloat("boss", dmg, crit);
+      setBossHit(true);
+      setTimeout(() => setBossHit(false), 350);
     } else {
       streak = 0;
       playerHp -= 1;
+      spawnFloat("player", 1);
     }
     round += 1;
 
