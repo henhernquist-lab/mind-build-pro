@@ -22,6 +22,7 @@ import { FocusToggle } from "@/components/focus/FocusToggle";
 import { claimDailyLoginXp } from "@/lib/streak";
 import { showFloatingXp } from "@/components/fx/FloatingXp";
 import { toast } from "sonner";
+import { OfflineBanner, OnlineDot } from "@/components/offline/OfflineBanner";
 
 type NavItem = { to: string; label: string; icon: any; accent: "school" | "sports" | "primary" };
 type NavGroup = { id: string; label: string; icon: any; items: NavItem[] };
@@ -138,7 +139,10 @@ export const AppShell = () => {
         {avatarUrl
           ? <img src={avatarUrl} alt={displayName} className="h-full w-full object-cover" />
           : <span className="text-foreground">{initials}</span>}
+        <OnlineDot className="absolute -bottom-0.5 -right-0.5 ring-2 ring-background" />
       </button>
+
+      <OfflineBanner />
 
       <aside className="hidden md:flex w-60 flex-col border-r border-sidebar-border bg-sidebar">
         <div className="p-5 pl-16 flex items-center gap-2 justify-between">
