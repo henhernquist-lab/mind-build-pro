@@ -634,6 +634,15 @@ const Profile = () => {
         </div>
       </section>
 
+      {/* Install as App */}
+      <section className="mt-6 rounded-2xl border border-border bg-card p-5">
+        <h3 className="text-sm font-semibold mb-1">Install LifeStack</h3>
+        <p className="text-xs text-muted-foreground mb-3">
+          Add LifeStack to your home screen for a full-screen, app-like experience that works offline.
+        </p>
+        <InstallButton />
+      </section>
+
       {/* Academic Profile editor */}
       <div className="mt-6">
         <AcademicProfileSection onChanged={(p, classes) => {
