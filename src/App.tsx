@@ -21,6 +21,7 @@ import AlgebraDungeon from "./pages/games/AlgebraDungeon";
 import SpeedMathBlitz from "./pages/games/SpeedMathBlitz";
 import Leaderboard from "./pages/Leaderboard";
 import Championship from "./pages/Championship";
+import Recruitment from "./pages/Recruitment";
 import TestCalendar from "./pages/academic/TestCalendar";
 import VocabBuilder from "./pages/academic/VocabBuilder";
 import Notes from "./pages/academic/Notes";
@@ -59,6 +60,7 @@ const App = () => (
               <Route path="/games/blitz" element={<SpeedMathBlitz />} />
               <Route path="/leaderboard" element={<Leaderboard />} />
               <Route path="/championship" element={<Championship />} />
+              <Route path="/recruitment" element={<Recruitment />} />
               <Route path="/tests" element={<TestCalendar />} />
               <Route path="/vocab" element={<VocabBuilder />} />
               <Route path="/notes" element={<Notes />} />
