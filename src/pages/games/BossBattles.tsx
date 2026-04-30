@@ -49,6 +49,14 @@ const BossBattles = () => {
 
   // Battle state
   const [battle, setBattle] = useState<{ subject: Subject; boss: Boss; bossHp: number; playerHp: number; round: number; streak: number; asked: string[]; current: Q | null; loadingQ: boolean; line?: string; defeated?: number } | null>(null);
+  const [floats, setFloats] = useState<FloatingNum[]>([]);
+  const [bossHit, setBossHit] = useState(false);
+
+  const spawnFloat = (kind: "boss" | "player", value: number, crit = false) => {
+    const id = Date.now() + Math.random();
+    setFloats((f) => [...f, { id, value, kind, crit }]);
+    setTimeout(() => setFloats((f) => f.filter((x) => x.id !== id)), 1100);
+  };
 
   useEffect(() => {
     if (!user) return;
