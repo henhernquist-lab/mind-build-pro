@@ -564,15 +564,19 @@ const Nutrition = () => {
                 variant="premium"
                 className="h-20 text-base flex-col gap-1"
                 onClick={() => cameraInputRef.current?.click()}
+                disabled={!online}
+                title={!online ? "Camera scan requires an internet connection" : undefined}
               >
                 <Camera className="h-6 w-6" />
-                <span>📷 Take Photo</span>
+                <span>{online ? "📷 Take Photo" : "📷 Photo (offline)"}</span>
               </Button>
               <Button
                 type="button"
                 variant="outline"
                 className="h-20 text-base flex-col gap-1"
                 onClick={() => uploadInputRef.current?.click()}
+                disabled={!online}
+                title={!online ? "Upload scan requires an internet connection" : undefined}
               >
                 <Upload className="h-6 w-6" />
                 <span>Upload Photo</span>
