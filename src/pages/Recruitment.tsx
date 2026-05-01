@@ -203,15 +203,24 @@ const AddCollegeDialog = ({
   const [website, setWebsite] = useState("");
   const [status, setStatus] = useState<CollegeStatus>("interested");
   const [priority, setPriority] = useState(3);
+  const [avgGpa, setAvgGpa] = useState("");
+  const [satMin, setSatMin] = useState("");
+  const [actMin, setActMin] = useState("");
+  const [athleticLevel, setAthleticLevel] = useState("");
 
   const save = async () => {
     if (!user || !name.trim()) return;
     await createCollege({
       user_id: user.id, name: name.trim(), division, sport, location, website,
       status, priority,
-    });
+      academic_avg_gpa: avgGpa ? Number(avgGpa) : null,
+      sat_min: satMin ? Number(satMin) : null,
+      act_min: actMin ? Number(actMin) : null,
+      athletic_level: athleticLevel || null,
+    } as any);
     setName(""); setDivision(""); setSport(""); setLocation(""); setWebsite("");
     setStatus("interested"); setPriority(3);
+    setAvgGpa(""); setSatMin(""); setActMin(""); setAthleticLevel("");
     toast.success("College added");
     onSaved();
   };
@@ -231,10 +240,13 @@ const AddCollegeDialog = ({
           <Field label="Location"><Input value={location} onChange={(e) => setLocation(e.target.value)} placeholder="Athens, GA" /></Field>
           <Field label="Website"><Input value={website} onChange={(e) => setWebsite(e.target.value)} placeholder="https://..." /></Field>
           <div className="grid grid-cols-3 gap-3">
-            <Field label="Avg GPA"><Input type="number" step="0.01" placeholder="3.7" /></Field>
-            <Field label="SAT min"><Input type="number" placeholder="1300" /></Field>
-            <Field label="ACT min"><Input type="number" placeholder="28" /></Field>
+            <Field label="Avg GPA"><Input type="number" step="0.01" placeholder="3.7" value={avgGpa} onChange={(e) => setAvgGpa(e.target.value)} /></Field>
+            <Field label="SAT min"><Input type="number" placeholder="1300" value={satMin} onChange={(e) => setSatMin(e.target.value)} /></Field>
+            <Field label="ACT min"><Input type="number" placeholder="28" value={actMin} onChange={(e) => setActMin(e.target.value)} /></Field>
           </div>
+          <Field label="Athletic level (D1, D2, D3, NAIA, JUCO)">
+            <Input value={athleticLevel} onChange={(e) => setAthleticLevel(e.target.value)} placeholder="D1" />
+          </Field>
           <div className="grid grid-cols-2 gap-3">
             <Field label="Status">
               <Select value={status} onValueChange={(v) => setStatus(v as CollegeStatus)}>
