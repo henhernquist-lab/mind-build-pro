@@ -411,6 +411,7 @@ const CollegeDetail = ({
             </TabsList>
 
             <TabsContent value="overview" className="space-y-3 pt-3">
+              <MatchScoreCard college={college} onUpdated={onChanged} />
               <Field label="Notes">
                 <Textarea
                   value={notes}
@@ -447,6 +448,7 @@ const CollegeDetail = ({
                       {c.email && <a href={`mailto:${c.email}`} className="flex items-center gap-1 text-primary hover:underline"><Mail className="h-3 w-3" /> {c.email}</a>}
                       {c.phone && <a href={`tel:${c.phone}`} className="flex items-center gap-1 text-primary hover:underline"><Phone className="h-3 w-3" /> {c.phone}</a>}
                     </div>
+                    <CoachOutreachButton collegeId={college.id} contactId={c.id} contactName={c.name} contactEmail={c.email} />
                   </div>
                   <button onClick={async () => { await deleteContact(c.id); reload(); }} className="text-muted-foreground hover:text-destructive">
                     <Trash2 className="h-4 w-4" />
