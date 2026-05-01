@@ -34,6 +34,7 @@ import { ATHLETIC_RANKS, ACADEMIC_RANKS, getNextRank } from "@/lib/ranks2";
 import { useState as useStateAcademic } from "react";
 import html2canvas from "html2canvas";
 import { InstallButton } from "@/components/offline/InstallButton";
+import { HallOfFame } from "@/components/seasons/HallOfFame";
 
 const slugifyUsername = (s: string) =>
   s.toLowerCase().replace(/[^a-z0-9_-]/g, "").slice(0, 24);
@@ -655,6 +656,11 @@ const Profile = () => {
       {/* Rank history */}
       <div className="mt-6">
         <RankHistoryTimeline />
+      </div>
+
+      {/* Hall of Fame */}
+      <div className="mt-6 rounded-2xl border border-border bg-card p-5 md:p-6">
+        <HallOfFame />
       </div>
 
       {/* Daily challenges */}

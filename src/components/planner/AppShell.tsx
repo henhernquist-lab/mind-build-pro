@@ -18,6 +18,7 @@ import { Breadcrumbs } from "@/components/nav/Breadcrumbs";
 import { MobileFab } from "@/components/nav/MobileFab";
 import { SubTabs } from "@/components/nav/SubTabs";
 import { OnboardingFlow } from "@/components/onboarding/OnboardingFlow";
+import { SeasonCeremony } from "@/components/seasons/SeasonCeremony";
 import { FocusToggle } from "@/components/focus/FocusToggle";
 import { claimDailyLoginXp } from "@/lib/streak";
 import { showFloatingXp } from "@/components/fx/FloatingXp";
@@ -131,6 +132,7 @@ export const AppShell = () => {
       <CommandPalette />
       <MobileFab />
       <OnboardingFlow />
+      <SeasonCeremony />
 
       {/* Top-left floating profile button */}
       <button

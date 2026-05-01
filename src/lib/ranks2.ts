@@ -9,6 +9,7 @@ import { showFloatingXp } from "@/components/fx/FloatingXp";
 import { recordStudyActivity, isMultiplierActive } from "@/lib/streak";
 import { unlockBadge } from "@/lib/achievements";
 import { incrementChallengeProgress } from "@/lib/dailyChallenges";
+import { aggregatePeriodStats, computeAwards, generateRecap, listSnapshots, refreshBestSeasonFlag } from "@/lib/seasons/hallOfFame";
 
 export type Rank = { name: string; icon: string; xpRequired: number; color: string };
 
@@ -144,6 +145,8 @@ export const useRank = (type: RankType) => {
         description: `Last period: ${prevRank.icon} ${prevRank.name} • ${s.xp} XP`,
         duration: 8000,
       });
+      // Close season snapshot (only triggers once per type per period; safe because of unique constraint)
+      try { await closeSeasonIfNeeded(user.id, s.period_start, prevEnd); } catch (e) { console.error("season close failed", e); }
       s = { xp: 0, period_start: today };
     }
     setXpState(s.xp);
@@ -250,4 +253,76 @@ export const fetchAllHistory = async (userId: string) => {
     .eq("user_id", userId)
     .order("created_at", { ascending: false });
   return (data ?? []) as any[];
+};
+
+// Close one 2-week season into season_snapshots + awards
+export const closeSeasonIfNeeded = async (
+  userId: string,
+  startDate: string,
+  endDate: string,
+) => {
+  // Determine next season number for this user
+  const existing = await listSnapshots(userId);
+  if (existing.find((s) => s.start_date === startDate)) return; // already closed
+  const nextNum = (existing[0]?.season_number ?? 0) + 1;
+
+  // Pull final XP for both rank types (current row will already be reset by caller for one type;
+  // capture from rank_history just-inserted entries for accuracy).
+  const { data: hist } = await supabase
+    .from("rank_history")
+    .select("rank_type,final_xp,highest_rank_name,highest_rank_icon")
+    .eq("user_id", userId)
+    .eq("period_start", startDate);
+  const rows = (hist as any[]) ?? [];
+  const ath = rows.find((r) => r.rank_type === "athletic");
+  const acad = rows.find((r) => r.rank_type === "academic");
+
+  const agg = await aggregatePeriodStats(userId, startDate, endDate);
+
+  const recap = await generateRecap({
+    athleticXp: ath?.final_xp ?? 0,
+    academicXp: acad?.final_xp ?? 0,
+    athleticRank: ath?.highest_rank_name ?? "Recruit",
+    academicRank: acad?.highest_rank_name ?? "Freshman",
+    totalPRs: agg.totalPRs,
+    totalWorkouts: agg.totalWorkouts,
+    topSubject: agg.topSubject,
+    seasonNumber: nextNum,
+  });
+
+  const { data: snap } = await supabase
+    .from("season_snapshots")
+    .insert({
+      user_id: userId,
+      season_number: nextNum,
+      start_date: startDate,
+      end_date: endDate,
+      peak_athletic_rank_name: ath?.highest_rank_name ?? null,
+      peak_athletic_rank_icon: ath?.highest_rank_icon ?? null,
+      peak_academic_rank_name: acad?.highest_rank_name ?? null,
+      peak_academic_rank_icon: acad?.highest_rank_icon ?? null,
+      athletic_xp: ath?.final_xp ?? 0,
+      academic_xp: acad?.final_xp ?? 0,
+      total_workouts: agg.totalWorkouts,
+      total_games: agg.totalGames,
+      total_prs: agg.totalPRs,
+      top_subject: agg.topSubject,
+      best_single_day_xp: agg.bestSingleDayXp,
+      ai_recap: recap,
+    })
+    .select()
+    .single();
+
+  if (snap) {
+    const all = await listSnapshots(userId);
+    const cands = computeAwards(snap as any, all, agg.perfectWeek);
+    if (cands.length) {
+      await supabase.from("season_awards").insert(cands.map((c) => ({
+        user_id: userId,
+        snapshot_id: (snap as any).id,
+        ...c,
+      })));
+    }
+    await refreshBestSeasonFlag(userId);
+  }
 };
