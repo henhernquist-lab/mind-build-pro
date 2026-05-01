@@ -230,6 +230,11 @@ const AddCollegeDialog = ({
           </div>
           <Field label="Location"><Input value={location} onChange={(e) => setLocation(e.target.value)} placeholder="Athens, GA" /></Field>
           <Field label="Website"><Input value={website} onChange={(e) => setWebsite(e.target.value)} placeholder="https://..." /></Field>
+          <div className="grid grid-cols-3 gap-3">
+            <Field label="Avg GPA"><Input type="number" step="0.01" placeholder="3.7" /></Field>
+            <Field label="SAT min"><Input type="number" placeholder="1300" /></Field>
+            <Field label="ACT min"><Input type="number" placeholder="28" /></Field>
+          </div>
           <div className="grid grid-cols-2 gap-3">
             <Field label="Status">
               <Select value={status} onValueChange={(v) => setStatus(v as CollegeStatus)}>
