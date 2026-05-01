@@ -554,3 +554,137 @@ const CollegeDetail = ({
 };
 
 export default Recruitment;
+
+/* ======================== Recruitment Dashboard ======================== */
+
+const RecruitmentDashboard = ({ colleges }: { colleges: College[] }) => {
+  const scored = colleges.filter((c) => c.match_score != null);
+  const avg = scored.length ? Math.round(scored.reduce((s, c) => s + (c.match_score || 0), 0) / scored.length) : 0;
+  const competitive = scored.filter((c) => (c.match_score || 0) >= 75).length;
+  const top = [...scored].sort((a, b) => (b.match_score || 0) - (a.match_score || 0))[0];
+
+  return (
+    <div className="grid grid-cols-2 md:grid-cols-4 gap-3 mb-5">
+      <StatTile icon={School} label="Schools tracked" value={colleges.length.toString()} />
+      <StatTile icon={Target} label="Avg match" value={scored.length ? `${avg}%` : "—"} />
+      <StatTile icon={TrendingUp} label="Competitive (75%+)" value={competitive.toString()} />
+      <StatTile icon={Star} label="Top match" value={top ? `${top.match_score}%` : "—"} sub={top?.name} />
+    </div>
+  );
+};
+
+const StatTile = ({ icon: Icon, label, value, sub }: { icon: any; label: string; value: string; sub?: string }) => (
+  <div className="rounded-2xl border border-border bg-card p-3">
+    <div className="flex items-center gap-2 text-muted-foreground text-xs">
+      <Icon className="h-3.5 w-3.5" />
+      <span className="uppercase tracking-widest">{label}</span>
+    </div>
+    <div className="text-2xl font-black mt-1">{value}</div>
+    {sub && <div className="text-[11px] text-muted-foreground truncate">{sub}</div>}
+  </div>
+);
+
+/* ======================== Match Score Card ======================== */
+
+const MatchScoreCard = ({ college, onUpdated }: { college: College; onUpdated: () => void }) => {
+  const [loading, setLoading] = useState(false);
+
+  const compute = async () => {
+    setLoading(true);
+    const { data, error } = await supabase.functions.invoke("recruitment-match", {
+      body: { college_id: college.id },
+    });
+    setLoading(false);
+    if (error) { toast.error("Couldn't compute match"); return; }
+    toast.success(`Match: ${data?.score}%`);
+    onUpdated();
+  };
+
+  const score = college.match_score;
+  const tone = score == null ? "muted" : score >= 75 ? "emerald" : score >= 50 ? "amber" : "rose";
+  const toneClass = tone === "emerald" ? "text-emerald-500" : tone === "amber" ? "text-amber-500" : tone === "rose" ? "text-rose-500" : "text-muted-foreground";
+
+  return (
+    <div className="rounded-xl border border-border bg-card p-3">
+      <div className="flex items-start justify-between gap-3">
+        <div className="min-w-0">
+          <div className="text-xs font-bold uppercase tracking-widest text-muted-foreground flex items-center gap-1">
+            <Target className="h-3 w-3" /> Fit Match
+          </div>
+          <div className={cn("text-3xl font-black mt-0.5", toneClass)}>
+            {score != null ? `${score}%` : "—"}
+          </div>
+          {college.match_summary && (
+            <p className="text-xs text-muted-foreground mt-2 leading-relaxed">{college.match_summary}</p>
+          )}
+          {college.match_breakdown && (
+            <div className="flex flex-wrap gap-1.5 mt-2">
+              {Object.entries(college.match_breakdown as Record<string, any>).map(([k, v]) => (
+                <span key={k} className="text-[10px] px-2 py-0.5 rounded-full bg-muted text-muted-foreground">
+                  {k} {v.score}
+                </span>
+              ))}
+            </div>
+          )}
+        </div>
+        <Button size="sm" onClick={compute} disabled={loading}>
+          {loading ? <Loader2 className="h-4 w-4 animate-spin" /> : <><Sparkles className="h-4 w-4 mr-1" /> {score != null ? "Recompute" : "Compute"}</>}
+        </Button>
+      </div>
+    </div>
+  );
+};
+
+/* ======================== Coach Outreach Button ======================== */
+
+const CoachOutreachButton = ({ collegeId, contactId, contactName, contactEmail }: { collegeId: string; contactId: string; contactName: string; contactEmail: string | null }) => {
+  const [open, setOpen] = useState(false);
+  const [loading, setLoading] = useState(false);
+  const [subject, setSubject] = useState("");
+  const [body, setBody] = useState("");
+
+  const draft = async () => {
+    setOpen(true);
+    setLoading(true);
+    setSubject(""); setBody("");
+    const { data, error } = await supabase.functions.invoke("coach-outreach", {
+      body: { college_id: collegeId, contact_id: contactId },
+    });
+    setLoading(false);
+    if (error) { toast.error("Draft failed"); return; }
+    setSubject(data?.subject ?? "");
+    setBody(data?.body ?? "");
+  };
+
+  const sendEmail = () => {
+    const url = `mailto:${contactEmail ?? ""}?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`;
+    window.open(url);
+  };
+
+  return (
+    <>
+      <Button size="sm" variant="ghost" onClick={draft} className="mt-2 h-7 text-xs">
+        <Sparkles className="h-3 w-3 mr-1" /> Draft email
+      </Button>
+      <Dialog open={open} onOpenChange={setOpen}>
+        <DialogContent className="max-w-2xl">
+          <DialogHeader><DialogTitle>Email to {contactName}</DialogTitle></DialogHeader>
+          {loading ? (
+            <div className="py-10 flex justify-center text-muted-foreground"><Loader2 className="h-5 w-5 animate-spin" /></div>
+          ) : (
+            <div className="space-y-3">
+              <Field label="Subject"><Input value={subject} onChange={(e) => setSubject(e.target.value)} /></Field>
+              <Field label="Body"><Textarea value={body} onChange={(e) => setBody(e.target.value)} rows={14} className="font-mono text-xs" /></Field>
+            </div>
+          )}
+          <DialogFooter>
+            <Button variant="ghost" onClick={() => setOpen(false)}>Close</Button>
+            <Button onClick={sendEmail} disabled={!contactEmail || loading}>
+              <Mail className="h-4 w-4 mr-1" /> Open in mail app
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+    </>
+  );
+};
