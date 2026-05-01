@@ -141,6 +141,16 @@ const Recruitment = () => {
                   >
                     {meta.label}
                   </span>
+                  {c.match_score != null && (
+                    <span className={cn(
+                      "text-[11px] font-black px-2 py-0.5 rounded-full",
+                      c.match_score >= 75 ? "bg-emerald-500/20 text-emerald-500"
+                      : c.match_score >= 50 ? "bg-amber-500/20 text-amber-500"
+                      : "bg-rose-500/20 text-rose-500",
+                    )}>
+                      {c.match_score}% match
+                    </span>
+                  )}
                 </div>
               </motion.button>
             );
