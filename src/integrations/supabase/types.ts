@@ -205,6 +205,7 @@ export type Database = {
           age: number
           fitness_goals: string[]
           gender: string
+          graduation_year: number | null
           height_ft: number
           height_in: number
           injuries: string | null
@@ -221,6 +222,7 @@ export type Database = {
           age?: number
           fitness_goals?: string[]
           gender?: string
+          graduation_year?: number | null
           height_ft?: number
           height_in?: number
           injuries?: string | null
@@ -237,6 +239,7 @@ export type Database = {
           age?: number
           fitness_goals?: string[]
           gender?: string
+          graduation_year?: number | null
           height_ft?: number
           height_in?: number
           injuries?: string | null
@@ -286,13 +289,23 @@ export type Database = {
       }
       colleges: {
         Row: {
+          academic_avg_gpa: number | null
+          act_min: number | null
+          athletic_level: string | null
+          computed_at: string | null
           created_at: string
           division: string | null
           id: string
+          key_stat_targets: Json | null
           location: string | null
+          match_breakdown: Json | null
+          match_score: number | null
+          match_summary: string | null
           name: string
           notes: string | null
           priority: number
+          response_status: string | null
+          sat_min: number | null
           sport: string | null
           status: string
           updated_at: string
@@ -300,13 +313,23 @@ export type Database = {
           website: string | null
         }
         Insert: {
+          academic_avg_gpa?: number | null
+          act_min?: number | null
+          athletic_level?: string | null
+          computed_at?: string | null
           created_at?: string
           division?: string | null
           id?: string
+          key_stat_targets?: Json | null
           location?: string | null
+          match_breakdown?: Json | null
+          match_score?: number | null
+          match_summary?: string | null
           name: string
           notes?: string | null
           priority?: number
+          response_status?: string | null
+          sat_min?: number | null
           sport?: string | null
           status?: string
           updated_at?: string
@@ -314,13 +337,23 @@ export type Database = {
           website?: string | null
         }
         Update: {
+          academic_avg_gpa?: number | null
+          act_min?: number | null
+          athletic_level?: string | null
+          computed_at?: string | null
           created_at?: string
           division?: string | null
           id?: string
+          key_stat_targets?: Json | null
           location?: string | null
+          match_breakdown?: Json | null
+          match_score?: number | null
+          match_summary?: string | null
           name?: string
           notes?: string | null
           priority?: number
+          response_status?: string | null
+          sat_min?: number | null
           sport?: string | null
           status?: string
           updated_at?: string
