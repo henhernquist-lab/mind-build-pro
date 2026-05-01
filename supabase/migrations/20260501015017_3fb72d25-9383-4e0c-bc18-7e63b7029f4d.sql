@@ -1,0 +1,15 @@
+
+ALTER TABLE public.colleges
+  ADD COLUMN IF NOT EXISTS academic_avg_gpa NUMERIC(3,2),
+  ADD COLUMN IF NOT EXISTS sat_min INTEGER,
+  ADD COLUMN IF NOT EXISTS act_min INTEGER,
+  ADD COLUMN IF NOT EXISTS athletic_level TEXT,
+  ADD COLUMN IF NOT EXISTS key_stat_targets JSONB DEFAULT '[]'::jsonb,
+  ADD COLUMN IF NOT EXISTS match_score INTEGER,
+  ADD COLUMN IF NOT EXISTS match_breakdown JSONB,
+  ADD COLUMN IF NOT EXISTS match_summary TEXT,
+  ADD COLUMN IF NOT EXISTS computed_at TIMESTAMPTZ,
+  ADD COLUMN IF NOT EXISTS response_status TEXT;
+
+ALTER TABLE public.athlete_profile
+  ADD COLUMN IF NOT EXISTS graduation_year INTEGER;

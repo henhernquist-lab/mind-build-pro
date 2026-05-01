@@ -2,7 +2,7 @@ import { useEffect, useMemo, useState } from "react";
 import { motion } from "framer-motion";
 import {
   GraduationCap, Plus, Trash2, ExternalLink, Mail, Phone, Calendar,
-  CheckCircle2, Circle, Loader2, ArrowLeft, Star, MessageSquare,
+  CheckCircle2, Circle, Loader2, ArrowLeft, Star, MessageSquare, Sparkles, Target, TrendingUp, School,
 } from "lucide-react";
 import { useAuth } from "@/lib/auth";
 import { Button } from "@/components/ui/button";
@@ -18,6 +18,7 @@ import {
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { cn } from "@/lib/utils";
 import { toast } from "sonner";
+import { supabase } from "@/integrations/supabase/client";
 import {
   listColleges, createCollege, updateCollege, deleteCollege,
   listContacts, createContact, deleteContact,
@@ -81,6 +82,8 @@ const Recruitment = () => {
         </Button>
       </header>
 
+      {colleges.length > 0 && <RecruitmentDashboard colleges={colleges} />}
+
       {/* Filter chips */}
       <div className="flex flex-wrap gap-2 mb-5">
         <FilterChip active={filter === "all"} onClick={() => setFilter("all")} label="All" count={counts.all} />
@@ -138,6 +141,16 @@ const Recruitment = () => {
                   >
                     {meta.label}
                   </span>
+                  {c.match_score != null && (
+                    <span className={cn(
+                      "text-[11px] font-black px-2 py-0.5 rounded-full",
+                      c.match_score >= 75 ? "bg-emerald-500/20 text-emerald-500"
+                      : c.match_score >= 50 ? "bg-amber-500/20 text-amber-500"
+                      : "bg-rose-500/20 text-rose-500",
+                    )}>
+                      {c.match_score}% match
+                    </span>
+                  )}
                 </div>
               </motion.button>
             );
@@ -190,15 +203,24 @@ const AddCollegeDialog = ({
   const [website, setWebsite] = useState("");
   const [status, setStatus] = useState<CollegeStatus>("interested");
   const [priority, setPriority] = useState(3);
+  const [avgGpa, setAvgGpa] = useState("");
+  const [satMin, setSatMin] = useState("");
+  const [actMin, setActMin] = useState("");
+  const [athleticLevel, setAthleticLevel] = useState("");
 
   const save = async () => {
     if (!user || !name.trim()) return;
     await createCollege({
       user_id: user.id, name: name.trim(), division, sport, location, website,
       status, priority,
-    });
+      academic_avg_gpa: avgGpa ? Number(avgGpa) : null,
+      sat_min: satMin ? Number(satMin) : null,
+      act_min: actMin ? Number(actMin) : null,
+      athletic_level: athleticLevel || null,
+    } as any);
     setName(""); setDivision(""); setSport(""); setLocation(""); setWebsite("");
     setStatus("interested"); setPriority(3);
+    setAvgGpa(""); setSatMin(""); setActMin(""); setAthleticLevel("");
     toast.success("College added");
     onSaved();
   };
@@ -217,6 +239,14 @@ const AddCollegeDialog = ({
           </div>
           <Field label="Location"><Input value={location} onChange={(e) => setLocation(e.target.value)} placeholder="Athens, GA" /></Field>
           <Field label="Website"><Input value={website} onChange={(e) => setWebsite(e.target.value)} placeholder="https://..." /></Field>
+          <div className="grid grid-cols-3 gap-3">
+            <Field label="Avg GPA"><Input type="number" step="0.01" placeholder="3.7" value={avgGpa} onChange={(e) => setAvgGpa(e.target.value)} /></Field>
+            <Field label="SAT min"><Input type="number" placeholder="1300" value={satMin} onChange={(e) => setSatMin(e.target.value)} /></Field>
+            <Field label="ACT min"><Input type="number" placeholder="28" value={actMin} onChange={(e) => setActMin(e.target.value)} /></Field>
+          </div>
+          <Field label="Athletic level (D1, D2, D3, NAIA, JUCO)">
+            <Input value={athleticLevel} onChange={(e) => setAthleticLevel(e.target.value)} placeholder="D1" />
+          </Field>
           <div className="grid grid-cols-2 gap-3">
             <Field label="Status">
               <Select value={status} onValueChange={(v) => setStatus(v as CollegeStatus)}>
@@ -381,6 +411,7 @@ const CollegeDetail = ({
             </TabsList>
 
             <TabsContent value="overview" className="space-y-3 pt-3">
+              <MatchScoreCard college={college} onUpdated={onChanged} />
               <Field label="Notes">
                 <Textarea
                   value={notes}
@@ -417,6 +448,7 @@ const CollegeDetail = ({
                       {c.email && <a href={`mailto:${c.email}`} className="flex items-center gap-1 text-primary hover:underline"><Mail className="h-3 w-3" /> {c.email}</a>}
                       {c.phone && <a href={`tel:${c.phone}`} className="flex items-center gap-1 text-primary hover:underline"><Phone className="h-3 w-3" /> {c.phone}</a>}
                     </div>
+                    <CoachOutreachButton collegeId={college.id} contactId={c.id} contactName={c.name} contactEmail={c.email} />
                   </div>
                   <button onClick={async () => { await deleteContact(c.id); reload(); }} className="text-muted-foreground hover:text-destructive">
                     <Trash2 className="h-4 w-4" />
@@ -522,3 +554,137 @@ const CollegeDetail = ({
 };
 
 export default Recruitment;
+
+/* ======================== Recruitment Dashboard ======================== */
+
+const RecruitmentDashboard = ({ colleges }: { colleges: College[] }) => {
+  const scored = colleges.filter((c) => c.match_score != null);
+  const avg = scored.length ? Math.round(scored.reduce((s, c) => s + (c.match_score || 0), 0) / scored.length) : 0;
+  const competitive = scored.filter((c) => (c.match_score || 0) >= 75).length;
+  const top = [...scored].sort((a, b) => (b.match_score || 0) - (a.match_score || 0))[0];
+
+  return (
+    <div className="grid grid-cols-2 md:grid-cols-4 gap-3 mb-5">
+      <StatTile icon={School} label="Schools tracked" value={colleges.length.toString()} />
+      <StatTile icon={Target} label="Avg match" value={scored.length ? `${avg}%` : "—"} />
+      <StatTile icon={TrendingUp} label="Competitive (75%+)" value={competitive.toString()} />
+      <StatTile icon={Star} label="Top match" value={top ? `${top.match_score}%` : "—"} sub={top?.name} />
+    </div>
+  );
+};
+
+const StatTile = ({ icon: Icon, label, value, sub }: { icon: any; label: string; value: string; sub?: string }) => (
+  <div className="rounded-2xl border border-border bg-card p-3">
+    <div className="flex items-center gap-2 text-muted-foreground text-xs">
+      <Icon className="h-3.5 w-3.5" />
+      <span className="uppercase tracking-widest">{label}</span>
+    </div>
+    <div className="text-2xl font-black mt-1">{value}</div>
+    {sub && <div className="text-[11px] text-muted-foreground truncate">{sub}</div>}
+  </div>
+);
+
+/* ======================== Match Score Card ======================== */
+
+const MatchScoreCard = ({ college, onUpdated }: { college: College; onUpdated: () => void }) => {
+  const [loading, setLoading] = useState(false);
+
+  const compute = async () => {
+    setLoading(true);
+    const { data, error } = await supabase.functions.invoke("recruitment-match", {
+      body: { college_id: college.id },
+    });
+    setLoading(false);
+    if (error) { toast.error("Couldn't compute match"); return; }
+    toast.success(`Match: ${data?.score}%`);
+    onUpdated();
+  };
+
+  const score = college.match_score;
+  const tone = score == null ? "muted" : score >= 75 ? "emerald" : score >= 50 ? "amber" : "rose";
+  const toneClass = tone === "emerald" ? "text-emerald-500" : tone === "amber" ? "text-amber-500" : tone === "rose" ? "text-rose-500" : "text-muted-foreground";
+
+  return (
+    <div className="rounded-xl border border-border bg-card p-3">
+      <div className="flex items-start justify-between gap-3">
+        <div className="min-w-0">
+          <div className="text-xs font-bold uppercase tracking-widest text-muted-foreground flex items-center gap-1">
+            <Target className="h-3 w-3" /> Fit Match
+          </div>
+          <div className={cn("text-3xl font-black mt-0.5", toneClass)}>
+            {score != null ? `${score}%` : "—"}
+          </div>
+          {college.match_summary && (
+            <p className="text-xs text-muted-foreground mt-2 leading-relaxed">{college.match_summary}</p>
+          )}
+          {college.match_breakdown && (
+            <div className="flex flex-wrap gap-1.5 mt-2">
+              {Object.entries(college.match_breakdown as Record<string, any>).map(([k, v]) => (
+                <span key={k} className="text-[10px] px-2 py-0.5 rounded-full bg-muted text-muted-foreground">
+                  {k} {v.score}
+                </span>
+              ))}
+            </div>
+          )}
+        </div>
+        <Button size="sm" onClick={compute} disabled={loading}>
+          {loading ? <Loader2 className="h-4 w-4 animate-spin" /> : <><Sparkles className="h-4 w-4 mr-1" /> {score != null ? "Recompute" : "Compute"}</>}
+        </Button>
+      </div>
+    </div>
+  );
+};
+
+/* ======================== Coach Outreach Button ======================== */
+
+const CoachOutreachButton = ({ collegeId, contactId, contactName, contactEmail }: { collegeId: string; contactId: string; contactName: string; contactEmail: string | null }) => {
+  const [open, setOpen] = useState(false);
+  const [loading, setLoading] = useState(false);
+  const [subject, setSubject] = useState("");
+  const [body, setBody] = useState("");
+
+  const draft = async () => {
+    setOpen(true);
+    setLoading(true);
+    setSubject(""); setBody("");
+    const { data, error } = await supabase.functions.invoke("coach-outreach", {
+      body: { college_id: collegeId, contact_id: contactId },
+    });
+    setLoading(false);
+    if (error) { toast.error("Draft failed"); return; }
+    setSubject(data?.subject ?? "");
+    setBody(data?.body ?? "");
+  };
+
+  const sendEmail = () => {
+    const url = `mailto:${contactEmail ?? ""}?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`;
+    window.open(url);
+  };
+
+  return (
+    <>
+      <Button size="sm" variant="ghost" onClick={draft} className="mt-2 h-7 text-xs">
+        <Sparkles className="h-3 w-3 mr-1" /> Draft email
+      </Button>
+      <Dialog open={open} onOpenChange={setOpen}>
+        <DialogContent className="max-w-2xl">
+          <DialogHeader><DialogTitle>Email to {contactName}</DialogTitle></DialogHeader>
+          {loading ? (
+            <div className="py-10 flex justify-center text-muted-foreground"><Loader2 className="h-5 w-5 animate-spin" /></div>
+          ) : (
+            <div className="space-y-3">
+              <Field label="Subject"><Input value={subject} onChange={(e) => setSubject(e.target.value)} /></Field>
+              <Field label="Body"><Textarea value={body} onChange={(e) => setBody(e.target.value)} rows={14} className="font-mono text-xs" /></Field>
+            </div>
+          )}
+          <DialogFooter>
+            <Button variant="ghost" onClick={() => setOpen(false)}>Close</Button>
+            <Button onClick={sendEmail} disabled={!contactEmail || loading}>
+              <Mail className="h-4 w-4 mr-1" /> Open in mail app
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+    </>
+  );
+};

@@ -16,6 +16,16 @@ export type College = {
   priority: number;
   created_at: string;
   updated_at: string;
+  academic_avg_gpa: number | null;
+  sat_min: number | null;
+  act_min: number | null;
+  athletic_level: string | null;
+  key_stat_targets: any | null;
+  match_score: number | null;
+  match_breakdown: any | null;
+  match_summary: string | null;
+  computed_at: string | null;
+  response_status: string | null;
 };
 
 export type RecruitmentContact = {
