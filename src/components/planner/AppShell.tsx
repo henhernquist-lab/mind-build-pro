@@ -19,6 +19,7 @@ import { MobileFab } from "@/components/nav/MobileFab";
 import { SubTabs } from "@/components/nav/SubTabs";
 import { OnboardingFlow } from "@/components/onboarding/OnboardingFlow";
 import { SeasonCeremony } from "@/components/seasons/SeasonCeremony";
+import { SeasonEndsBanner } from "@/components/seasons/SeasonEndsBanner";
 import { FocusToggle } from "@/components/focus/FocusToggle";
 import { claimDailyLoginXp } from "@/lib/streak";
 import { showFloatingXp } from "@/components/fx/FloatingXp";
@@ -133,6 +134,7 @@ export const AppShell = () => {
       <MobileFab />
       <OnboardingFlow />
       <SeasonCeremony />
+      <SeasonEndsBanner />
 
       {/* Top-left floating profile button */}
       <button
