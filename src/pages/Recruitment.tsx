@@ -2,7 +2,7 @@ import { useEffect, useMemo, useState } from "react";
 import { motion } from "framer-motion";
 import {
   GraduationCap, Plus, Trash2, ExternalLink, Mail, Phone, Calendar,
-  CheckCircle2, Circle, Loader2, ArrowLeft, Star, MessageSquare,
+  CheckCircle2, Circle, Loader2, ArrowLeft, Star, MessageSquare, Sparkles, Target, TrendingUp, School,
 } from "lucide-react";
 import { useAuth } from "@/lib/auth";
 import { Button } from "@/components/ui/button";
@@ -18,6 +18,7 @@ import {
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { cn } from "@/lib/utils";
 import { toast } from "sonner";
+import { supabase } from "@/integrations/supabase/client";
 import {
   listColleges, createCollege, updateCollege, deleteCollege,
   listContacts, createContact, deleteContact,
@@ -80,6 +81,8 @@ const Recruitment = () => {
           <Plus className="h-4 w-4 mr-1" /> Add College
         </Button>
       </header>
+
+      {colleges.length > 0 && <RecruitmentDashboard colleges={colleges} />}
 
       {/* Filter chips */}
       <div className="flex flex-wrap gap-2 mb-5">
