@@ -978,6 +978,65 @@ export type Database = {
         }
         Relationships: []
       }
+      season_awards: {
+        Row: {
+          award_icon: string
+          award_name: string
+          award_type: string
+          created_at: string
+          description: string | null
+          id: string
+          snapshot_id: string
+          user_id: string
+        }
+        Insert: {
+          award_icon: string
+          award_name: string
+          award_type: string
+          created_at?: string
+          description?: string | null
+          id?: string
+          snapshot_id: string
+          user_id: string
+        }
+        Update: {
+          award_icon?: string
+          award_name?: string
+          award_type?: string
+          created_at?: string
+          description?: string | null
+          id?: string
+          snapshot_id?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "season_awards_snapshot_id_fkey"
+            columns: ["snapshot_id"]
+            isOneToOne: false
+            referencedRelation: "season_snapshots"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      season_optin: {
+        Row: {
+          opted_in: boolean
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          opted_in?: boolean
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          opted_in?: boolean
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       season_results: {
         Row: {
           badge_earned: string | null
@@ -1065,6 +1124,75 @@ export type Database = {
             referencedColumns: ["id"]
           },
         ]
+      }
+      season_snapshots: {
+        Row: {
+          academic_xp: number
+          ai_recap: string | null
+          athletic_xp: number
+          best_single_day_xp: number
+          ceremony_seen: boolean
+          created_at: string
+          end_date: string
+          id: string
+          is_best_season: boolean
+          peak_academic_rank_icon: string | null
+          peak_academic_rank_name: string | null
+          peak_athletic_rank_icon: string | null
+          peak_athletic_rank_name: string | null
+          season_number: number
+          start_date: string
+          top_subject: string | null
+          total_games: number
+          total_prs: number
+          total_workouts: number
+          user_id: string
+        }
+        Insert: {
+          academic_xp?: number
+          ai_recap?: string | null
+          athletic_xp?: number
+          best_single_day_xp?: number
+          ceremony_seen?: boolean
+          created_at?: string
+          end_date: string
+          id?: string
+          is_best_season?: boolean
+          peak_academic_rank_icon?: string | null
+          peak_academic_rank_name?: string | null
+          peak_athletic_rank_icon?: string | null
+          peak_athletic_rank_name?: string | null
+          season_number: number
+          start_date: string
+          top_subject?: string | null
+          total_games?: number
+          total_prs?: number
+          total_workouts?: number
+          user_id: string
+        }
+        Update: {
+          academic_xp?: number
+          ai_recap?: string | null
+          athletic_xp?: number
+          best_single_day_xp?: number
+          ceremony_seen?: boolean
+          created_at?: string
+          end_date?: string
+          id?: string
+          is_best_season?: boolean
+          peak_academic_rank_icon?: string | null
+          peak_academic_rank_name?: string | null
+          peak_athletic_rank_icon?: string | null
+          peak_athletic_rank_name?: string | null
+          season_number?: number
+          start_date?: string
+          top_subject?: string | null
+          total_games?: number
+          total_prs?: number
+          total_workouts?: number
+          user_id?: string
+        }
+        Relationships: []
       }
       seasons: {
         Row: {
@@ -1401,6 +1529,20 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
+      get_current_season_leaderboard: {
+        Args: { _limit?: number }
+        Returns: {
+          academic_rank_icon: string
+          academic_xp: number
+          athletic_rank_icon: string
+          athletic_xp: number
+          avatar_url: string
+          display_name: string
+          total_xp: number
+          user_id: string
+          username: string
+        }[]
+      }
       get_leaderboard: {
         Args: { _limit?: number; _rank_type: string }
         Returns: {
