@@ -1,10 +1,12 @@
 import { useEffect, useMemo, useState } from "react";
 import { motion } from "framer-motion";
-import { Trophy, Star, ArrowUpDown, Crown, Sparkles, Globe2, Lock } from "lucide-react";
+import { Trophy, Star, ArrowUpDown, Crown, Sparkles, Globe2, Lock, ArrowUp, ArrowDown, Minus, Share2 } from "lucide-react";
 import { useAuth } from "@/lib/auth";
 import { Button } from "@/components/ui/button";
 import { Switch } from "@/components/ui/switch";
 import { cn } from "@/lib/utils";
+import { toast } from "sonner";
+import html2canvas from "html2canvas";
 import { supabase } from "@/integrations/supabase/client";
 import {
   listSnapshots, listAwards, getOptIn, setOptIn, getCurrentLeaderboard,
@@ -60,6 +62,39 @@ export const HallOfFame = () => {
     return [best, ...list.filter((s) => s.id !== best.id)];
   }, [snaps, order]);
 
+  // Prior-season lookup by season_number for comparison arrows
+  const priorBySeason = useMemo(() => {
+    const m: Record<number, SeasonSnapshot> = {};
+    for (const s of snaps) m[s.season_number] = s;
+    return m;
+  }, [snaps]);
+
+  const shareSnap = async (snap: SeasonSnapshot) => {
+    const node = document.getElementById(`season-card-${snap.id}`);
+    if (!node) return;
+    try {
+      toast.loading("Generating image…", { id: "share-snap" });
+      const canvas = await html2canvas(node, { backgroundColor: null, scale: 2, useCORS: true });
+      const blob: Blob | null = await new Promise((r) => canvas.toBlob(r, "image/png"));
+      if (!blob) throw new Error("blob");
+      const file = new File([blob], `season-${snap.season_number}.png`, { type: "image/png" });
+      const navAny = navigator as any;
+      if (navAny.canShare?.({ files: [file] })) {
+        await navAny.share({ files: [file], title: `Season ${snap.season_number}`, text: `My Season ${snap.season_number} recap` });
+        toast.success("Shared", { id: "share-snap" });
+      } else {
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement("a");
+        a.href = url; a.download = `season-${snap.season_number}.png`;
+        document.body.appendChild(a); a.click(); a.remove();
+        URL.revokeObjectURL(url);
+        toast.success("Image downloaded", { id: "share-snap" });
+      }
+    } catch {
+      toast.error("Couldn't generate image", { id: "share-snap" });
+    }
+  };
+
   const awardsBySnap = useMemo(() => {
     const m: Record<string, SeasonAward[]> = {};
     for (const a of awards) (m[a.snapshot_id] ||= []).push(a);
@@ -111,9 +146,11 @@ export const HallOfFame = () => {
             <div className="space-y-3">
               {sortedSnaps.map((s) => {
                 const a = awardsBySnap[s.id] ?? [];
+                const prev = priorBySeason[s.season_number - 1];
                 return (
                   <motion.div
                     key={s.id}
+                    id={`season-card-${s.id}`}
                     initial={{ opacity: 0, y: 8 }}
                     animate={{ opacity: 1, y: 0 }}
                     className={cn(
@@ -137,19 +174,25 @@ export const HallOfFame = () => {
                       <div className="rounded-xl border border-border p-3">
                         <div className="text-[10px] uppercase tracking-widest text-muted-foreground">Athletic peak</div>
                         <div className="font-bold text-sm">{s.peak_athletic_rank_icon} {s.peak_athletic_rank_name ?? "—"}</div>
-                        <div className="text-xs text-muted-foreground">{s.athletic_xp} XP</div>
+                        <div className="text-xs text-muted-foreground flex items-center gap-1.5">
+                          <span>{s.athletic_xp} XP</span>
+                          <Delta current={s.athletic_xp} prior={prev?.athletic_xp} />
+                        </div>
                       </div>
                       <div className="rounded-xl border border-border p-3">
                         <div className="text-[10px] uppercase tracking-widest text-muted-foreground">Academic peak</div>
                         <div className="font-bold text-sm">{s.peak_academic_rank_icon} {s.peak_academic_rank_name ?? "—"}</div>
-                        <div className="text-xs text-muted-foreground">{s.academic_xp} XP</div>
+                        <div className="text-xs text-muted-foreground flex items-center gap-1.5">
+                          <span>{s.academic_xp} XP</span>
+                          <Delta current={s.academic_xp} prior={prev?.academic_xp} />
+                        </div>
                       </div>
                     </div>
 
                     <div className="grid grid-cols-3 gap-2 mt-3 text-center">
-                      <Stat label="Workouts" value={s.total_workouts} />
-                      <Stat label="PRs" value={s.total_prs} />
-                      <Stat label="Games" value={s.total_games} />
+                      <Stat label="Workouts" value={s.total_workouts} prior={prev?.total_workouts} />
+                      <Stat label="PRs" value={s.total_prs} prior={prev?.total_prs} />
+                      <Stat label="Games" value={s.total_games} prior={prev?.total_games} />
                     </div>
 
                     {a.length > 0 && (
@@ -165,6 +208,12 @@ export const HallOfFame = () => {
                     {s.ai_recap && (
                       <p className="text-xs text-muted-foreground italic mt-3 border-l-2 border-primary/40 pl-2">{s.ai_recap}</p>
                     )}
+
+                    <div className="mt-3 flex justify-end">
+                      <Button variant="ghost" size="sm" onClick={() => shareSnap(s)} className="h-7 text-xs gap-1.5">
+                        <Share2 className="h-3.5 w-3.5" /> Share
+                      </Button>
+                    </div>
                   </motion.div>
                 );
               })}
@@ -221,9 +270,28 @@ export const HallOfFame = () => {
   );
 };
 
-const Stat = ({ label, value }: { label: string; value: number }) => (
+const Stat = ({ label, value, prior }: { label: string; value: number; prior?: number }) => (
   <div className="rounded-lg bg-muted/30 py-2">
-    <div className="text-lg font-black tabular-nums">{value}</div>
+    <div className="text-lg font-black tabular-nums flex items-center justify-center gap-1">
+      <span>{value}</span>
+      <Delta current={value} prior={prior} compact />
+    </div>
     <div className="text-[10px] uppercase tracking-widest text-muted-foreground">{label}</div>
   </div>
 );
+
+const Delta = ({ current, prior, compact }: { current: number; prior?: number; compact?: boolean }) => {
+  if (prior === undefined || prior === null) return null;
+  const diff = current - prior;
+  if (diff === 0) {
+    return <span className="inline-flex items-center text-[10px] text-muted-foreground"><Minus className="h-3 w-3" /></span>;
+  }
+  const up = diff > 0;
+  const pct = prior > 0 ? Math.round((diff / prior) * 100) : null;
+  return (
+    <span className={cn("inline-flex items-center text-[10px] font-bold", up ? "text-emerald-500" : "text-rose-500")}>
+      {up ? <ArrowUp className="h-3 w-3" /> : <ArrowDown className="h-3 w-3" />}
+      {!compact && (pct !== null ? `${Math.abs(pct)}%` : Math.abs(diff))}
+    </span>
+  );
+};
