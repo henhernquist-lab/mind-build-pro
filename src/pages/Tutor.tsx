@@ -808,8 +808,8 @@ const Tutor = () => {
             <Video className="h-4 w-4 mr-1.5" /> Watch Later
             {watchLater.length > 0 && <span className="ml-1.5 text-[10px] bg-primary/20 text-primary rounded-full px-1.5">{watchLater.length}</span>}
           </Button>
-          <Button variant="outline" size="sm" onClick={() => setManageOpen(true)} disabled={view !== "chat"}>
-            <Settings className="h-4 w-4 mr-1.5" /> Manage subjects
+          <Button variant="outline" size="sm" onClick={() => navigate("/profile#academic")} disabled={view !== "chat"}>
+            <GraduationCap className="h-4 w-4 mr-1.5" /> My classes
           </Button>
         </div>
       </header>
@@ -853,10 +853,16 @@ const Tutor = () => {
           onExitReadOnly={() => setViewingChat(null)}
         />
       ) : subjects.length === 0 ? (
-        <div className="rounded-2xl border border-dashed border-border bg-card p-10 text-center">
-          <p className="text-sm text-muted-foreground mb-4">No subjects yet. Add some to get started.</p>
-          <Button onClick={() => setManageOpen(true)}>
-            <Plus className="h-4 w-4 mr-1.5" /> Add a subject
+        <div className="rounded-2xl border border-dashed border-border bg-card p-10 md:p-14 text-center">
+          <div className="mx-auto h-16 w-16 rounded-2xl bg-primary/15 text-primary flex items-center justify-center mb-4 text-3xl">
+            🎓
+          </div>
+          <h2 className="text-lg font-semibold mb-1">No subjects yet</h2>
+          <p className="text-sm text-muted-foreground max-w-md mx-auto mb-5">
+            Add your classes in your Academic Profile to get started. Each class becomes a personalized AI tutor tab.
+          </p>
+          <Button onClick={() => navigate("/profile#academic")} size="lg">
+            <GraduationCap className="h-4 w-4 mr-1.5" /> Add My Classes →
           </Button>
         </div>
       ) : (
@@ -881,16 +887,6 @@ const Tutor = () => {
           )}
         </Tabs>
       )}
-
-      <ManageSubjects
-        subjects={subjects}
-        addSubject={addSubject}
-        removeSubject={removeSubject}
-        moveSubject={moveSubject}
-        resetDefaults={resetDefaults}
-        open={manageOpen}
-        setOpen={setManageOpen}
-      />
 
       <SavedChatsDrawer
         saved={savedChats}
