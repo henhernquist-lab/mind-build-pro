@@ -151,6 +151,11 @@ export const AppShell = () => {
         <OnlineDot className="absolute -bottom-0.5 -right-0.5 ring-2 ring-background" />
       </button>
 
+      {/* Top-left floating notification bell */}
+      <div className="fixed top-3 left-16 z-40">
+        <NotificationBell />
+      </div>
+
       <OfflineBanner />
 
       <aside className="hidden md:flex w-60 flex-col border-r border-sidebar-border bg-sidebar">
