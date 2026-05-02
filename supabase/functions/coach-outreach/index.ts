@@ -26,7 +26,7 @@ Deno.serve(async (req) => {
     const user = userData?.user;
     if (!user) return new Response(JSON.stringify({ error: "unauthorized" }), { status: 401, headers: { ...corsHeaders, "Content-Type": "application/json" } });
 
-    const { college_id, contact_id } = await req.json();
+    const { college_id, contact_id, template, tone } = await req.json();
     if (!college_id) return new Response(JSON.stringify({ error: "college_id required" }), { status: 400, headers: { ...corsHeaders, "Content-Type": "application/json" } });
 
     const [{ data: college }, { data: contact }, { data: athlete }, { data: academic }, { data: profile }] = await Promise.all([
@@ -43,7 +43,39 @@ Deno.serve(async (req) => {
     if (!apiKey) return new Response(JSON.stringify({ error: "AI not configured" }), { status: 500, headers: { ...corsHeaders, "Content-Type": "application/json" } });
 
     const greeting = contact?.name ? `Coach ${contact.name.split(" ").slice(-1)[0]}` : `Coach`;
-    const prompt = `Draft a professional, concise college recruiting outreach email from a high-school athlete to a college coach. Use real specifics — no placeholders or brackets.
+
+    const TEMPLATES: Record<string, { label: string; instruction: string }> = {
+      intro: {
+        label: "Introduction",
+        instruction: "First-touch introduction: introduce the athlete, explain why this school stands out, share key athletic + academic credentials, and ask about the coach's recruiting process. 4 short paragraphs.",
+      },
+      follow_up: {
+        label: "Follow-up",
+        instruction: "Follow-up after no response in 2-3 weeks. Reference prior reach-out, share ONE new update (recent PR, game film, GPA bump, camp invite), reaffirm interest, and propose a specific next step. 3 short paragraphs.",
+      },
+      thank_you: {
+        label: "Thank-you",
+        instruction: "Thank-you note after a campus visit, call, or camp. Reference 1-2 specific moments from the interaction, reiterate fit, and confirm continued interest. 2-3 short paragraphs, warm but professional.",
+      },
+      commitment: {
+        label: "Commitment",
+        instruction: "Verbal commitment letter. Express gratitude, formally state intent to commit, mention what made this school the right fit (academics, culture, coaches, program), and confirm next steps. 3 short paragraphs, sincere and confident.",
+      },
+      update: {
+        label: "Stat update",
+        instruction: "Short update email sharing recent stats / film / accomplishments. Lead with the new result, give 1-2 sentences of context, and invite further conversation. 2 short paragraphs, no fluff.",
+      },
+    };
+    const tpl = TEMPLATES[template as string] ?? TEMPLATES.intro;
+    const toneInstr = tone === "casual" ? "Tone: friendly and conversational, still professional."
+      : tone === "formal" ? "Tone: highly formal and polished."
+      : "Tone: confident, professional, age-appropriate for a high-school student.";
+
+    const prompt = `Draft a college recruiting email from a high-school athlete to a college coach. Use real specifics — no placeholders or brackets.
+
+TEMPLATE: ${tpl.label}
+${tpl.instruction}
+${toneInstr}
 
 ATHLETE
 - Name: ${profile?.display_name ?? "Student Athlete"}
@@ -63,7 +95,7 @@ TARGET
 Format the response as JSON:
 {"subject":"...","body":"Dear ${greeting},\\n\\n..."}
 
-Body should be 4 short paragraphs: intro + interest, athletic credentials, academic credentials, call-to-action with availability. Sign off with the athlete's name.`;
+Sign off with the athlete's name.`;
 
     const aiResp = await fetch("https://ai.gateway.lovable.dev/v1/chat/completions", {
       method: "POST",

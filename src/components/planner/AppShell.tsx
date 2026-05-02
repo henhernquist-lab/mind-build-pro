@@ -25,6 +25,7 @@ import { claimDailyLoginXp } from "@/lib/streak";
 import { showFloatingXp } from "@/components/fx/FloatingXp";
 import { toast } from "sonner";
 import { OfflineBanner, OnlineDot } from "@/components/offline/OfflineBanner";
+import { NotificationBell } from "@/components/nav/NotificationBell";
 
 type NavItem = { to: string; label: string; icon: any; accent: "school" | "sports" | "primary" };
 type NavGroup = { id: string; label: string; icon: any; items: NavItem[] };
@@ -149,6 +150,11 @@ export const AppShell = () => {
         </span>
         <OnlineDot className="absolute -bottom-0.5 -right-0.5 ring-2 ring-background" />
       </button>
+
+      {/* Top-left floating notification bell */}
+      <div className="fixed top-3 left-16 z-40">
+        <NotificationBell />
+      </div>
 
       <OfflineBanner />
 
