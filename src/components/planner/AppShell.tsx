@@ -136,6 +136,7 @@ export const AppShell = () => {
       <OnboardingFlow />
       <SeasonCeremony />
       <SeasonEndsBanner />
+      <AceAssistant />
 
       {/* Top-left floating profile button */}
       <button
