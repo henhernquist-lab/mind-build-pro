@@ -468,9 +468,10 @@ const SubjectChat = ({
 };
 
 const SavedChatsDrawer = ({
-  saved, onLoad, onDelete, open, setOpen,
+  saved, currentLabels, onLoad, onDelete, open, setOpen,
 }: {
   saved: SavedChat[];
+  currentLabels: Set<string>;
   onLoad: (chat: SavedChat) => void;
   onDelete: (id: string) => void;
   open: boolean;
@@ -496,6 +497,9 @@ const SavedChatsDrawer = ({
                 <div className="flex items-center gap-2 mb-1">
                   <span className="text-lg">{c.subject_emoji}</span>
                   <span className="text-xs text-muted-foreground">{c.subject_label}</span>
+                  {!currentLabels.has(c.subject_label.toLowerCase()) && (
+                    <span className="text-[9px] uppercase tracking-wider bg-muted text-muted-foreground rounded-full px-1.5 py-0.5">removed</span>
+                  )}
                 </div>
                 <div className="text-sm font-medium line-clamp-2">{c.title}</div>
                 <div className="text-[10px] text-muted-foreground mt-1">
@@ -890,6 +894,7 @@ const Tutor = () => {
 
       <SavedChatsDrawer
         saved={savedChats}
+        currentLabels={new Set(subjects.map((s) => s.label.toLowerCase()))}
         onLoad={loadChat}
         onDelete={handleDelete}
         open={savedOpen}

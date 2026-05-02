@@ -99,7 +99,7 @@ export const AcademicProfileSection = ({
   };
 
   return (
-    <section className="rounded-2xl border border-border bg-card p-5 md:p-6">
+    <section id="academic" className="rounded-2xl border border-border bg-card p-5 md:p-6 scroll-mt-24">
       <div className="flex items-center gap-2 mb-5">
         <div className="h-8 w-8 rounded-lg bg-primary/15 text-primary flex items-center justify-center text-sm">🎓</div>
         <h2 className="text-lg font-semibold">Academic Profile</h2>
