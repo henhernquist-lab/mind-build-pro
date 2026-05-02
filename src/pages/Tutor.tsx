@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useRef, useState, useCallback } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
@@ -15,8 +15,8 @@ import {
   AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
 import {
-  Lightbulb, RefreshCcw, Send, Sparkles, Loader2, Settings, Plus, Trash2,
-  ArrowUp, ArrowDown, Globe, Eye, EyeOff, Info, ExternalLink, Bookmark,
+  Lightbulb, RefreshCcw, Send, Sparkles, Loader2, Trash2,
+  Globe, Eye, EyeOff, Info, ExternalLink, Bookmark, GraduationCap,
   BookmarkPlus, Video, History, X, MessageSquare, Network, Play,
 } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
@@ -30,8 +30,11 @@ import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/comp
 import { supabase } from "@/integrations/supabase/client";
 import { RequiresOnlineBanner } from "@/components/offline/RequiresOnline";
 import { useAuth } from "@/lib/auth";
+import { useNavigate } from "react-router-dom";
 import { fetchPrefs, savePrefs } from "@/lib/workouts";
 import { fetchAthletic } from "@/lib/profile";
+import { fetchAcademicProfile, type AcademicClass } from "@/lib/academic";
+import { useSubjectsState } from "@/lib/subjects";
 import { listSavedChats, saveChat, deleteSavedChat, type SavedChat } from "@/lib/savedChats";
 import {
   listWatchLater,
@@ -45,7 +48,7 @@ import { VideoResults } from "@/components/tutor/VideoResults";
 import { MindMap } from "@/components/tutor/MindMap";
 
 type Msg = { role: "user" | "assistant"; content: string };
-type Subject = { id: string; label: string; emoji: string; color: string; description?: string; slug?: string };
+type Subject = { id: string; label: string; emoji: string; color: string; description?: string; slug?: string; classInfo?: AcademicClass };
 
 type ParsedMessage = {
   text: string;
@@ -96,21 +99,7 @@ const parseMessage = (raw: string): ParsedMessage => {
 };
 
 const AUTO_SEARCH_KEYWORDS = /\b(current|today|latest|recent|now|this year|2024|2025|2026)\b/i;
-const isGeorgiaCurrentEvent = (subjectId: string, q: string) =>
-  subjectId === "georgia" && AUTO_SEARCH_KEYWORDS.test(q);
-const shouldAutoSearch = (subjectId: string, q: string) =>
-  AUTO_SEARCH_KEYWORDS.test(q) || isGeorgiaCurrentEvent(subjectId, q);
-
-const DEFAULT_SUBJECTS: Subject[] = [
-  { id: "algebra", label: "Algebra 1", emoji: "🧮", color: "school", description: "Equations, graphing, word problems" },
-  { id: "langlit", label: "Lang & Lit", emoji: "📖", color: "school", description: "Essays, grammar, reading analysis" },
-  { id: "georgia", label: "Georgia Studies", emoji: "🍑", color: "sports", description: "GA history, geography, government" },
-  { id: "science", label: "Phys Science", emoji: "⚗️", color: "free", description: "Forces, energy, matter, chemistry" },
-  { id: "spanish", label: "Spanish", emoji: "🌎", color: "sports", description: "Vocabulary, conjugation, sentences" },
-];
-
-const COLORS = ["school", "sports", "free"] as const;
-const EMOJI_CHOICES = ["📚", "🧮", "📖", "🍑", "⚗️", "🌎", "🎨", "🎵", "🏛️", "💻", "🧠", "🔬", "📐", "🌍", "✏️"];
+const shouldAutoSearch = (_subjectId: string, q: string) => AUTO_SEARCH_KEYWORDS.test(q);
 
 const CHAT_URL = `${import.meta.env.VITE_SUPABASE_URL}/functions/v1/ai-tutor`;
 const ANON_KEY = import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY;
@@ -478,90 +467,11 @@ const SubjectChat = ({
   );
 };
 
-const ManageSubjects = ({
-  subjects, addSubject, removeSubject, moveSubject, resetDefaults, open, setOpen,
-}: {
-  subjects: Subject[];
-  addSubject: (s: Omit<Subject, "id">) => void;
-  removeSubject: (id: string) => void;
-  moveSubject: (id: string, dir: -1 | 1) => void;
-  resetDefaults: () => void;
-  open: boolean;
-  setOpen: (o: boolean) => void;
-}) => {
-  const [label, setLabel] = useState("");
-  const [description, setDescription] = useState("");
-  const [emoji, setEmoji] = useState("📚");
-  const [color, setColor] = useState<string>("school");
-
-  const add = () => {
-    if (!label.trim()) return;
-    addSubject({ label: label.trim(), description: description.trim() || undefined, emoji, color });
-    setLabel(""); setDescription(""); setEmoji("📚"); setColor("school");
-  };
-
-  return (
-    <Dialog open={open} onOpenChange={setOpen}>
-      <DialogContent className="max-w-lg max-h-[85vh] overflow-y-auto">
-        <DialogHeader><DialogTitle>Manage Subjects</DialogTitle></DialogHeader>
-        <div className="space-y-2">
-          <Label className="text-xs">Your subjects</Label>
-          <div className="space-y-1.5">
-            {subjects.map((s, i) => (
-              <div key={s.id} className="flex items-center gap-2 rounded-lg border border-border bg-card p-2">
-                <span className="text-xl">{s.emoji}</span>
-                <div className="flex-1 min-w-0">
-                  <div className="text-sm font-medium truncate">{s.label}</div>
-                  {s.description && <div className="text-[11px] text-muted-foreground truncate">{s.description}</div>}
-                </div>
-                <button onClick={() => moveSubject(s.id, -1)} disabled={i === 0} className="text-muted-foreground hover:text-foreground disabled:opacity-30 p-1"><ArrowUp className="h-4 w-4" /></button>
-                <button onClick={() => moveSubject(s.id, 1)} disabled={i === subjects.length - 1} className="text-muted-foreground hover:text-foreground disabled:opacity-30 p-1"><ArrowDown className="h-4 w-4" /></button>
-                <button onClick={() => removeSubject(s.id)} className="text-muted-foreground hover:text-destructive p-1"><Trash2 className="h-4 w-4" /></button>
-              </div>
-            ))}
-            {subjects.length === 0 && <div className="text-xs text-muted-foreground text-center py-4">No subjects.</div>}
-          </div>
-        </div>
-        <div className="border-t border-border pt-4 space-y-3">
-          <Label className="text-xs">Add new subject</Label>
-          <Input value={label} onChange={(e) => setLabel(e.target.value)} placeholder="Subject name" />
-          <Input value={description} onChange={(e) => setDescription(e.target.value)} placeholder="Optional description" />
-          <div>
-            <Label className="text-[11px] text-muted-foreground mb-1.5 block">Icon</Label>
-            <div className="flex flex-wrap gap-1.5">
-              {EMOJI_CHOICES.map((e) => (
-                <button key={e} type="button" onClick={() => setEmoji(e)}
-                  className={cn("h-8 w-8 rounded-md text-lg flex items-center justify-center border", emoji === e ? "border-primary bg-accent" : "border-border")}>{e}</button>
-              ))}
-            </div>
-          </div>
-          <div>
-            <Label className="text-[11px] text-muted-foreground mb-1.5 block">Accent color</Label>
-            <div className="flex gap-2">
-              {COLORS.map((c) => (
-                <button key={c} type="button" onClick={() => setColor(c)}
-                  className={cn("h-8 px-3 rounded-md text-xs font-medium capitalize border-2", color === c ? "ring-2 ring-offset-2 ring-offset-background" : "")}
-                  style={{ borderColor: accentVar(c), backgroundColor: color === c ? accentVar(c) : "transparent", color: color === c ? "hsl(var(--background))" : accentVar(c) }}>{c}</button>
-              ))}
-            </div>
-          </div>
-          <Button onClick={add} disabled={!label.trim()} className="w-full">
-            <Plus className="h-4 w-4 mr-1.5" /> Add subject
-          </Button>
-        </div>
-        <DialogFooter className="flex-row justify-between sm:justify-between">
-          <Button variant="ghost" size="sm" onClick={resetDefaults}>Reset to defaults</Button>
-          <Button onClick={() => setOpen(false)}>Done</Button>
-        </DialogFooter>
-      </DialogContent>
-    </Dialog>
-  );
-};
-
 const SavedChatsDrawer = ({
-  saved, onLoad, onDelete, open, setOpen,
+  saved, currentLabels, onLoad, onDelete, open, setOpen,
 }: {
   saved: SavedChat[];
+  currentLabels: Set<string>;
   onLoad: (chat: SavedChat) => void;
   onDelete: (id: string) => void;
   open: boolean;
@@ -587,6 +497,9 @@ const SavedChatsDrawer = ({
                 <div className="flex items-center gap-2 mb-1">
                   <span className="text-lg">{c.subject_emoji}</span>
                   <span className="text-xs text-muted-foreground">{c.subject_label}</span>
+                  {!currentLabels.has(c.subject_label.toLowerCase()) && (
+                    <span className="text-[9px] uppercase tracking-wider bg-muted text-muted-foreground rounded-full px-1.5 py-0.5">removed</span>
+                  )}
                 </div>
                 <div className="text-sm font-medium line-clamp-2">{c.title}</div>
                 <div className="text-[10px] text-muted-foreground mt-1">
@@ -724,10 +637,10 @@ const WatchLaterDrawer = ({
 const Tutor = () => {
   const { user } = useAuth();
   const { toast } = useToast();
-  const [subjects, setSubjects] = useState<Subject[]>([]);
-  const [subjectsLoaded, setSubjectsLoaded] = useState(false);
+  const navigate = useNavigate();
+  const { subjects: classSubjects, loaded: subjectsLoaded } = useSubjectsState();
+  const subjects: Subject[] = classSubjects;
   const [active, setActive] = useState<string>("");
-  const [manageOpen, setManageOpen] = useState(false);
   const [savedOpen, setSavedOpen] = useState(false);
   const [watchLaterOpen, setWatchLaterOpen] = useState(false);
   const [watchLater, setWatchLater] = useState<WatchLaterVideo[]>(() => listWatchLater());
@@ -737,39 +650,8 @@ const Tutor = () => {
   const [saveTitleFor, setSaveTitleFor] = useState<{ messages: Msg[] } | null>(null);
   const [titleInput, setTitleInput] = useState("");
   const [view, setView] = useState<"chat" | "mindmap">("chat");
-  const [studentProfile, setStudentProfile] = useState<any>(null);
-
-  // Load subjects from Supabase (or seed defaults)
-  useEffect(() => {
-    if (!user) return;
-    (async () => {
-      const { data } = await supabase.from("subjects").select("*").order("sort_order", { ascending: true });
-      let list: Subject[];
-      if (!data || data.length === 0) {
-        const seed = DEFAULT_SUBJECTS.map((s, i) => ({
-          user_id: user.id,
-          slug: s.id,
-          label: s.label,
-          emoji: s.emoji,
-          color: s.color,
-          description: s.description ?? null,
-          sort_order: i,
-        }));
-        await supabase.from("subjects").upsert(seed, { onConflict: "user_id,slug" });
-        const { data: again } = await supabase.from("subjects").select("*").order("sort_order", { ascending: true });
-        list = (again ?? []).map((r: any) => ({
-          id: r.id, slug: r.slug, label: r.label, emoji: r.emoji, color: r.color, description: r.description ?? undefined,
-        }));
-      } else {
-        list = data.map((r: any) => ({
-          id: r.id, slug: r.slug, label: r.label, emoji: r.emoji, color: r.color, description: r.description ?? undefined,
-        }));
-      }
-      setSubjects(list);
-      setActive(list[0]?.id ?? "");
-      setSubjectsLoaded(true);
-    })();
-  }, [user]);
+  const [baseStudentProfile, setBaseStudentProfile] = useState<any>(null);
+  const [academicProfile, setAcademicProfile] = useState<any>(null);
 
   // Load prefs + saved chats
   useEffect(() => {
@@ -791,6 +673,8 @@ const Tutor = () => {
     if (!user) return;
     (async () => {
       const a = await fetchAthletic(user.id);
+      const ap = await fetchAcademicProfile(user.id);
+      setAcademicProfile(ap);
       const { data: p } = await supabase
         .from("profiles")
         .select("display_name, bio, grade, school_name")
@@ -804,9 +688,12 @@ const Tutor = () => {
         sports: a ? [...a.primary_sports.filter((s) => s !== "Other"), ...(a.other_sport ? [a.other_sport] : [])] : [],
         goals: a?.fitness_goals ?? [],
         injuries: a?.injuries || null,
+        position: a?.position_event || null,
+        gradeLevel: ap?.grade_level || null,
+        studyStyle: ap?.study_style || null,
+        gpa: ap?.gpa ?? null,
       };
-      const hasAny = sp.name || sp.grade || sp.bio || sp.school || sp.sports.length || sp.goals.length || sp.injuries;
-      setStudentProfile(hasAny ? sp : null);
+      setBaseStudentProfile(sp);
     })();
   }, [user]);
 
@@ -815,59 +702,28 @@ const Tutor = () => {
     if (user) await savePrefs(user.id, { videos_enabled: on });
   };
 
-  const addSubject = useCallback(async (s: Omit<Subject, "id">) => {
-    if (!user) return;
-    const slug = s.label.toLowerCase().replace(/[^a-z0-9]+/g, "-") + "-" + Date.now().toString(36);
-    const sort_order = subjects.length;
-    const { data, error } = await supabase.from("subjects").insert({
-      user_id: user.id, slug, label: s.label, emoji: s.emoji, color: s.color,
-      description: s.description ?? null, sort_order,
-    }).select("*").single();
-    if (error || !data) { toast({ title: "Couldn't add subject" }); return; }
-    setSubjects((arr) => [...arr, {
-      id: data.id, slug: data.slug, label: data.label, emoji: data.emoji, color: data.color,
-      description: data.description ?? undefined,
-    }]);
-  }, [user, subjects.length, toast]);
-
-  const removeSubject = useCallback(async (id: string) => {
-    setSubjects((arr) => arr.filter((s) => s.id !== id));
-    await supabase.from("subjects").delete().eq("id", id);
-  }, []);
-
-  const moveSubject = useCallback(async (id: string, dir: -1 | 1) => {
-    const i = subjects.findIndex((s) => s.id === id);
-    const j = i + dir;
-    if (i < 0 || j < 0 || j >= subjects.length) return;
-    const next = [...subjects];
-    [next[i], next[j]] = [next[j], next[i]];
-    setSubjects(next);
-    await Promise.all(next.map((s, idx) =>
-      supabase.from("subjects").update({ sort_order: idx }).eq("id", s.id)
-    ));
-  }, [subjects]);
-
-  const resetDefaults = useCallback(async () => {
-    if (!user) return;
-    await supabase.from("subjects").delete().eq("user_id", user.id);
-    const seed = DEFAULT_SUBJECTS.map((s, i) => ({
-      user_id: user.id, slug: s.id, label: s.label, emoji: s.emoji, color: s.color,
-      description: s.description ?? null, sort_order: i,
-    }));
-    const { data } = await supabase.from("subjects").insert(seed).select("*").order("sort_order", { ascending: true });
-    const list = (data ?? []).map((r: any) => ({
-      id: r.id, slug: r.slug, label: r.label, emoji: r.emoji, color: r.color, description: r.description ?? undefined,
-    }));
-    setSubjects(list);
-    setActive(list[0]?.id ?? "");
-  }, [user]);
-
   useEffect(() => {
     if (subjects.length === 0) setActive("");
     else if (!subjects.find((s) => s.id === active)) setActive(subjects[0].id);
   }, [subjects, active]);
 
   const activeSubject = useMemo(() => subjects.find((s) => s.id === active), [subjects, active]);
+
+  // Per-class personalization context layered onto the base student profile.
+  const studentProfile = useMemo(() => {
+    if (!baseStudentProfile) return null;
+    const cls = (activeSubject as any)?.classInfo as AcademicClass | undefined;
+    if (!cls) return baseStudentProfile;
+    return {
+      ...baseStudentProfile,
+      className: cls.class_name,
+      classGrade: cls.current_grade,
+      classGradePct: cls.current_grade_pct,
+      classDifficulty: cls.difficulty,
+      classTeacher: cls.teacher,
+      classPeriod: cls.period,
+    };
+  }, [baseStudentProfile, activeSubject]);
 
   // Save chat flow
   const requestSave = (messages: Msg[]) => {
@@ -956,8 +812,8 @@ const Tutor = () => {
             <Video className="h-4 w-4 mr-1.5" /> Watch Later
             {watchLater.length > 0 && <span className="ml-1.5 text-[10px] bg-primary/20 text-primary rounded-full px-1.5">{watchLater.length}</span>}
           </Button>
-          <Button variant="outline" size="sm" onClick={() => setManageOpen(true)} disabled={view !== "chat"}>
-            <Settings className="h-4 w-4 mr-1.5" /> Manage subjects
+          <Button variant="outline" size="sm" onClick={() => navigate("/profile#academic")} disabled={view !== "chat"}>
+            <GraduationCap className="h-4 w-4 mr-1.5" /> My classes
           </Button>
         </div>
       </header>
@@ -1001,10 +857,16 @@ const Tutor = () => {
           onExitReadOnly={() => setViewingChat(null)}
         />
       ) : subjects.length === 0 ? (
-        <div className="rounded-2xl border border-dashed border-border bg-card p-10 text-center">
-          <p className="text-sm text-muted-foreground mb-4">No subjects yet. Add some to get started.</p>
-          <Button onClick={() => setManageOpen(true)}>
-            <Plus className="h-4 w-4 mr-1.5" /> Add a subject
+        <div className="rounded-2xl border border-dashed border-border bg-card p-10 md:p-14 text-center">
+          <div className="mx-auto h-16 w-16 rounded-2xl bg-primary/15 text-primary flex items-center justify-center mb-4 text-3xl">
+            🎓
+          </div>
+          <h2 className="text-lg font-semibold mb-1">No subjects yet</h2>
+          <p className="text-sm text-muted-foreground max-w-md mx-auto mb-5">
+            Add your classes in your Academic Profile to get started. Each class becomes a personalized AI tutor tab.
+          </p>
+          <Button onClick={() => navigate("/profile#academic")} size="lg">
+            <GraduationCap className="h-4 w-4 mr-1.5" /> Add My Classes →
           </Button>
         </div>
       ) : (
@@ -1030,18 +892,9 @@ const Tutor = () => {
         </Tabs>
       )}
 
-      <ManageSubjects
-        subjects={subjects}
-        addSubject={addSubject}
-        removeSubject={removeSubject}
-        moveSubject={moveSubject}
-        resetDefaults={resetDefaults}
-        open={manageOpen}
-        setOpen={setManageOpen}
-      />
-
       <SavedChatsDrawer
         saved={savedChats}
+        currentLabels={new Set(subjects.map((s) => s.label.toLowerCase()))}
         onLoad={loadChat}
         onDelete={handleDelete}
         open={savedOpen}

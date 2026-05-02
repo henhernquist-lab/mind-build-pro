@@ -1,4 +1,5 @@
 import { useEffect, useRef, useState } from "react";
+import { useLocation } from "react-router-dom";
 import { useAuth } from "@/lib/auth";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -41,6 +42,7 @@ const slugifyUsername = (s: string) =>
 
 const Profile = () => {
   const { user, profile, refreshProfile } = useAuth();
+  const location = useLocation();
   const cardRef = useRef<HTMLDivElement>(null);
   const athleticRank = useRank("athletic");
   const academicRank = useRank("academic");
@@ -55,6 +57,17 @@ const Profile = () => {
   const [avatarUrl, setAvatarUrl] = useState<string | null>(null);
   const [uploading, setUploading] = useState(false);
   const [usernameAvailable, setUsernameAvailable] = useState<boolean | null>(null);
+
+  // Scroll to a section when arriving with a hash like /profile#academic
+  useEffect(() => {
+    if (!location.hash) return;
+    const id = location.hash.slice(1);
+    const t = setTimeout(() => {
+      const el = document.getElementById(id);
+      if (el) el.scrollIntoView({ behavior: "smooth", block: "start" });
+    }, 250);
+    return () => clearTimeout(t);
+  }, [location.hash]);
 
   // Athletic
   const [athletic, setAthletic] = useState<AthleticInfo>({
