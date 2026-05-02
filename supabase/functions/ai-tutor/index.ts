@@ -6,7 +6,13 @@ const corsHeaders = {
 };
 
 const MATH_INSTRUCTION =
-  "\n\nIMPORTANT MATH FORMATTING: Always use LaTeX formatting for math expressions. Wrap inline math in single dollar signs like $x^2 + 3$ and block equations in double dollar signs like $$\\frac{1}{2}$$. NEVER write raw LaTeX commands without dollar sign delimiters.";
+  "\n\nIMPORTANT MATH FORMATTING (applies to EVERY subject — math, science, Spanish conjugation tables, etc.):\n" +
+  "When writing any mathematical expression, equation, fraction, square root, exponent, or symbol — always wrap it in LaTeX format.\n" +
+  "- Use single $ for inline math: $\\sqrt{18}$, $\\frac{1}{2}$, $x^2$\n" +
+  "- Use double $$ on its own line for standalone equations:\n$$x = \\frac{-b \\pm \\sqrt{b^2 - 4ac}}{2a}$$\n" +
+  "- NEVER write math as plain text like \"sqrt(18)\", \"x^2\", \"1/2\", or \"pi*r^2\" — always use LaTeX with $ delimiters.\n" +
+  "- Do NOT put spaces immediately inside the delimiters: write $x^2$ not $ x^2 $.\n" +
+  "- Only use $ as a math delimiter. If you need to mention a price, write it as \"5 dollars\" instead of \"$5\".";
 
 const VISUAL_INSTRUCTION = `
 
