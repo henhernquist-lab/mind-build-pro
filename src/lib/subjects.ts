@@ -57,7 +57,7 @@ const toSubject = (c: AcademicClass): Subject => ({
 });
 
 /** Subjects come exclusively from the user's classes in their Academic Profile. */
-export const useSubjects = (): { subjects: Subject[]; loaded: boolean; reload: () => Promise<void> } => {
+const useSubjectsCore = () => {
   const { user } = useAuth();
   const [subjects, setSubjects] = useState<Subject[]>([]);
   const [loaded, setLoaded] = useState(false);
@@ -79,6 +79,12 @@ export const useSubjects = (): { subjects: Subject[]; loaded: boolean; reload: (
 
   return { subjects, loaded, reload };
 };
+
+/** Backwards-compatible: returns just the subject list. */
+export const useSubjects = (): Subject[] => useSubjectsCore().subjects;
+
+/** Full state: list + loaded flag + manual reload. Used by AI Tutor. */
+export const useSubjectsState = useSubjectsCore;
 
 export const fireSubjectsChanged = () => {
   if (typeof window !== "undefined") window.dispatchEvent(new CustomEvent("classes-changed"));
