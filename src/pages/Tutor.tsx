@@ -15,8 +15,8 @@ import {
   AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
 import {
-  Lightbulb, RefreshCcw, Send, Sparkles, Loader2, Settings, Plus, Trash2,
-  ArrowUp, ArrowDown, Globe, Eye, EyeOff, Info, ExternalLink, Bookmark,
+  Lightbulb, RefreshCcw, Send, Sparkles, Loader2, Trash2,
+  Globe, Eye, EyeOff, Info, ExternalLink, Bookmark, GraduationCap,
   BookmarkPlus, Video, History, X, MessageSquare, Network, Play,
 } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
@@ -30,8 +30,11 @@ import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/comp
 import { supabase } from "@/integrations/supabase/client";
 import { RequiresOnlineBanner } from "@/components/offline/RequiresOnline";
 import { useAuth } from "@/lib/auth";
+import { useNavigate } from "react-router-dom";
 import { fetchPrefs, savePrefs } from "@/lib/workouts";
 import { fetchAthletic } from "@/lib/profile";
+import { fetchAcademicProfile, type AcademicClass } from "@/lib/academic";
+import { useSubjectsState, type Subject as ClassSubject } from "@/lib/subjects";
 import { listSavedChats, saveChat, deleteSavedChat, type SavedChat } from "@/lib/savedChats";
 import {
   listWatchLater,
@@ -45,7 +48,7 @@ import { VideoResults } from "@/components/tutor/VideoResults";
 import { MindMap } from "@/components/tutor/MindMap";
 
 type Msg = { role: "user" | "assistant"; content: string };
-type Subject = { id: string; label: string; emoji: string; color: string; description?: string; slug?: string };
+type Subject = { id: string; label: string; emoji: string; color: string; description?: string; slug?: string; classInfo?: AcademicClass };
 
 type ParsedMessage = {
   text: string;
@@ -96,21 +99,7 @@ const parseMessage = (raw: string): ParsedMessage => {
 };
 
 const AUTO_SEARCH_KEYWORDS = /\b(current|today|latest|recent|now|this year|2024|2025|2026)\b/i;
-const isGeorgiaCurrentEvent = (subjectId: string, q: string) =>
-  subjectId === "georgia" && AUTO_SEARCH_KEYWORDS.test(q);
-const shouldAutoSearch = (subjectId: string, q: string) =>
-  AUTO_SEARCH_KEYWORDS.test(q) || isGeorgiaCurrentEvent(subjectId, q);
-
-const DEFAULT_SUBJECTS: Subject[] = [
-  { id: "algebra", label: "Algebra 1", emoji: "🧮", color: "school", description: "Equations, graphing, word problems" },
-  { id: "langlit", label: "Lang & Lit", emoji: "📖", color: "school", description: "Essays, grammar, reading analysis" },
-  { id: "georgia", label: "Georgia Studies", emoji: "🍑", color: "sports", description: "GA history, geography, government" },
-  { id: "science", label: "Phys Science", emoji: "⚗️", color: "free", description: "Forces, energy, matter, chemistry" },
-  { id: "spanish", label: "Spanish", emoji: "🌎", color: "sports", description: "Vocabulary, conjugation, sentences" },
-];
-
-const COLORS = ["school", "sports", "free"] as const;
-const EMOJI_CHOICES = ["📚", "🧮", "📖", "🍑", "⚗️", "🌎", "🎨", "🎵", "🏛️", "💻", "🧠", "🔬", "📐", "🌍", "✏️"];
+const shouldAutoSearch = (_subjectId: string, q: string) => AUTO_SEARCH_KEYWORDS.test(q);
 
 const CHAT_URL = `${import.meta.env.VITE_SUPABASE_URL}/functions/v1/ai-tutor`;
 const ANON_KEY = import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY;
