@@ -4,8 +4,6 @@ import { toast } from "sonner";
 export type ChallengeKind =
   | "earn_xp"        // earn N total XP
   | "vocab_review"   // review N vocab cards
-  | "blitz_solve"    // solve N math problems in Blitz
-  | "boss_round"     // win N boss rounds
   | "log_workout"    // log N workouts
   | "save_note";     // save N notes
 
@@ -13,7 +11,7 @@ export interface ChallengeTemplate {
   id: ChallengeKind;
   title: string;
   description: (target: number) => string;
-  category: "academic" | "athletic" | "games";
+  category: "academic" | "athletic";
   base: number;       // base target
   xpReward: number;
   weight: number;     // selection weight
@@ -22,8 +20,6 @@ export interface ChallengeTemplate {
 const TEMPLATES: ChallengeTemplate[] = [
   { id: "earn_xp",      title: "Daily Grind",       description: (n) => `Earn ${n} XP from any activity`,    category: "academic", base: 50, xpReward: 25, weight: 3 },
   { id: "vocab_review", title: "Word of the Day",   description: (n) => `Review ${n} vocab cards`,           category: "academic", base: 5,  xpReward: 20, weight: 2 },
-  { id: "blitz_solve",  title: "Speed Demon",       description: (n) => `Solve ${n} problems in Speed Math Blitz`, category: "games", base: 15, xpReward: 30, weight: 2 },
-  { id: "boss_round",   title: "Boss Hunter",       description: (n) => `Win ${n} boss-battle rounds`,       category: "games",    base: 3,  xpReward: 30, weight: 2 },
   { id: "log_workout",  title: "Move Today",        description: (n) => `Log ${n} workout`,                  category: "athletic", base: 1,  xpReward: 25, weight: 2 },
   { id: "save_note",    title: "Show Your Work",    description: (n) => `Save ${n} new study note`,          category: "academic", base: 1,  xpReward: 20, weight: 1 },
 ];

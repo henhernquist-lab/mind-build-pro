@@ -9,12 +9,8 @@ const LABELS: Record<string, string> = {
   vocab: "Vocab",
   notes: "Notes",
   profile: "Profile",
-  games: "Games",
-  bosses: "Boss Battles",
-  flashcards: "Flashcards",
-  debate: "Debate",
-  georgia: "Georgia Conquest",
-  dungeon: "Algebra Dungeon",
+  leaderboard: "Leaderboard",
+  championship: "Championship",
 };
 
 export const Breadcrumbs = () => {
