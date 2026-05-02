@@ -3,6 +3,7 @@ import { motion } from "framer-motion";
 import {
   GraduationCap, Plus, Trash2, ExternalLink, Mail, Phone, Calendar,
   CheckCircle2, Circle, Loader2, ArrowLeft, Star, MessageSquare, Sparkles, Target, TrendingUp, School,
+  Search, ArrowUpDown, Bookmark, BookmarkPlus, Copy,
 } from "lucide-react";
 import { useAuth } from "@/lib/auth";
 import { Button } from "@/components/ui/button";
@@ -22,7 +23,7 @@ import { supabase } from "@/integrations/supabase/client";
 import {
   listColleges, createCollege, updateCollege, deleteCollege,
   listContacts, createContact, deleteContact,
-  listTasksForCollege, createTask, toggleTask, deleteTask,
+  listTasksForCollege, listAllOpenTasks, createTask, toggleTask, deleteTask,
   listMilestones, createMilestone, deleteMilestone,
   STATUSES,
   type College, type CollegeStatus, type RecruitmentContact,
