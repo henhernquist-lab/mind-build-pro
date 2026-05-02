@@ -26,6 +26,7 @@ import { showFloatingXp } from "@/components/fx/FloatingXp";
 import { toast } from "sonner";
 import { OfflineBanner, OnlineDot } from "@/components/offline/OfflineBanner";
 import { NotificationBell } from "@/components/nav/NotificationBell";
+import { AceAssistant } from "@/components/ace/AceAssistant";
 
 type NavItem = { to: string; label: string; icon: any; accent: "school" | "sports" | "primary" };
 type NavGroup = { id: string; label: string; icon: any; items: NavItem[] };
