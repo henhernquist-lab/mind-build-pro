@@ -25,6 +25,7 @@ import { claimDailyLoginXp } from "@/lib/streak";
 import { showFloatingXp } from "@/components/fx/FloatingXp";
 import { toast } from "sonner";
 import { OfflineBanner, OnlineDot } from "@/components/offline/OfflineBanner";
+import { NotificationBell } from "@/components/nav/NotificationBell";
 
 type NavItem = { to: string; label: string; icon: any; accent: "school" | "sports" | "primary" };
 type NavGroup = { id: string; label: string; icon: any; items: NavItem[] };
