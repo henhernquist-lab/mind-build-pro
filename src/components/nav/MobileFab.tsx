@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { Plus, Calendar, NotebookPen, Brain, Trophy, Search, X } from "lucide-react";
+import { Plus, Calendar, NotebookPen, Brain, Trophy, Search, X, Crown, Users, GraduationCap } from "lucide-react";
 import { sfx } from "@/lib/sounds";
 import { openCommandPalette } from "./CommandPalette";
 
@@ -9,7 +9,10 @@ const ACTIONS = [
   { icon: NotebookPen, label: "Note", to: "/notes", color: "hsl(var(--school))" },
   { icon: Calendar, label: "Test", to: "/tests", color: "hsl(var(--sports))" },
   { icon: Brain, label: "Tutor", to: "/tutor", color: "hsl(var(--primary))" },
+  { icon: GraduationCap, label: "Practice Tests", to: "/practice", color: "hsl(var(--school))" },
   { icon: Trophy, label: "Leaderboard", to: "/leaderboard", color: "hsl(var(--coding))" },
+  { icon: Crown, label: "Championship", to: "/championship", color: "hsl(var(--primary))" },
+  { icon: Users, label: "Recruitment", to: "/recruitment", color: "hsl(var(--sports))" },
 ];
 
 export const MobileFab = () => {
