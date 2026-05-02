@@ -35,6 +35,15 @@ const STATUS_META = STATUSES.reduce<Record<string, { label: string; color: strin
   return acc;
 }, {});
 
+type SortKey = "priority" | "match" | "name" | "recent" | "status";
+type SavedView = { id: string; name: string; status: CollegeStatus | "all"; sort: SortKey; query: string };
+const VIEWS_KEY = "recruitment:views";
+const ACTIVE_VIEW_KEY = "recruitment:active_view";
+const loadViews = (): SavedView[] => {
+  try { return JSON.parse(localStorage.getItem(VIEWS_KEY) || "[]"); } catch { return []; }
+};
+const saveViews = (v: SavedView[]) => localStorage.setItem(VIEWS_KEY, JSON.stringify(v));
+
 const Recruitment = () => {
   const { user } = useAuth();
   const [colleges, setColleges] = useState<College[]>([]);
@@ -42,6 +51,13 @@ const Recruitment = () => {
   const [openId, setOpenId] = useState<string | null>(null);
   const [addOpen, setAddOpen] = useState(false);
   const [filter, setFilter] = useState<CollegeStatus | "all">("all");
+  const [query, setQuery] = useState("");
+  const [sort, setSort] = useState<SortKey>("priority");
+  const [views, setViews] = useState<SavedView[]>(() => loadViews());
+  const [activeViewId, setActiveViewId] = useState<string | null>(
+    () => localStorage.getItem(ACTIVE_VIEW_KEY)
+  );
+  const [tab, setTab] = useState<"colleges" | "tasks">("colleges");
 
   const refresh = async () => {
     if (!user) return;
@@ -52,10 +68,27 @@ const Recruitment = () => {
 
   useEffect(() => { refresh(); /* eslint-disable-next-line */ }, [user?.id]);
 
-  const filtered = useMemo(
-    () => filter === "all" ? colleges : colleges.filter((c) => c.status === filter),
-    [colleges, filter],
-  );
+  const filtered = useMemo(() => {
+    let list = filter === "all" ? colleges : colleges.filter((c) => c.status === filter);
+    const q = query.trim().toLowerCase();
+    if (q) {
+      list = list.filter((c) =>
+        [c.name, c.division, c.sport, c.location, c.athletic_level]
+          .filter(Boolean).some((s) => s!.toLowerCase().includes(q))
+      );
+    }
+    const sorted = [...list];
+    sorted.sort((a, b) => {
+      switch (sort) {
+        case "match": return (b.match_score ?? -1) - (a.match_score ?? -1);
+        case "name": return a.name.localeCompare(b.name);
+        case "recent": return b.created_at.localeCompare(a.created_at);
+        case "status": return a.status.localeCompare(b.status);
+        default: return a.priority - b.priority;
+      }
+    });
+    return sorted;
+  }, [colleges, filter, query, sort]);
 
   const counts = useMemo(() => {
     const m: Record<string, number> = { all: colleges.length };
@@ -64,6 +97,23 @@ const Recruitment = () => {
   }, [colleges]);
 
   const opened = colleges.find((c) => c.id === openId);
+
+  const applyView = (v: SavedView) => {
+    setFilter(v.status); setSort(v.sort); setQuery(v.query);
+    setActiveViewId(v.id); localStorage.setItem(ACTIVE_VIEW_KEY, v.id);
+  };
+  const saveCurrentAsView = () => {
+    const name = window.prompt("Name this view (e.g. 'Top D1 prospects'):", "");
+    if (!name) return;
+    const v: SavedView = { id: crypto.randomUUID(), name, status: filter, sort, query };
+    const next = [...views, v]; setViews(next); saveViews(next);
+    setActiveViewId(v.id); localStorage.setItem(ACTIVE_VIEW_KEY, v.id);
+    toast.success(`View "${name}" saved`);
+  };
+  const deleteView = (id: string) => {
+    const next = views.filter((v) => v.id !== id); setViews(next); saveViews(next);
+    if (activeViewId === id) { setActiveViewId(null); localStorage.removeItem(ACTIVE_VIEW_KEY); }
+  };
 
   return (
     <div className="p-4 md:p-8 max-w-5xl mx-auto pb-24">
@@ -85,6 +135,73 @@ const Recruitment = () => {
 
       {colleges.length > 0 && <RecruitmentDashboard colleges={colleges} />}
 
+      <Tabs value={tab} onValueChange={(v) => setTab(v as any)} className="mb-4">
+        <TabsList>
+          <TabsTrigger value="colleges">Colleges</TabsTrigger>
+          <TabsTrigger value="tasks">Open Tasks</TabsTrigger>
+        </TabsList>
+      </Tabs>
+
+      {tab === "tasks" ? (
+        <OpenTasksPanel onCollegeClick={(id) => setOpenId(id)} />
+      ) : (
+        <>
+
+      {/* Search + Sort + Saved views */}
+      <div className="flex flex-col sm:flex-row gap-2 mb-3">
+        <div className="relative flex-1">
+          <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+          <Input
+            placeholder="Search by name, sport, location..."
+            value={query}
+            onChange={(e) => setQuery(e.target.value)}
+            className="pl-9"
+          />
+        </div>
+        <div className="flex items-center gap-2">
+          <Select value={sort} onValueChange={(v) => setSort(v as SortKey)}>
+            <SelectTrigger className="w-[160px]">
+              <ArrowUpDown className="h-3.5 w-3.5 mr-1 text-muted-foreground" />
+              <SelectValue />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="priority">Priority</SelectItem>
+              <SelectItem value="match">Match score</SelectItem>
+              <SelectItem value="name">Name (A-Z)</SelectItem>
+              <SelectItem value="recent">Recently added</SelectItem>
+              <SelectItem value="status">Status</SelectItem>
+            </SelectContent>
+          </Select>
+          <Button variant="outline" size="sm" onClick={saveCurrentAsView} title="Save current filters as view">
+            <BookmarkPlus className="h-4 w-4" />
+          </Button>
+        </div>
+      </div>
+
+      {/* Saved views row */}
+      {views.length > 0 && (
+        <div className="flex flex-wrap gap-1.5 mb-3">
+          <span className="text-[10px] uppercase tracking-widest text-muted-foreground self-center mr-1">Views:</span>
+          {views.map((v) => (
+            <span
+              key={v.id}
+              className={cn(
+                "inline-flex items-center gap-1 text-xs px-2.5 py-1 rounded-full border transition-colors",
+                activeViewId === v.id ? "border-primary bg-primary/10 text-primary" : "border-border bg-card text-muted-foreground hover:text-foreground",
+              )}
+            >
+              <button onClick={() => applyView(v)} className="flex items-center gap-1">
+                <Bookmark className="h-3 w-3" />
+                {v.name}
+              </button>
+              <button onClick={() => deleteView(v.id)} className="opacity-50 hover:opacity-100" aria-label="Delete view">
+                <Trash2 className="h-3 w-3" />
+              </button>
+            </span>
+          ))}
+        </div>
+      )}
+
       {/* Filter chips */}
       <div className="flex flex-wrap gap-2 mb-5">
         <FilterChip active={filter === "all"} onClick={() => setFilter("all")} label="All" count={counts.all} />
@@ -105,8 +222,10 @@ const Recruitment = () => {
       ) : filtered.length === 0 ? (
         <div className="rounded-2xl border border-dashed border-border bg-card p-10 text-center">
           <GraduationCap className="h-10 w-10 mx-auto text-muted-foreground mb-3" />
-          <h2 className="text-lg font-bold">No colleges yet</h2>
-          <p className="text-sm text-muted-foreground mt-1">Add your first target school to start tracking.</p>
+          <h2 className="text-lg font-bold">{colleges.length === 0 ? "No colleges yet" : "No matches"}</h2>
+          <p className="text-sm text-muted-foreground mt-1">
+            {colleges.length === 0 ? "Add your first target school to start tracking." : "Try clearing your search or filters."}
+          </p>
           <Button onClick={() => setAddOpen(true)} className="mt-4">
             <Plus className="h-4 w-4 mr-1" /> Add College
           </Button>
@@ -157,6 +276,9 @@ const Recruitment = () => {
             );
           })}
         </div>
+      )}
+
+        </>
       )}
 
       <AddCollegeDialog
