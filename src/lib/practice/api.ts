@@ -1,11 +1,17 @@
 import { supabase } from "@/integrations/supabase/client";
 
+export type QuestionType = "multiple_choice" | "true_false" | "short_answer" | "fill_blank" | "vocab_match";
+
 export type PracticeQuestion = {
   question: string;
+  type: QuestionType;
   options: string[];
-  correct_index: number;
+  correct_index: number; // -1 for short_answer, fill_blank, vocab_match
   topic: string;
   explanation: string;
+  model_answer?: string;   // short_answer
+  blank_answer?: string;   // fill_blank
+  definition?: string;     // vocab_match
 };
 
 export type PracticeTest = {
@@ -19,13 +25,20 @@ export type PracticeTest = {
   source_note_id: string | null;
   questions: PracticeQuestion[];
   created_at: string;
+  // Extended fields stored in questions metadata
+  input_type?: "topic" | "paste" | "youtube" | "file";
+  time_limit?: number | null; // seconds, null = no limit
 };
 
 export type AnswerRecord = {
   question_index: number;
   topic: string;
   selected_index: number | null;
+  text_answer?: string;        // short_answer
+  matched_pairs?: Record<string, string>; // vocab_match
   correct: boolean;
+  ai_feedback?: string;        // short_answer AI feedback
+  score?: number;              // 0-100 for short_answer
 };
 
 export type PracticeAttempt = {
@@ -57,6 +70,8 @@ export async function generateTest(input: {
   difficulty?: "easy" | "medium" | "hard";
   count?: number;
   sourceText?: string;
+  questionTypes?: QuestionType[];
+  additionalInstructions?: string;
 }): Promise<PracticeQuestion[]> {
   const { data, error } = await supabase.functions.invoke("generate-practice-test", {
     body: input,
@@ -64,6 +79,23 @@ export async function generateTest(input: {
   if (error) throw new Error(error.message);
   if (!data?.questions) throw new Error("No questions returned");
   return data.questions as PracticeQuestion[];
+}
+
+export async function gradeShortAnswers(
+  subject: string,
+  questions: PracticeQuestion[],
+  answers: string[]
+): Promise<{ score: number; feedback: string; model_answer: string }[]> {
+  try {
+    const { data, error } = await supabase.functions.invoke("grade-short-answers", {
+      body: { subject, questions, answers },
+    });
+    if (error) throw error;
+    return data?.results ?? [];
+  } catch {
+    // Fallback: return empty feedback
+    return questions.map(() => ({ score: 50, feedback: "Could not grade automatically.", model_answer: "" }));
+  }
 }
 
 export async function saveTest(input: {
@@ -116,7 +148,7 @@ export async function recordAttempt(input: Omit<PracticeAttempt, "id" | "created
 }
 
 export async function listAttempts(userId: string, subject?: string): Promise<PracticeAttempt[]> {
-  let q = supabase.from("practice_attempts").select("*").eq("user_id", userId).order("created_at", { ascending: false }).limit(20);
+  let q = supabase.from("practice_attempts").select("*").eq("user_id", userId).order("created_at", { ascending: false }).limit(50);
   if (subject) q = q.eq("subject", subject);
   const { data } = await q;
   return ((data as any[]) ?? []) as PracticeAttempt[];
@@ -180,4 +212,13 @@ export function setTutorPrefill(payload: { subject: string; topic?: string; reas
   try {
     sessionStorage.setItem("tutor:prefill", JSON.stringify(payload));
   } catch { /* ignore */ }
+}
+
+/** Award XP for quiz completion */
+export async function awardQuizXP(userId: string, scorePct: number): Promise<number> {
+  const xp = Math.round(scorePct) + (scorePct >= 90 ? 50 : 0);
+  try {
+    await (supabase as any).rpc("increment_xp", { p_user_id: userId, p_amount: xp });
+  } catch { /* ignore if RPC not available */ }
+  return xp;
 }

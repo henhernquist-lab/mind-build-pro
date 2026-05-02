@@ -9,7 +9,10 @@ serve(async (req) => {
   if (req.method === "OPTIONS") return new Response(null, { headers: corsHeaders });
 
   try {
-    const { subject, topic, difficulty, count, sourceText } = await req.json();
+    const {
+      subject, topic, difficulty, count, sourceText,
+      questionTypes, additionalInstructions,
+    } = await req.json();
 
     if (!subject || typeof subject !== "string") {
       return new Response(JSON.stringify({ error: "subject is required" }), {
@@ -19,17 +22,49 @@ serve(async (req) => {
 
     const total = Math.min(Math.max(parseInt(count) || 10, 3), 25);
     const diff = ["easy", "medium", "hard"].includes(difficulty) ? difficulty : "medium";
+    const types: string[] = Array.isArray(questionTypes) && questionTypes.length > 0
+      ? questionTypes
+      : ["multiple_choice"];
+
+    const typeInstructions = types.map((t) => {
+      switch (t) {
+        case "multiple_choice": return "Multiple choice: 4 options (A-D), one correct, correct_index 0-3";
+        case "true_false": return "True/False: options must be exactly [\"True\", \"False\"], correct_index 0 or 1";
+        case "short_answer": return "Short answer: options array should be empty [], correct_index -1, include model_answer field with the ideal answer";
+        case "fill_blank": return "Fill in the blank: question contains ___ where the blank is, options array empty, correct_index -1, include blank_answer field with the missing word";
+        case "vocab_match": return "Vocabulary match: question is a term, options array empty, correct_index -1, include definition field";
+        default: return "";
+      }
+    }).filter(Boolean).join("\n");
 
     const LOVABLE_API_KEY = Deno.env.get("LOVABLE_API_KEY");
     if (!LOVABLE_API_KEY) throw new Error("LOVABLE_API_KEY is not configured");
 
-    const systemPrompt = `You are an expert test creator. Generate ${total} multiple-choice questions on the given subject and topic at ${diff} difficulty. Each question must have exactly 4 options, one correct answer, a short topic tag (2-4 words), and a one-sentence explanation. Vary the topics so the test surfaces specific weak spots.`;
+    const systemPrompt = `You are an expert test creator for 8th grade students. Generate ${total} questions on the given subject and topic at ${diff} difficulty.
+
+Question types to use (distribute evenly): ${types.join(", ")}
+Type-specific rules:
+${typeInstructions}
+
+For ALL questions include:
+- question: the question text
+- type: one of the type strings above
+- options: array (4 items for MCQ, 2 for T/F, empty for others)
+- correct_index: integer (0-3 for MCQ, 0-1 for T/F, -1 for others)
+- topic: 2-4 word topic tag
+- explanation: one sentence explaining the correct answer
+- model_answer: (short_answer only) the ideal answer
+- blank_answer: (fill_blank only) the missing word
+- definition: (vocab_match only) the definition of the term
+
+Vary topics to surface specific weak spots. Make questions clear and educational.
+${additionalInstructions ? `Additional instructions: ${additionalInstructions}` : ""}`;
 
     const userPrompt = `Subject: ${subject}
 Topic: ${topic || "general"}
 Difficulty: ${diff}
+Question types: ${types.join(", ")}
 ${sourceText ? `\nBase the questions on this source material:\n"""${String(sourceText).slice(0, 6000)}"""` : ""}
-
 Generate ${total} questions.`;
 
     const resp = await fetch("https://ai.gateway.lovable.dev/v1/chat/completions", {
@@ -55,12 +90,16 @@ Generate ${total} questions.`;
                     type: "object",
                     properties: {
                       question: { type: "string" },
-                      options: { type: "array", items: { type: "string" }, minItems: 4, maxItems: 4 },
-                      correct_index: { type: "integer", minimum: 0, maximum: 3 },
+                      type: { type: "string" },
+                      options: { type: "array", items: { type: "string" } },
+                      correct_index: { type: "integer", minimum: -1, maximum: 3 },
                       topic: { type: "string" },
                       explanation: { type: "string" },
+                      model_answer: { type: "string" },
+                      blank_answer: { type: "string" },
+                      definition: { type: "string" },
                     },
-                    required: ["question", "options", "correct_index", "topic", "explanation"],
+                    required: ["question", "type", "options", "correct_index", "topic", "explanation"],
                     additionalProperties: false,
                   },
                 },

@@ -18,6 +18,7 @@ import {
   Lightbulb, RefreshCcw, Send, Sparkles, Loader2, Trash2,
   Globe, Eye, EyeOff, Info, ExternalLink, Bookmark, GraduationCap,
   BookmarkPlus, Video, History, X, MessageSquare, Network, Play,
+  Maximize2, Download,
 } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import ReactMarkdown from "react-markdown";
@@ -46,6 +47,7 @@ import {
 import { DesmosGraph } from "@/components/tutor/DesmosGraph";
 import { VideoResults } from "@/components/tutor/VideoResults";
 import { MindMap } from "@/components/tutor/MindMap";
+import { VisualGallery } from "@/components/tutor/VisualGallery";
 
 type Msg = { role: "user" | "assistant"; content: string };
 type Subject = { id: string; label: string; emoji: string; color: string; description?: string; slug?: string; classInfo?: AcademicClass };
@@ -53,6 +55,7 @@ type Subject = { id: string; label: string; emoji: string; color: string; descri
 type ParsedMessage = {
   text: string;
   visual: string | null;
+  svgDiagram: string | null;  // from [SVG]...[/SVG] tags
   graph: string[] | null;
   videoQuery: string | null;
   sources: { n: number; url: string }[];
@@ -61,9 +64,19 @@ type ParsedMessage = {
 const parseMessage = (raw: string): ParsedMessage => {
   let text = raw;
   let visual: string | null = null;
+  let svgDiagram: string | null = null;
   let graph: string[] | null = null;
   let videoQuery: string | null = null;
   const sources: { n: number; url: string }[] = [];
+
+  // Parse [SVG]...[/SVG] tags (new educational diagram format)
+  const svgTagMatch = text.match(/\[SVG\]\s*([\s\S]*?)\s*\[\/SVG\]/i);
+  if (svgTagMatch) {
+    const inner = svgTagMatch[1].trim();
+    const svgEl = inner.match(/<svg[\s\S]*?<\/svg>/i);
+    svgDiagram = svgEl ? svgEl[0] : inner;
+    text = text.replace(svgTagMatch[0], "").trim();
+  }
 
   const visualMatch = text.match(/\[VISUAL\]\s*([\s\S]*?)\s*\[\/VISUAL\]/);
   if (visualMatch) {
@@ -95,7 +108,7 @@ const parseMessage = (raw: string): ParsedMessage => {
     text = text.replace(srcMatch[0], "").trim();
   }
 
-  return { text, visual, graph, videoQuery, sources };
+  return { text, visual, svgDiagram, graph, videoQuery, sources };
 };
 
 const AUTO_SEARCH_KEYWORDS = /\b(current|today|latest|recent|now|this year|2024|2025|2026)\b/i;
@@ -391,6 +404,14 @@ const SubjectChat = ({
                         )}
                       </div>
                     )}
+                    {parsed?.svgDiagram && (
+                      <SvgDiagramCard
+                        svg={parsed.svgDiagram}
+                        hidden={hiddenVisuals[i + 10000]}
+                        onToggle={() => toggleVisual(i + 10000)}
+                        onSaveToGallery={onSaveRequested ? undefined : undefined}
+                      />
+                    )}
                     {parsed?.videoQuery && videosEnabled && (
                       <div className="mt-2">
                         <VideoResults
@@ -461,6 +482,99 @@ const SubjectChat = ({
               {loading ? <Loader2 className="h-4 w-4 animate-spin" /> : <Send className="h-4 w-4" />}
             </Button>
           </div>
+        </div>
+      )}
+    </div>
+  );
+};
+
+/** Inline SVG educational diagram card with show/hide, fullscreen, and PNG download */
+const SvgDiagramCard = ({
+  svg, hidden, onToggle,
+}: {
+  svg: string;
+  hidden?: boolean;
+  onToggle: () => void;
+  onSaveToGallery?: () => void;
+}) => {
+  const [fullscreen, setFullscreen] = useState(false);
+
+  const downloadPng = () => {
+    const parser = new DOMParser();
+    const doc = parser.parseFromString(svg, "image/svg+xml");
+    const svgEl = doc.querySelector("svg");
+    const vb = svgEl?.getAttribute("viewBox")?.split(" ") ?? ["0", "0", "600", "400"];
+    const W = parseInt(vb[2]) * 2;
+    const H = parseInt(vb[3]) * 2;
+    const canvas = document.createElement("canvas");
+    canvas.width = W; canvas.height = H;
+    const ctx = canvas.getContext("2d");
+    if (!ctx) return;
+    ctx.fillStyle = "#1E293B";
+    ctx.fillRect(0, 0, W, H);
+    const img = new Image();
+    const blob = new Blob([svg], { type: "image/svg+xml;charset=utf-8" });
+    const url = URL.createObjectURL(blob);
+    img.onload = () => {
+      ctx.drawImage(img, 0, 0, W, H);
+      URL.revokeObjectURL(url);
+      const a = document.createElement("a");
+      a.download = "diagram.png";
+      a.href = canvas.toDataURL("image/png");
+      a.click();
+    };
+    img.src = url;
+  };
+
+  return (
+    <div className="mt-2">
+      <div className="flex items-center gap-2 mb-1.5">
+        <button
+          onClick={onToggle}
+          className="text-[11px] text-muted-foreground hover:text-foreground flex items-center gap-1.5"
+        >
+          {hidden ? <Eye className="h-3 w-3" /> : <EyeOff className="h-3 w-3" />}
+          {hidden ? "Show diagram" : "Hide diagram"}
+        </button>
+        {!hidden && (
+          <>
+            <button
+              onClick={() => setFullscreen(true)}
+              className="text-[11px] text-muted-foreground hover:text-foreground flex items-center gap-1"
+            >
+              <Maximize2 className="h-3 w-3" /> Fullscreen
+            </button>
+            <button
+              onClick={downloadPng}
+              className="text-[11px] text-muted-foreground hover:text-foreground flex items-center gap-1"
+            >
+              <Download className="h-3 w-3" /> PNG
+            </button>
+          </>
+        )}
+      </div>
+      {!hidden && (
+        <div
+          className="rounded-lg bg-[#1E293B] border border-border p-3 overflow-x-auto [&_svg]:max-w-full [&_svg]:h-auto"
+          dangerouslySetInnerHTML={{ __html: svg }}
+        />
+      )}
+      {fullscreen && (
+        <div
+          className="fixed inset-0 z-50 bg-background/95 backdrop-blur flex flex-col items-center justify-center p-6"
+          onClick={() => setFullscreen(false)}
+        >
+          <div
+            className="rounded-xl border border-border bg-[#1E293B] p-4 max-w-4xl w-full max-h-[90vh] overflow-auto"
+            onClick={(e) => e.stopPropagation()}
+            dangerouslySetInnerHTML={{ __html: svg }}
+          />
+          <button
+            onClick={() => setFullscreen(false)}
+            className="mt-4 text-sm text-muted-foreground hover:text-foreground"
+          >
+            ✕ Close
+          </button>
         </div>
       )}
     </div>
@@ -649,7 +763,15 @@ const Tutor = () => {
   const [viewingChat, setViewingChat] = useState<SavedChat | null>(null);
   const [saveTitleFor, setSaveTitleFor] = useState<{ messages: Msg[] } | null>(null);
   const [titleInput, setTitleInput] = useState("");
-  const [view, setView] = useState<"chat" | "mindmap">("chat");
+  const [view, setView] = useState<"chat" | "mindmap" | "gallery">("chat");
+  const [galleryMaps, setGalleryMaps] = useState<{ topic: string; svg: string; subject: string; savedAt: string }[]>([]);
+
+  const handleSaveToGallery = (topic: string, svgContent: string) => {
+    setGalleryMaps((prev) => [
+      { topic, svg: svgContent, subject: activeSubject?.label ?? "General", savedAt: new Date().toISOString() },
+      ...prev,
+    ]);
+  };
   const [baseStudentProfile, setBaseStudentProfile] = useState<any>(null);
   const [academicProfile, setAcademicProfile] = useState<any>(null);
 
@@ -823,6 +945,7 @@ const Tutor = () => {
         {([
           { id: "chat", label: "Chat", icon: MessageSquare },
           { id: "mindmap", label: "Mind Map", icon: Network },
+          { id: "gallery", label: "Visual Gallery", icon: Eye },
         ] as const).map((m) => {
           const Icon = m.icon;
           const isActive = view === m.id;
@@ -844,7 +967,15 @@ const Tutor = () => {
       </div>
 
       {view === "mindmap" ? (
-        <MindMap subjectLabel={activeSubject?.label} />
+        <MindMap
+          subjectLabel={activeSubject?.label}
+          onSaveToNotes={handleSaveToGallery}
+        />
+      ) : view === "gallery" ? (
+        <VisualGallery
+          maps={galleryMaps}
+          onDelete={(i) => setGalleryMaps((prev) => prev.filter((_, idx) => idx !== i))}
+        />
       ) : !subjectsLoaded ? (
         <div className="text-center py-10 text-sm text-muted-foreground">Loading…</div>
       ) : viewingChat && viewSubject ? (

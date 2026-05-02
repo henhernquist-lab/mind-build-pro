@@ -183,6 +183,25 @@ export const sumDay = (meals: MealLog[]) =>
     { calories: 0, protein_g: 0, carbs_g: 0, fat_g: 0 },
   );
 
+/** Compute the current consecutive meal logging streak (days with at least one meal). */
+export const computeStreak = (allMeals: MealLog[]): number => {
+  if (allMeals.length === 0) return 0;
+  const datesWithMeals = new Set(allMeals.map((m) => m.log_date));
+  let streak = 0;
+  const today = new Date();
+  for (let i = 0; i < 365; i++) {
+    const d = new Date(today);
+    d.setDate(d.getDate() - i);
+    const iso = d.toISOString().slice(0, 10);
+    if (datesWithMeals.has(iso)) {
+      streak++;
+    } else if (i > 0) {
+      break;
+    }
+  }
+  return streak;
+};
+
 export const remaining = (target: MacroTargets, totals: ReturnType<typeof sumDay>) => ({
   calories: Math.max(0, target.calories - totals.calories),
   protein_g: Math.max(0, target.protein_g - totals.protein_g),
