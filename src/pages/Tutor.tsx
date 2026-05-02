@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useRef, useState, useCallback } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
@@ -34,7 +34,7 @@ import { useNavigate } from "react-router-dom";
 import { fetchPrefs, savePrefs } from "@/lib/workouts";
 import { fetchAthletic } from "@/lib/profile";
 import { fetchAcademicProfile, type AcademicClass } from "@/lib/academic";
-import { useSubjectsState, type Subject as ClassSubject } from "@/lib/subjects";
+import { useSubjectsState } from "@/lib/subjects";
 import { listSavedChats, saveChat, deleteSavedChat, type SavedChat } from "@/lib/savedChats";
 import {
   listWatchLater,
