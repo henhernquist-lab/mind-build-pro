@@ -13,7 +13,7 @@ const SECTIONS: Section[] = [
   { to: "/", label: "Planner", members: ["/"] },
   { to: "/workouts", label: "Training", members: ["/workouts", "/nutrition", "/macros"] },
   { to: "/tutor", label: "Academic", members: ["/tutor", "/tests", "/vocab", "/notes"] },
-  { to: "/games", label: "Arcade", members: ["/games", "/leaderboard"] },
+  { to: "/leaderboard", label: "Compete", members: ["/leaderboard", "/championship"] },
 ];
 
 const HINT_KEY = "swipe_hint_shown_v1";

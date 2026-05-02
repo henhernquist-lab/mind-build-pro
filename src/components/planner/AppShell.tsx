@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 import { NavLink, Outlet, useLocation, useNavigate } from "react-router-dom";
 import {
-  Calendar, Dumbbell, Brain, Sparkles, LogOut, User, Gamepad2,
+  Calendar, Dumbbell, Brain, Sparkles, LogOut, User,
   CalendarDays, BookText, NotebookPen, ChevronDown, Search, GraduationCap, Trophy, Apple, Utensils, Crown, ClipboardCheck,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
@@ -60,10 +60,9 @@ const GROUPS: NavGroup[] = [
   },
   {
     id: "arcade",
-    label: "Arcade",
-    icon: Gamepad2,
+    label: "Compete",
+    icon: Trophy,
     items: [
-      { to: "/games", label: "Games", icon: Gamepad2, accent: "primary" },
       { to: "/leaderboard", label: "Leaderboard", icon: Trophy, accent: "primary" },
       { to: "/championship", label: "Championship", icon: Crown, accent: "primary" },
     ],
@@ -75,7 +74,7 @@ const MOBILE_NAV: NavItem[] = [
   { to: "/", label: "Planner", icon: Calendar, accent: "school" },
   { to: "/workouts", label: "Training", icon: Dumbbell, accent: "sports" },
   { to: "/tutor", label: "Academic", icon: Brain, accent: "primary" },
-  { to: "/games", label: "Arcade", icon: Gamepad2, accent: "primary" },
+  { to: "/leaderboard", label: "Compete", icon: Trophy, accent: "primary" },
 ];
 
 const accentColor = (a: string) =>

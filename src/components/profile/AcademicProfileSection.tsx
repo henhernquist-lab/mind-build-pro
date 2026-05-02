@@ -132,7 +132,7 @@ export const AcademicProfileSection = ({
           <Button size="sm" variant="outline" onClick={addRow}><Plus className="h-3.5 w-3.5 mr-1" /> Add class</Button>
         </div>
         <div className="space-y-2">
-          {classes.length === 0 && (<p className="text-xs text-muted-foreground italic">No classes yet — add one to personalize tutor and games.</p>)}
+          {classes.length === 0 && (<p className="text-xs text-muted-foreground italic">No classes yet — add one to personalize your AI tutor.</p>)}
           {classes.map((c) => (
             <div key={c.id} className="rounded-lg border border-border bg-background/50 p-3 grid grid-cols-1 md:grid-cols-12 gap-2 items-center">
               <Input className="md:col-span-3" value={c.class_name} onChange={(e) => patchRow(c.id, { class_name: e.target.value })} onBlur={() => persistRow(c.id)} placeholder="Class name" />

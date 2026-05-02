@@ -10,8 +10,8 @@ import {
   CommandSeparator,
 } from "@/components/ui/command";
 import {
-  Calendar, Dumbbell, Brain, Gamepad2, User, CalendarDays,
-  BookText, NotebookPen, Sword, MapPinned, MessagesSquare, Layers, Compass,
+  Calendar, Dumbbell, Brain, User, CalendarDays,
+  BookText, NotebookPen, Trophy, Crown,
   Plus, LogOut,
 } from "lucide-react";
 import { useAuth } from "@/lib/auth";
@@ -31,13 +31,9 @@ const ROUTES = [
     { label: "Vocab Builder", to: "/vocab", icon: BookText },
     { label: "Notes", to: "/notes", icon: NotebookPen },
   ]},
-  { group: "Games", items: [
-    { label: "All Games", to: "/games", icon: Gamepad2 },
-    { label: "Boss Battles", to: "/games/bosses", icon: Sword },
-    { label: "Flashcard Battle", to: "/games/flashcards", icon: Layers },
-    { label: "Debate Club", to: "/games/debate", icon: MessagesSquare },
-    { label: "Georgia Conquest", to: "/games/georgia", icon: MapPinned },
-    { label: "Algebra Dungeon", to: "/games/dungeon", icon: Compass },
+  { group: "Compete", items: [
+    { label: "Leaderboard", to: "/leaderboard", icon: Trophy },
+    { label: "Championship", to: "/championship", icon: Crown },
   ]},
 ];
 

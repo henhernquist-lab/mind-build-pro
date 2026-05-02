@@ -8,7 +8,7 @@ import { useRank } from "@/lib/ranks2";
 import { sfx } from "@/lib/sounds";
 import { cn } from "@/lib/utils";
 
-const categoryIcon = (c: string) => (c === "athletic" ? "💪" : c === "games" ? "🎮" : "📚");
+const categoryIcon = (c: string) => (c === "athletic" ? "💪" : "📚");
 
 export const DailyChallenges = () => {
   const { user } = useAuth();

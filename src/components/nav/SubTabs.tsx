@@ -21,10 +21,10 @@ const GROUPS: { match: (p: string) => boolean; tabs: SubTab[] }[] = [
     ],
   },
   {
-    match: (p) => p === "/games" || p === "/leaderboard" || p.startsWith("/games/"),
+    match: (p) => p === "/leaderboard" || p === "/championship",
     tabs: [
-      { to: "/games", label: "Games" },
       { to: "/leaderboard", label: "Leaderboard" },
+      { to: "/championship", label: "Championship" },
     ],
   },
 ];
