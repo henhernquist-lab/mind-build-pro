@@ -12,19 +12,21 @@ const GROUPS: { match: (p: string) => boolean; tabs: SubTab[] }[] = [
     ],
   },
   {
-    match: (p) => ["/tutor", "/tests", "/vocab", "/notes"].includes(p),
+    match: (p) => ["/tutor", "/tests", "/vocab", "/notes", "/practice"].includes(p),
     tabs: [
       { to: "/tutor", label: "AI Tutor" },
+      { to: "/practice", label: "Practice Tests" },
       { to: "/tests", label: "Tests" },
       { to: "/vocab", label: "Vocab" },
       { to: "/notes", label: "Notes" },
     ],
   },
   {
-    match: (p) => p === "/leaderboard" || p === "/championship",
+    match: (p) => p === "/leaderboard" || p === "/championship" || p === "/recruitment",
     tabs: [
       { to: "/leaderboard", label: "Leaderboard" },
       { to: "/championship", label: "Championship" },
+      { to: "/recruitment", label: "Recruitment" },
     ],
   },
 ];
