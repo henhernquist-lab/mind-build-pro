@@ -5,7 +5,7 @@ import { useRank, getCountdown } from "@/lib/ranks2";
 
 export type AppNotification = {
   id: string;
-  type: "season" | "test" | "recruitment_task" | "coach_reply";
+  type: "season" | "test";
   title: string;
   description: string;
   href: string;
@@ -90,53 +90,6 @@ export const useNotifications = () => {
         createdAt: t.test_date,
         severity: days <= 1 ? "danger" : days <= 3 ? "warning" : "info",
         icon: "📅",
-      });
-    }
-
-    // 3. Overdue / due-soon recruitment tasks
-    const { data: tasks } = await supabase
-      .from("recruitment_tasks")
-      .select("id,title,due_date,completed,colleges!inner(name)")
-      .eq("user_id", user.id)
-      .eq("completed", false)
-      .not("due_date", "is", null)
-      .lte("due_date", in7.toISOString().slice(0, 10))
-      .order("due_date", { ascending: true });
-    for (const t of (tasks || []) as any[]) {
-      const days = Math.ceil((new Date(t.due_date).getTime() - today.getTime()) / 86400000);
-      const overdue = days < 0;
-      next.push({
-        id: `rtask-${t.id}`,
-        type: "recruitment_task",
-        title: overdue ? `Overdue: ${t.title}` : `Due ${days === 0 ? "today" : days === 1 ? "tomorrow" : `in ${days} days`}: ${t.title}`,
-        description: t.colleges?.name ?? "Recruitment",
-        href: "/recruitment",
-        createdAt: t.due_date,
-        severity: overdue ? "danger" : days <= 1 ? "warning" : "info",
-        icon: "🎓",
-      });
-    }
-
-    // 4. Recent coach replies (email/call/offer milestones in last 7 days)
-    const since = new Date(Date.now() - 7 * 86400000).toISOString().slice(0, 10);
-    const { data: ms } = await supabase
-      .from("recruitment_milestones")
-      .select("id,title,event_type,occurred_on,colleges!inner(name)")
-      .eq("user_id", user.id)
-      .in("event_type", ["email", "call", "offer"])
-      .gte("occurred_on", since)
-      .order("occurred_on", { ascending: false })
-      .limit(10);
-    for (const m of (ms || []) as any[]) {
-      next.push({
-        id: `mile-${m.id}`,
-        type: "coach_reply",
-        title: m.title,
-        description: `${m.colleges?.name ?? ""} • ${m.event_type}`,
-        href: "/recruitment",
-        createdAt: m.occurred_on,
-        severity: m.event_type === "offer" ? "warning" : "info",
-        icon: m.event_type === "offer" ? "🏆" : m.event_type === "call" ? "📞" : "📧",
       });
     }
 

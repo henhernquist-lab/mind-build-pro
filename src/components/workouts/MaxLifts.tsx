@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useState } from "react";
-import { Calculator, Trophy, Save, Loader2, History as HistoryIcon } from "lucide-react";
+import { Calculator, Trophy, Save, Loader2, History as HistoryIcon, Sparkles } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -8,14 +8,19 @@ import { toast } from "sonner";
 import { cn } from "@/lib/utils";
 import { useAuth } from "@/lib/auth";
 import { supabase } from "@/integrations/supabase/client";
-import { calc1RM, buildPercentTable, gradeStrength, gradeColor, lbsToKg, kgToLbs, type StrengthGrade } from "@/lib/oneRepMax";
+import {
+  calc1RM, buildPercentTable, gradeStrength, gradeColor, lbsToKg, kgToLbs,
+  type StrengthGrade, STRENGTH_GRADES,
+} from "@/lib/oneRepMax";
 import { fetchEntries, insertEntry } from "@/lib/workouts";
 import { fetchAthletic } from "@/lib/profile";
 import { motion } from "framer-motion";
 import { LineChart, Line, XAxis, YAxis, ResponsiveContainer, Tooltip, CartesianGrid } from "recharts";
 import type { WeightUnit } from "@/lib/athlete";
 
-const COMMON_LIFTS = ["Bench press", "Squat", "Deadlift", "Overhead press", "Pull-ups", "Barbell row"];
+const COMMON_LIFTS = ["Bench press", "Squat", "Deadlift", "Overhead press", "Push-ups", "Barbell row", "40-yard dash", "100m", "Mile run", "Shuttle run"];
+
+const FN = (name: string) => `${import.meta.env.VITE_SUPABASE_URL}/functions/v1/${name}`;
 
 type HistoryRow = {
   id: string;
@@ -25,6 +30,12 @@ type HistoryRow = {
   reps_used: number;
   strength_grade: string | null;
   created_at: string;
+};
+
+// Grade badge color class
+const gradeBadgeStyle = (g: StrengthGrade) => {
+  const color = gradeColor(g);
+  return { background: `${color}22`, color, border: `1px solid ${color}55` };
 };
 
 export const MaxLifts = ({ weightUnit, setWeightUnit }: { weightUnit: WeightUnit; setWeightUnit: (u: WeightUnit) => void }) => {
@@ -37,9 +48,14 @@ export const MaxLifts = ({ weightUnit, setWeightUnit }: { weightUnit: WeightUnit
   const [bodyweight, setBodyweight] = useState<number>(0);
   const [age, setAge] = useState<number>(16);
   const [gender, setGender] = useState<"male" | "female">("male");
+  const [sport, setSport] = useState<string>("");
+  const [position, setPosition] = useState<string>(""); // position_event
   const [history, setHistory] = useState<HistoryRow[]>([]);
   const [saving, setSaving] = useState(false);
   const [highlightPct, setHighlightPct] = useState<number | null>(null);
+  const [scoutNote, setScoutNote] = useState<string | null>(null);
+  const [scoutLoading, setScoutLoading] = useState(false);
+  const [recalculating, setRecalculating] = useState(false);
 
   const finalEx = exercise === "__custom__" ? customEx.trim() : exercise;
 
@@ -56,6 +72,8 @@ export const MaxLifts = ({ weightUnit, setWeightUnit }: { weightUnit: WeightUnit
         setBodyweight(ath.weight_lbs ?? 0);
         setAge(ath.age ?? 16);
         setGender(ath.gender ?? "male");
+        setSport((ath.primary_sports ?? []).join(", "));
+        setPosition(ath.position_event ?? "");
       }
       const exSet = new Set<string>(COMMON_LIFTS);
       lifts.forEach((e) => exSet.add(e.exercise));
@@ -75,7 +93,7 @@ export const MaxLifts = ({ weightUnit, setWeightUnit }: { weightUnit: WeightUnit
   const altDisplay = weightUnit === "kg" ? `${oneRmLbs.toFixed(0)} lbs` : `${lbsToKg(oneRmLbs).toFixed(1)} kg`;
 
   const grading = useMemo(
-    () => bodyweight > 0 && oneRmLbs > 0 ? gradeStrength(finalEx, oneRmLbs, bodyweight, age, gender) : null,
+    () => oneRmLbs > 0 ? gradeStrength(finalEx, oneRmLbs, bodyweight, age, gender) : null,
     [finalEx, oneRmLbs, bodyweight, age, gender],
   );
 
@@ -93,6 +111,7 @@ export const MaxLifts = ({ weightUnit, setWeightUnit }: { weightUnit: WeightUnit
       })),
     [history, finalEx, weightUnit],
   );
+
   const allTimeBest = useMemo(
     () => history.filter((h) => h.exercise.toLowerCase() === finalEx.toLowerCase())
       .reduce<HistoryRow | null>((best, h) => (!best || h.estimated_1rm_lbs > best.estimated_1rm_lbs ? h : best), null),
@@ -105,7 +124,6 @@ export const MaxLifts = ({ weightUnit, setWeightUnit }: { weightUnit: WeightUnit
     if (oneRmLbs <= 0) return toast.error("Enter a weight and reps first");
     setSaving(true);
     try {
-      // Save to PR system as a workout entry tagged as PR
       await insertEntry(user.id, {
         sport: "weightlifting",
         exercise: finalEx,
@@ -118,7 +136,6 @@ export const MaxLifts = ({ weightUnit, setWeightUnit }: { weightUnit: WeightUnit
         note: `Estimated 1RM from ${weightLbs}lb × ${repsNum}`,
         breakdown: undefined,
       });
-      // Save to dedicated history table
       const { data, error } = await supabase
         .from("lift_max_history")
         .insert({
@@ -140,6 +157,80 @@ export const MaxLifts = ({ weightUnit, setWeightUnit }: { weightUnit: WeightUnit
       toast.error("Couldn't save", { description: e.message });
     } finally {
       setSaving(false);
+    }
+  };
+
+  const fetchScoutNote = async () => {
+    if (!grading || !finalEx) return;
+    setScoutLoading(true);
+    setScoutNote(null);
+    try {
+      const { data: { session } } = await supabase.auth.getSession();
+      const resp = await fetch(FN("ace-chat"), {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${session?.access_token ?? import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY}`,
+        },
+        body: JSON.stringify({
+          messages: [{
+            role: "user",
+            content: `The athlete is ${age} years old, plays ${sport || "a sport"} at ${position || "a position"}. They just logged ${finalEx}: ${oneRmLbs.toFixed(0)} lbs and received a grade of ${grading.grade} at ${grading.level}. Write ONE encouraging sentence a real strength coach would say about this performance. Be honest but motivating. Reference their sport specifically.`,
+          }],
+          userId: user?.id,
+          scoutMode: true,
+        }),
+      });
+      if (!resp.ok) throw new Error("Failed");
+      const reader = resp.body?.getReader();
+      const decoder = new TextDecoder();
+      let text = "";
+      while (reader) {
+        const { done, value } = await reader.read();
+        if (done) break;
+        text += decoder.decode(value, { stream: true });
+      }
+      // Extract plain text from SSE stream
+      const lines = text.split("\n").filter((l) => l.startsWith("data: "));
+      let note = "";
+      for (const line of lines) {
+        try {
+          const d = JSON.parse(line.slice(6));
+          if (d.content) note += d.content;
+        } catch { /* skip */ }
+      }
+      setScoutNote(note.trim() || "Keep grinding — every rep builds toward your goal.");
+    } catch {
+      setScoutNote("Keep grinding — every rep builds toward your goal.");
+    } finally {
+      setScoutLoading(false);
+    }
+  };
+
+  // Recalculate all past entries with new grading standards
+  const recalculateHistory = async () => {
+    if (!user || history.length === 0) return;
+    setRecalculating(true);
+    try {
+      let updated = 0;
+      for (const h of history) {
+        const newGrade = gradeStrength(h.exercise, h.estimated_1rm_lbs, h.weight_used || bodyweight, age, gender);
+        if (newGrade.grade !== h.strength_grade) {
+          await supabase
+            .from("lift_max_history")
+            .update({ strength_grade: newGrade.grade })
+            .eq("id", h.id);
+          updated++;
+        }
+      }
+      // Refresh history
+      const { data } = await supabase.from("lift_max_history").select("*").eq("user_id", user.id).order("created_at", { ascending: true });
+      if (data) setHistory(data as HistoryRow[]);
+      toast.success(`Recalculated ${updated} entries with new standards`);
+    } catch (e: any) {
+      toast.error("Recalculation failed", { description: e.message });
+    } finally {
+      setRecalculating(false);
     }
   };
 
@@ -230,37 +321,102 @@ export const MaxLifts = ({ weightUnit, setWeightUnit }: { weightUnit: WeightUnit
         )}
       </div>
 
-      {/* Strength grading */}
+      {/* Strength grading — new teen athlete standards */}
       {grading && oneRmLbs > 0 && (
         <div className="rounded-2xl glass p-5">
-          <div className="flex items-center justify-between mb-3 flex-wrap gap-2">
+          <div className="flex items-center justify-between mb-4 flex-wrap gap-2">
             <h3 className="text-sm font-semibold uppercase tracking-wider text-muted-foreground">Strength Grade</h3>
             <span
-              className="text-xs px-2.5 py-0.5 rounded-full font-bold uppercase tracking-wider"
-              style={{ background: `${gradeColor(grading.grade)}22`, color: gradeColor(grading.grade), border: `1px solid ${gradeColor(grading.grade)}55` }}
+              className="text-sm px-3 py-1 rounded-full font-bold uppercase tracking-wider"
+              style={gradeBadgeStyle(grading.grade)}
             >
               {grading.grade}
             </span>
           </div>
-          <div className="text-xs text-muted-foreground mb-2">
-            Lift-to-bodyweight ratio: <span className="font-mono text-foreground">{grading.ratio}×</span>
-            {bodyweight > 0 && <> · {bodyweight}lb athlete, age {age}</>}
+
+          {/* Level label */}
+          <div className="text-base font-bold mb-1">{grading.level}</div>
+
+          {/* Percentile bar */}
+          <div className="mb-3">
+            <div className="flex justify-between text-[11px] text-muted-foreground mb-1">
+              <span>Top {100 - grading.percentile}% for your age group</span>
+              <span>{grading.percentile}th percentile</span>
+            </div>
+            <div className="relative h-3 rounded-full bg-muted overflow-hidden">
+              <div className="absolute inset-0 bg-gradient-to-r from-slate-500 via-emerald-500 to-yellow-400 opacity-40" />
+              <motion.div
+                initial={{ width: 0 }}
+                animate={{ width: `${grading.percentile}%` }}
+                transition={{ duration: 0.8, ease: "easeOut" }}
+                className="absolute top-0 bottom-0 rounded-full"
+                style={{ background: gradeColor(grading.grade) }}
+              />
+            </div>
           </div>
-          {/* Spectrum bar */}
-          <div className="relative h-3 rounded-full bg-muted overflow-hidden mb-2">
-            <div className="absolute inset-0 bg-gradient-to-r from-slate-500 via-emerald-500 to-purple-500 opacity-60" />
-            <div
-              className="absolute top-0 bottom-0 w-1 bg-foreground shadow-lg"
-              style={{ left: `${grading.position * 100}%` }}
-            />
-          </div>
-          <div className="grid grid-cols-5 text-[9px] uppercase tracking-wider text-muted-foreground">
-            {(["Beginner", "Novice", "Intermediate", "Advanced", "Elite"] as StrengthGrade[]).map((g) => (
-              <span key={g} className="text-center">{g}</span>
+
+          {/* Grade spectrum labels */}
+          <div className="grid grid-cols-8 text-[9px] uppercase tracking-wider text-muted-foreground mb-3">
+            {STRENGTH_GRADES.map((g) => (
+              <span key={g} className={cn("text-center", g === grading.grade && "font-bold")} style={g === grading.grade ? { color: gradeColor(g) } : {}}>
+                {g}
+              </span>
             ))}
           </div>
-          <div className="text-xs italic mt-3 border-l-2 border-primary/40 pl-3 text-muted-foreground">
+
+          {/* Ratio display */}
+          {grading.exerciseType === "weighted" && bodyweight > 0 && (
+            <div className="text-xs text-muted-foreground mb-2">
+              You lifted <span className="font-bold text-foreground">{grading.ratio}×</span> your bodyweight
+              {grading.ratio !== grading.adjustedRatio && (
+                <span> · adjusted ratio: <span className="font-mono text-foreground">{grading.adjustedRatio}×</span></span>
+              )}
+              {" "}· {bodyweight}lb athlete, age {age}
+            </div>
+          )}
+
+          {/* Next grade target */}
+          {grading.nextGrade && grading.nextGradeTarget !== null && (
+            <div className="rounded-lg bg-muted/40 px-3 py-2 text-xs mb-3">
+              <span className="text-muted-foreground">Next grade: </span>
+              <span className="font-bold" style={{ color: gradeColor(grading.nextGrade) }}>{grading.nextGrade}</span>
+              {grading.exerciseType === "weighted" ? (
+                <span className="text-muted-foreground">
+                  {" "}— lift <span className="font-bold text-foreground">{grading.nextGradeTarget} lbs</span>
+                  {bodyweight > 0 && <> ({(grading.nextGradeTarget / bodyweight).toFixed(2)}× bodyweight)</>}
+                </span>
+              ) : grading.exerciseType === "reps" ? (
+                <span className="text-muted-foreground">
+                  {" "}— do <span className="font-bold text-foreground">{grading.nextGradeTarget} reps</span>
+                </span>
+              ) : (
+                <span className="text-muted-foreground">
+                  {" "}— hit <span className="font-bold text-foreground">{grading.nextGradeTarget}s</span>
+                </span>
+              )}
+            </div>
+          )}
+
+          {/* Note */}
+          <div className="text-xs italic border-l-2 border-primary/40 pl-3 text-muted-foreground mb-3">
             {grading.note}
+          </div>
+
+          {/* Claude scout note */}
+          <div className="space-y-2">
+            <Button variant="outline" size="sm" onClick={fetchScoutNote} disabled={scoutLoading} className="w-full">
+              {scoutLoading ? <Loader2 className="h-3.5 w-3.5 mr-1.5 animate-spin" /> : <Sparkles className="h-3.5 w-3.5 mr-1.5" />}
+              Get coach's take
+            </Button>
+            {scoutNote && (
+              <motion.div
+                initial={{ opacity: 0, y: 4 }}
+                animate={{ opacity: 1, y: 0 }}
+                className="rounded-lg bg-primary/8 border border-primary/20 px-3 py-2.5 text-sm italic text-foreground/90"
+              >
+                💬 {scoutNote}
+              </motion.div>
+            )}
           </div>
         </div>
       )}
@@ -311,12 +467,18 @@ export const MaxLifts = ({ weightUnit, setWeightUnit }: { weightUnit: WeightUnit
             <h3 className="text-sm font-semibold uppercase tracking-wider text-muted-foreground flex items-center gap-2">
               <HistoryIcon className="h-4 w-4" /> {finalEx} progression
             </h3>
-            {allTimeBest && (
-              <span className="text-xs flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-amber-500/15 text-amber-400 border border-amber-500/30">
-                <Trophy className="h-3 w-3" /> All-time best:{" "}
-                {weightUnit === "kg" ? lbsToKg(allTimeBest.estimated_1rm_lbs).toFixed(1) : allTimeBest.estimated_1rm_lbs.toFixed(1)} {unitLabel}
-              </span>
-            )}
+            <div className="flex items-center gap-2 flex-wrap">
+              {allTimeBest && (
+                <span className="text-xs flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-amber-500/15 text-amber-400 border border-amber-500/30">
+                  <Trophy className="h-3 w-3" /> All-time best:{" "}
+                  {weightUnit === "kg" ? lbsToKg(allTimeBest.estimated_1rm_lbs).toFixed(1) : allTimeBest.estimated_1rm_lbs.toFixed(1)} {unitLabel}
+                </span>
+              )}
+              <Button variant="outline" size="sm" onClick={recalculateHistory} disabled={recalculating}>
+                {recalculating ? <Loader2 className="h-3 w-3 mr-1 animate-spin" /> : null}
+                Recalculate grades
+              </Button>
+            </div>
           </div>
           <div className="h-48">
             <ResponsiveContainer width="100%" height="100%">

@@ -22,11 +22,10 @@ const GROUPS: { match: (p: string) => boolean; tabs: SubTab[] }[] = [
     ],
   },
   {
-    match: (p) => p === "/leaderboard" || p === "/championship" || p === "/recruitment",
+    match: (p) => p === "/leaderboard" || p === "/championship",
     tabs: [
       { to: "/leaderboard", label: "Leaderboard" },
       { to: "/championship", label: "Championship" },
-      { to: "/recruitment", label: "Recruitment" },
     ],
   },
 ];

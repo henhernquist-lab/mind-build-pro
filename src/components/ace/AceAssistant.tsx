@@ -20,7 +20,6 @@ const QUICK_CHIPS: Record<string, string[]> = {
   "/profile": ["Update my stats", "View my season", "Share my card"],
   "/leaderboard": ["Where do I rank?", "How do I climb faster?", "Season ends when?"],
   "/championship": ["What's the championship?", "Am I qualified?", "Claim my reward"],
-  "/recruitment": ["Draft a coach email", "Top match school", "What's overdue?"],
   "/practice": ["Generate a test", "Pick a weak topic", "Quick 5-question quiz"],
   "/tests": ["Next test?", "Schedule a review", "Tips for studying"],
 };

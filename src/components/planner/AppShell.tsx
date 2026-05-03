@@ -45,7 +45,6 @@ const GROUPS: NavGroup[] = [
     items: [
       { to: "/workouts", label: "Workouts", icon: Dumbbell, accent: "sports" },
       { to: "/nutrition", label: "Nutrition", icon: Apple, accent: "sports" },
-      { to: "/recruitment", label: "Recruitment", icon: GraduationCap, accent: "sports" },
     ],
   },
   {

@@ -1,6 +1,8 @@
 import { useEffect, useMemo, useRef, useState } from "react";
 import { Apple, Loader2, Sparkles, Plus, Trash2, ChefHat, TrendingUp, Settings2, AlertCircle, Camera, Upload, X, ScanLine, ChevronLeft, ChevronRight, Flame } from "lucide-react";
 import { WaterTracker } from "@/components/nutrition/WaterTracker";
+import { DayDetailDrawer } from "@/components/nutrition/DayDetailDrawer";
+import { calculateWaterGoal, fetchWaterGoalOverride } from "@/lib/water";
 import { useOnlineStatus } from "@/lib/offline/useOnlineStatus";
 import { Link } from "react-router-dom";
 import { Button } from "@/components/ui/button";
@@ -190,6 +192,9 @@ const Nutrition = () => {
     return d;
   });
   const [streak, setStreak] = useState(0);
+  const [waterGoalMl, setWaterGoalMl] = useState(2000);
+  const [dayDetailOpen, setDayDetailOpen] = useState(false);
+  const [dayDetailDate, setDayDetailDate] = useState(todayISO());
 
   // Meal logging
   const [mealDesc, setMealDesc] = useState("");
@@ -256,6 +261,14 @@ const Nutrition = () => {
       setStreak(computeStreak(streakData));
       const p = await fetchPrefs(user.id);
       setPrefs(p);
+      // Water goal
+      const override = await fetchWaterGoalOverride(user.id);
+      if (override) {
+        setWaterGoalMl(override.goal_ml);
+      } else if (ath) {
+        const { goal_ml } = calculateWaterGoal(ath);
+        setWaterGoalMl(goal_ml);
+      }
     } catch (e: any) {
       toast.error("Failed to load nutrition", { description: e.message });
     } finally {
@@ -630,7 +643,11 @@ const Nutrition = () => {
         weekStart={weekStart}
         weekMeals={weekMeals}
         targets={targets}
-        onSelectDate={(d) => setActiveDate(d)}
+        onSelectDate={(d) => {
+          setActiveDate(d);
+          setDayDetailDate(d);
+          setDayDetailOpen(true);
+        }}
         onPrevWeek={handlePrevWeek}
         onNextWeek={handleNextWeek}
         onToday={handleToday}
@@ -1094,6 +1111,30 @@ const Nutrition = () => {
             </div>
           )}
         </div>
+      )}
+
+      {/* Day Detail Drawer */}
+      {user && (
+        <DayDetailDrawer
+          open={dayDetailOpen}
+          date={dayDetailDate}
+          userId={user.id}
+          targets={targets}
+          waterGoalMl={waterGoalMl}
+          onClose={() => setDayDetailOpen(false)}
+          onDateChange={(d) => {
+            setDayDetailDate(d);
+            setActiveDate(d);
+          }}
+          onMealDeleted={(id) => {
+            setMeals((prev) => prev.filter((m) => m.id !== id));
+            setWeekMeals((prev) => prev.filter((m) => m.id !== id));
+          }}
+          onLogMealForDate={(d) => {
+            setActiveDate(d);
+            setDayDetailOpen(false);
+          }}
+        />
       )}
 
       {/* Preferences dialog */}
