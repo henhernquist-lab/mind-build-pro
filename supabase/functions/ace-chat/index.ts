@@ -85,6 +85,22 @@ Deno.serve(async (req) => {
       supabase.from("study_streak").select("current_streak, longest_streak").eq("user_id", user.id).maybeSingle(),
     ]);
 
+    // Water intake for today
+    const { data: waterLogs } = await supabase
+      .from("water_logs")
+      .select("hydration_credit_ml")
+      .eq("user_id", user.id)
+      .eq("log_date", today);
+    const { data: waterGoalRow } = await supabase
+      .from("user_water_goals")
+      .select("goal_ml")
+      .eq("user_id", user.id)
+      .maybeSingle();
+    const waterTodayMl = (waterLogs || []).reduce((s: number, r: any) => s + (r.hydration_credit_ml || 0), 0);
+    const waterGoalMl = (waterGoalRow as any)?.goal_ml ?? 2000;
+    const waterPct = Math.round((waterTodayMl / waterGoalMl) * 100);
+    const currentHour = new Date().getHours();
+
     const firstName = (profile?.display_name || user.email?.split("@")[0] || "there").split(" ")[0];
     const athleticXp = (usStat as any)?.xp ?? 0;
     const academicXp = (acStat as any)?.xp ?? 0;
@@ -146,6 +162,7 @@ THIS STUDENT:
 - Current season ends in: ${daysLeft} day${daysLeft === 1 ? "" : "s"}
 - Today's planner: ${todayBlocks}
 - Today's macros so far: ${macroTotals.cal} cal, ${macroTotals.p}g protein, ${macroTotals.c}g carbs, ${macroTotals.f}g fat
+- Today's water intake: ${(waterTodayMl / 1000).toFixed(1)}L / ${(waterGoalMl / 1000).toFixed(1)}L goal (${waterPct}%)
 - Workouts logged this week: ${workoutsThisWeek}
 - Recent PRs: ${recentPRs.map((p: any) => `${p.exercise} ${p.value}${p.unit}`).join(", ") || "none yet this week"}
 - Study streak: ${(streak as any)?.current_streak ?? 0} days (best: ${(streak as any)?.longest_streak ?? 0})
@@ -157,6 +174,8 @@ YOUR JOB:
 - Answer quick academic questions briefly. If a question is deep/complex, say "that's a deep one — let me open the full tutor for you" and end your reply with [NAVIGATE:/tutor]
 - Motivate and hype them based on goals and rank progress
 - Give nutrition tips based on remaining macros for today
+- If it's past 2pm (hour >= 14) and water intake is below 50% of goal, proactively remind them to hydrate
+- If water goal is hit today, celebrate it briefly
 - Warn them about upcoming rank resets and encourage grinding
 - Celebrate PRs, rank ups, achievements
 

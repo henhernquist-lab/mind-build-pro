@@ -1,5 +1,7 @@
 import { useEffect, useMemo, useRef, useState } from "react";
 import { Apple, Loader2, Sparkles, Plus, Trash2, ChefHat, TrendingUp, Settings2, AlertCircle, Camera, Upload, X, ScanLine, ChevronLeft, ChevronRight, Flame } from "lucide-react";
+import { WaterTracker } from "@/components/nutrition/WaterTracker";
+import { fetchWaterLogsRange, sumWaterDay, calculateWaterGoal, fetchWaterGoalOverride } from "@/lib/water";
 import { useOnlineStatus } from "@/lib/offline/useOnlineStatus";
 import { Link } from "react-router-dom";
 import { Button } from "@/components/ui/button";
@@ -176,6 +178,7 @@ const Nutrition = () => {
   const [loading, setLoading] = useState(true);
   const [targets, setTargets] = useState<MacroTargets | null>(null);
   const [hasProfile, setHasProfile] = useState(true);
+  const [athletic, setAthletic] = useState<import("@/lib/profile").AthleticInfo | null>(null);
   const [meals, setMeals] = useState<MealLog[]>([]);
   const [weekMeals, setWeekMeals] = useState<MealLog[]>([]);
   const [activeDate, setActiveDate] = useState(todayISO());
@@ -234,6 +237,7 @@ const Nutrition = () => {
     setLoading(true);
     try {
       const ath = await fetchAthletic(user.id);
+      setAthletic(ath);
       if (!ath || ath.weight_lbs <= 0 || ath.age <= 0) {
         setHasProfile(false);
         setTargets(null);
@@ -667,6 +671,17 @@ const Nutrition = () => {
             value={totals.fat_g}
             target={targets.fat_g}
             unit="g"
+          />
+        </div>
+      )}
+
+      {/* Water Tracker */}
+      {user && (
+        <div className="mb-6">
+          <WaterTracker
+            userId={user.id}
+            date={activeDate}
+            athletic={athletic}
           />
         </div>
       )}

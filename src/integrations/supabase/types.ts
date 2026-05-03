@@ -1581,6 +1581,66 @@ export type Database = {
         }
         Relationships: []
       }
+      user_water_goals: {
+        Row: {
+          goal_ml: number
+          source: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          goal_ml?: number
+          source?: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          goal_ml?: number
+          source?: string
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
+      water_logs: {
+        Row: {
+          amount_ml: number
+          drink_type: string
+          hydration_credit_ml: number
+          id: string
+          input_method: string
+          is_water: boolean
+          log_date: string
+          logged_at: string
+          notes: string | null
+          user_id: string
+        }
+        Insert: {
+          amount_ml: number
+          drink_type?: string
+          hydration_credit_ml: number
+          id?: string
+          input_method?: string
+          is_water?: boolean
+          log_date: string
+          logged_at?: string
+          notes?: string | null
+          user_id: string
+        }
+        Update: {
+          amount_ml?: number
+          drink_type?: string
+          hydration_credit_ml?: number
+          id?: string
+          input_method?: string
+          is_water?: boolean
+          log_date?: string
+          logged_at?: string
+          notes?: string | null
+          user_id?: string
+        }
+        Relationships: []
+      }
     }
     Views: {
       [_ in never]: never
