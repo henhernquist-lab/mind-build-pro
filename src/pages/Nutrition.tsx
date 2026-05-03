@@ -1,7 +1,6 @@
 import { useEffect, useMemo, useRef, useState } from "react";
 import { Apple, Loader2, Sparkles, Plus, Trash2, ChefHat, TrendingUp, Settings2, AlertCircle, Camera, Upload, X, ScanLine, ChevronLeft, ChevronRight, Flame } from "lucide-react";
 import { WaterTracker } from "@/components/nutrition/WaterTracker";
-import { fetchWaterLogsRange, sumWaterDay, calculateWaterGoal, fetchWaterGoalOverride } from "@/lib/water";
 import { useOnlineStatus } from "@/lib/offline/useOnlineStatus";
 import { Link } from "react-router-dom";
 import { Button } from "@/components/ui/button";
@@ -13,7 +12,7 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "
 import { Progress } from "@/components/ui/progress";
 import { toast } from "sonner";
 import { useAuth } from "@/lib/auth";
-import { fetchAthletic } from "@/lib/profile";
+import { fetchAthletic, type AthleticInfo } from "@/lib/profile";
 import { supabase } from "@/integrations/supabase/client";
 import {
   MEAL_TYPES, MealType, MealLog, MacroTargets, calculateTargets, fetchMeals, fetchMealsRange,
@@ -178,7 +177,7 @@ const Nutrition = () => {
   const [loading, setLoading] = useState(true);
   const [targets, setTargets] = useState<MacroTargets | null>(null);
   const [hasProfile, setHasProfile] = useState(true);
-  const [athletic, setAthletic] = useState<import("@/lib/profile").AthleticInfo | null>(null);
+  const [athletic, setAthletic] = useState<AthleticInfo | null>(null);
   const [meals, setMeals] = useState<MealLog[]>([]);
   const [weekMeals, setWeekMeals] = useState<MealLog[]>([]);
   const [activeDate, setActiveDate] = useState(todayISO());

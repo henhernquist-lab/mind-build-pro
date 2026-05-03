@@ -160,11 +160,13 @@ const SubjectChat = ({
     setMessages((m) => [...m, { role: "assistant", content: "" }]);
 
     try {
+      const { data: { session } } = await supabase.auth.getSession();
+      const authToken = session?.access_token ?? ANON_KEY;
       const resp = await fetch(CHAT_URL, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
-          ...(ANON_KEY ? { Authorization: `Bearer ${ANON_KEY}` } : {}),
+          ...(authToken ? { Authorization: `Bearer ${authToken}` } : {}),
         },
         body: JSON.stringify({
           subject: subject.id,
@@ -409,7 +411,6 @@ const SubjectChat = ({
                         svg={parsed.svgDiagram}
                         hidden={hiddenVisuals[i + 10000]}
                         onToggle={() => toggleVisual(i + 10000)}
-                        onSaveToGallery={onSaveRequested ? undefined : undefined}
                       />
                     )}
                     {parsed?.videoQuery && videosEnabled && (

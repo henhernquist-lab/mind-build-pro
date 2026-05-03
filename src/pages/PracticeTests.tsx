@@ -22,6 +22,7 @@ import {
   generateTest, saveTest, listTests, deleteTest,
   recordAttempt, getRecommendation, updateSubjectWeakness,
   getFlaggedSubjects, dismissFlag, setTutorPrefill, listAttempts, awardQuizXP,
+  gradeShortAnswers,
   type PracticeQuestion, type PracticeTest, type AnswerRecord, type SubjectWeakness, type QuestionType,
 } from "@/lib/practice/api";
 import { LineChart, Line, XAxis, YAxis, ResponsiveContainer, Tooltip, CartesianGrid } from "recharts";
@@ -116,10 +117,24 @@ const PracticeTests = () => {
     if (!activeTest || !user) return;
     const duration = Math.round((Date.now() - startedAt) / 1000);
 
-    // Grade MCQ and T/F instantly
+    // Grade short_answer questions via AI first
+    const shortAnswerIndices = activeTest.questions
+      .map((q, i) => (q.type === "short_answer" ? i : -1))
+      .filter((i) => i !== -1);
+    let shortAnswerGrades: { score: number; feedback: string; model_answer: string }[] = [];
+    if (shortAnswerIndices.length > 0) {
+      const saQuestions = shortAnswerIndices.map((i) => activeTest.questions[i]);
+      const saAnswers = shortAnswerIndices.map((i) => answers[i]?.text_answer ?? "");
+      shortAnswerGrades = await gradeShortAnswers(activeTest.subject, saQuestions, saAnswers);
+    }
+
+    // Grade all answers
     const gradedAnswers: AnswerRecord[] = activeTest.questions.map((q, i) => {
       const ans = answers[i];
       let correct = false;
+      let score: number | undefined;
+      let feedback: string | undefined;
+      let model_answer: string | undefined;
       if (q.type === "multiple_choice" || q.type === "true_false") {
         correct = ans.selected_index === q.correct_index;
       } else if (q.type === "fill_blank") {
@@ -127,11 +142,22 @@ const PracticeTests = () => {
         const expected = (q.blank_answer ?? "").trim().toLowerCase();
         correct = userAns === expected || userAns.includes(expected) || expected.includes(userAns);
       } else if (q.type === "short_answer") {
-        correct = (ans.score ?? 0) >= 70;
+        const saIdx = shortAnswerIndices.indexOf(i);
+        const grade = saIdx >= 0 ? shortAnswerGrades[saIdx] : null;
+        score = grade?.score ?? 50;
+        feedback = grade?.feedback;
+        model_answer = grade?.model_answer;
+        correct = (score ?? 0) >= 70;
       } else if (q.type === "vocab_match") {
-        correct = ans.correct;
+        // Grade vocab_match by comparing student's definition to the model answer
+        const userAns = (ans.text_answer ?? "").trim().toLowerCase();
+        const expected = (q.definition ?? q.model_answer ?? "").trim().toLowerCase();
+        const userWords = new Set(userAns.split(/\s+/).filter((w) => w.length > 3));
+        const expectedWords = expected.split(/\s+/).filter((w) => w.length > 3);
+        const overlap = expectedWords.filter((w) => userWords.has(w)).length;
+        correct = userAns.length > 0 && (overlap >= Math.max(1, Math.floor(expectedWords.length * 0.4)));
       }
-      return { ...ans, correct };
+      return { ...ans, correct, ...(score !== undefined ? { score } : {}), ...(feedback ? { feedback } : {}), ...(model_answer ? { model_answer } : {}) };
     });
 
     const correct = gradedAnswers.filter((r) => r.correct).length;

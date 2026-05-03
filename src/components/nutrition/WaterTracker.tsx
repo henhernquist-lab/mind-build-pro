@@ -4,6 +4,7 @@ import { Input } from "@/components/ui/input";
 import { Loader2, Camera, Upload, Info, Trash2, RotateCcw, ChevronDown, ChevronUp, Settings, Check, X } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { cn } from "@/lib/utils";
+import { supabase } from "@/integrations/supabase/client";
 import {
   type WaterLog, type DrinkType, type WaterGoalInfo,
   DRINK_LABELS, HYDRATION_MULTIPLIER, hydrationCredit,
@@ -180,11 +181,13 @@ export const WaterTracker = ({
     if (!scanBase64) return;
     setScanState("analyzing");
     try {
+      const { data: { session } } = await supabase.auth.getSession();
+      const authToken = session?.access_token ?? ANON_KEY;
       const resp = await fetch(`${SUPABASE_URL}/functions/v1/analyze-drink`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
-          ...(ANON_KEY ? { Authorization: `Bearer ${ANON_KEY}` } : {}),
+          ...(authToken ? { Authorization: `Bearer ${authToken}` } : {}),
         },
         body: JSON.stringify({ image: scanBase64 }),
       });

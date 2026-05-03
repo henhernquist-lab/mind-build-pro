@@ -6,7 +6,7 @@ import { Loader2, Network, Sparkles, Download, Maximize2, Minimize2, ZoomIn, Zoo
 import { useToast } from "@/hooks/use-toast";
 import { cn } from "@/lib/utils";
 import mermaid from "mermaid";
-
+import { supabase } from "@/integrations/supabase/client";
 const CHAT_URL = `${import.meta.env.VITE_SUPABASE_URL}/functions/v1/ai-tutor`;
 const ANON_KEY = import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY;
 
@@ -107,11 +107,13 @@ export const MindMap = ({
     setFromPhoto(isPhoto);
     setZoom(1);
     try {
+      const { data: { session } } = await supabase.auth.getSession();
+      const authToken = session?.access_token ?? ANON_KEY;
       const resp = await fetch(CHAT_URL, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
-          ...(ANON_KEY ? { Authorization: `Bearer ${ANON_KEY}` } : {}),
+          ...(authToken ? { Authorization: `Bearer ${authToken}` } : {}),
         },
         body: JSON.stringify({
           mindmap: topic.trim(),

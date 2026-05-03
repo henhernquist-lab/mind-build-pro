@@ -114,20 +114,28 @@ serve(async (req) => {
   if (req.method === "OPTIONS") return new Response(null, { headers: corsHeaders });
 
   try {
-    const { customLabel, messages, mode, deepSearch, videosEnabled, mindmap, studentProfile } = await req.json();
+    const { customLabel, messages, mode, deepSearch, videosEnabled, mindmap, sourceText, format, studentProfile } = await req.json();
     const LOVABLE_API_KEY = Deno.env.get("LOVABLE_API_KEY");
     if (!LOVABLE_API_KEY) throw new Error("LOVABLE_API_KEY is not configured");
 
     // ===== MIND MAP MODE =====
     if (mindmap && typeof mindmap === "string") {
-      const mmPrompt = `You are an expert tutor creating a study mind map for a student about: "${mindmap}"${customLabel ? ` (subject: ${customLabel})` : ""}.\n\nReturn ONLY valid JSON (no prose, no fences):\n{\n  "topic": "<short central topic>",\n  "summary": "<one-sentence overview>",\n  "branches": [\n    { "title": "<key concept>", "color": "<blue|green|orange|purple|pink|cyan>", "children": [ { "title": "<sub-idea>", "detail": "<short clarifier>" } ] }\n  ]\n}\n\n4-6 branches, 2-4 children each. Titles <5 words; details <12 words. Vary colors. JSON only.`;
+      const useMermaid = format === "mermaid";
+      const photoContext = sourceText
+        ? `\n\nThe student has provided a photo of their notes. Here is the content to base the mind map on:\n"""\n${String(sourceText).slice(0, 4000)}\n"""`
+        : "";
+
+      const mmPrompt = useMermaid
+        ? `You are an expert tutor creating a Mermaid.js mind map for a student about: "${mindmap}"${customLabel ? ` (subject: ${customLabel})` : ``}.${photoContext}\n\nReturn ONLY a valid Mermaid mindmap block (no prose, no backtick fences, no markdown):\nmindmap\n  root((${mindmap}))\n    Branch1\n      SubIdea1\n      SubIdea2\n    Branch2\n      SubIdea3\n\nRules: 4-6 top-level branches, 2-4 children per branch, labels under 5 words, proper Mermaid indentation, output ONLY the mindmap block.`
+        : `You are an expert tutor creating a study mind map for a student about: "${mindmap}"${customLabel ? ` (subject: ${customLabel})` : ``}.${photoContext}\n\nReturn ONLY valid JSON (no prose, no fences):\n{\n  "topic": "<short central topic>",\n  "summary": "<one-sentence overview>",\n  "branches": [\n    { "title": "<key concept>", "color": "<blue|green|orange|purple|pink|cyan>", "children": [ { "title": "<sub-idea>", "detail": "<short clarifier>" } ] }\n  ]\n}\n\n4-6 branches, 2-4 children each. Titles <5 words; details <12 words. Vary colors. JSON only.`;
+
       const mmResp = await fetch("https://ai.gateway.lovable.dev/v1/chat/completions", {
         method: "POST",
         headers: { Authorization: `Bearer ${LOVABLE_API_KEY}`, "Content-Type": "application/json" },
         body: JSON.stringify({
           model: "google/gemini-2.5-flash",
-          messages: [{ role: "system", content: "You output strict JSON only." }, { role: "user", content: mmPrompt }],
-          response_format: { type: "json_object" },
+          messages: [{ role: "system", content: useMermaid ? "You output only valid Mermaid mindmap syntax. No prose, no backticks, no markdown." : "You output strict JSON only." }, { role: "user", content: mmPrompt }],
+          ...(useMermaid ? {} : { response_format: { type: "json_object" } }),
         }),
       });
       if (!mmResp.ok) {
@@ -135,7 +143,14 @@ serve(async (req) => {
         return new Response(JSON.stringify({ error: "Mind map failed", detail: t }), { status: mmResp.status, headers: { ...corsHeaders, "Content-Type": "application/json" } });
       }
       const data = await mmResp.json();
-      const raw = data.choices?.[0]?.message?.content ?? "{}";
+      const raw = (data.choices?.[0]?.message?.content ?? "").trim();
+
+      if (useMermaid) {
+        // Strip any accidental markdown fences
+        const cleaned = raw.replace(/^```[\w]*\n?/gm, "").replace(/^```$/gm, "").trim();
+        return new Response(JSON.stringify({ mermaid: cleaned }), { headers: { ...corsHeaders, "Content-Type": "application/json" } });
+      }
+
       let json: any = {};
       try { json = JSON.parse(raw); } catch { const m = raw.match(/\{[\s\S]*\}/); if (m) { try { json = JSON.parse(m[0]); } catch {} } }
       return new Response(JSON.stringify(json), { headers: { ...corsHeaders, "Content-Type": "application/json" } });
