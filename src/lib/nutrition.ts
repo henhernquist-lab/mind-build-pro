@@ -198,7 +198,7 @@ export const computeStreak = (allMeals: MealLog[]): number => {
   for (let i = 0; i < 365; i++) {
     const d = new Date(today);
     d.setDate(d.getDate() - i);
-    const iso = d.toISOString().slice(0, 10);
+    const iso = d.toLocaleDateString("en-CA");
     if (datesWithMeals.has(iso)) {
       streak++;
     } else if (i > 0) {
