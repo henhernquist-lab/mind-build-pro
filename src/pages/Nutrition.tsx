@@ -231,8 +231,8 @@ const Nutrition = () => {
     const end = new Date(start);
     end.setDate(end.getDate() + 6);
     return {
-      startISO: start.toISOString().slice(0, 10),
-      endISO: end.toISOString().slice(0, 10),
+      startISO: start.toLocaleDateString("en-CA"),
+      endISO: end.toLocaleDateString("en-CA"),
     };
   };
 
@@ -257,7 +257,7 @@ const Nutrition = () => {
       setWeekMeals(weekData);
       // Streak: fetch last 60 days
       const streakStart = new Date(); streakStart.setDate(streakStart.getDate() - 60);
-      const streakData = await fetchMealsRange(user.id, streakStart.toISOString().slice(0, 10), todayISO());
+      const streakData = await fetchMealsRange(user.id, streakStart.toLocaleDateString("en-CA"), todayISO());
       setStreak(computeStreak(streakData));
       const p = await fetchPrefs(user.id);
       setPrefs(p);
