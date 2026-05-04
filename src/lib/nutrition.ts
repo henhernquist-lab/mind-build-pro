@@ -106,7 +106,13 @@ export const goalLabel = (g: string): string =>
 
 // ---------- Supabase helpers ----------
 
-export const todayISO = () => new Date().toISOString().slice(0, 10);
+/** YYYY-MM-DD in the user's LOCAL timezone (not UTC). Fixes evening-log
+ * entries showing up on the next day. */
+export const localDateISO = (d: Date = new Date()): string =>
+  d.toLocaleDateString("en-CA"); // en-CA → YYYY-MM-DD, browser's local tz
+
+/** Backwards-compatible alias — now returns LOCAL date, not UTC. */
+export const todayISO = () => localDateISO();
 
 export const fetchMeals = async (userId: string, date: string): Promise<MealLog[]> => {
   const { data, error } = await supabase
