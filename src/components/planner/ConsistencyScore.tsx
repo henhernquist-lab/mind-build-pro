@@ -114,24 +114,25 @@ export const ConsistencyScore = ({ compact = false }: { compact?: boolean }) => 
       sevenDaysAgo.setDate(sevenDaysAgo.getDate() - 7);
       const since = sevenDaysAgo.toISOString();
 
-      const results = await Promise.all([
-        supabase.from("workout_logs").select("logged_at").eq("user_id", user.id).gte("logged_at", since),
-        supabase.from("running_logs" as any).select("logged_at").eq("user_id", user.id).gte("logged_at", since),
-        supabase.from("tutor_messages" as any).select("created_at").eq("user_id", user.id).gte("created_at", since),
-        supabase.from("practice_attempts" as any).select("created_at").eq("user_id", user.id).gte("created_at", since),
-        supabase.from("meal_logs").select("logged_at,calories,protein,carbs,fat").eq("user_id", user.id).gte("logged_at", since),
-        supabase.from("water_logs").select("logged_at,amount_ml").eq("user_id", user.id).gte("logged_at", since),
-        supabase.from("athletic_profiles" as any).select("training_days_per_week").eq("user_id" as any, user.id).maybeSingle(),
-        supabase.from("user_water_goals" as any).select("goal_ml").eq("user_id" as any, user.id).maybeSingle(),
-      ] as const) as any[];
-      const wlogs = results[0].data;
-      const rlogs = results[1].data;
-      const tutorLogs = results[2].data;
-      const testLogs = results[3].data;
-      const mealLogs = results[4].data;
-      const waterLogs = results[5].data;
-      const ath = results[6].data;
-      const waterGoal = results[7].data;
+      const sb = supabase as any;
+      const [r0, r1, r2, r3, r4, r5, r6, r7] = await Promise.all([
+        sb.from("workout_logs").select("logged_at").eq("user_id", user.id).gte("logged_at", since),
+        sb.from("running_logs").select("logged_at").eq("user_id", user.id).gte("logged_at", since),
+        sb.from("tutor_messages").select("created_at").eq("user_id", user.id).gte("created_at", since),
+        sb.from("practice_attempts").select("created_at").eq("user_id", user.id).gte("created_at", since),
+        sb.from("meal_logs").select("logged_at,calories,protein,carbs,fat").eq("user_id", user.id).gte("logged_at", since),
+        sb.from("water_logs").select("logged_at,amount_ml").eq("user_id", user.id).gte("logged_at", since),
+        sb.from("athletic_profiles").select("training_days_per_week").eq("user_id", user.id).maybeSingle(),
+        sb.from("user_water_goals").select("goal_ml").eq("user_id", user.id).maybeSingle(),
+      ]);
+      const wlogs = (r0 as any).data;
+      const rlogs = (r1 as any).data;
+      const tutorLogs = (r2 as any).data;
+      const testLogs = (r3 as any).data;
+      const mealLogs = (r4 as any).data;
+      const waterLogs = (r5 as any).data;
+      const ath = (r6 as any).data;
+      const waterGoal = (r7 as any).data;
 
       const trainingDays = (ath as any)?.training_days_per_week ?? 4;
       const waterGoalMl = (waterGoal as any)?.goal_ml ?? 2000;
@@ -209,7 +210,7 @@ export const ConsistencyScore = ({ compact = false }: { compact?: boolean }) => 
         return [newRow, ...filtered].slice(0, 7);
       });
     } catch (e: any) {
-      console.error("Consistency score error:", e);
+      // silently fail — score will show empty state
     } finally {
       setCalculating(false);
     }
@@ -221,8 +222,9 @@ export const ConsistencyScore = ({ compact = false }: { compact?: boolean }) => 
     setCoachNote(null);
     try {
       const { data: { session } } = await supabase.auth.getSession();
-      const { data: ath } = await supabase.from("athletic_profiles" as any).select("primary_sports,goals").eq("user_id" as any, user.id).maybeSingle();
-      const { data: prefs } = await supabase.from("user_preferences" as any).select("first_name").eq("user_id" as any, user.id).maybeSingle();
+      const sb2 = supabase as any;
+      const { data: ath } = await sb2.from("athletic_profiles").select("primary_sports,goals").eq("user_id", user.id).maybeSingle();
+      const { data: prefs } = await sb2.from("user_preferences").select("first_name").eq("user_id", user.id).maybeSingle();
       const firstName = (prefs as any)?.first_name ?? "Athlete";
       const sport = ((ath as any)?.primary_sports ?? []).join(", ") || "sport";
       const goals = (ath as any)?.goals ?? "improve performance";

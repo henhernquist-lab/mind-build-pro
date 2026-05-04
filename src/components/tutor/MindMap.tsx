@@ -94,7 +94,7 @@ export const MindMap = ({
       const { svg } = await mermaid.render(id, code);
       setRenderedSvg(svg);
     } catch (e: any) {
-      console.error("Mermaid render error:", e);
+      // Mermaid render failed - toast shown below
       toast({ title: "Couldn't render mind map", description: "The AI returned an invalid diagram. Try again." });
     }
   }, [toast]);

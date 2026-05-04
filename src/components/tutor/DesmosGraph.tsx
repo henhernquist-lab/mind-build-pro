@@ -65,7 +65,7 @@ export const DesmosGraph = ({ expressions }: { expressions: string[] }) => {
         });
       })
       .catch((err) => {
-        console.error(err);
+        // error shown via setError below
         if (!cancelled) setError("Couldn't load the graph.");
       });
     return () => {

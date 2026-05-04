@@ -106,6 +106,7 @@ export default function TestCalendar() {
   const remove = async (id: string) => {
     await supabase.from("academic_tests").delete().eq("id", id);
     reload();
+    toast("Test removed");
   };
 
   const generatePlan = async (t: TestRow) => {

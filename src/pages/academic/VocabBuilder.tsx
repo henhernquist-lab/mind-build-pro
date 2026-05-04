@@ -129,6 +129,7 @@ export default function VocabBuilder() {
   const remove = async (id: string) => {
     await supabase.from("vocab_words").delete().eq("id", id);
     reload();
+    toast("Word removed");
   };
 
   const generateAI = async () => {
@@ -253,7 +254,7 @@ export default function VocabBuilder() {
                   {r.mastered && <span className="ml-2 text-[10px] uppercase text-yellow-400">Mastered</span>}
                   <div className="text-xs text-muted-foreground line-clamp-1">{r.definition}</div>
                 </div>
-                <Button size="sm" variant="ghost" onClick={() => remove(r.id)}>
+                <Button size="sm" variant="ghost" onClick={() => remove(r.id)} aria-label={`Delete ${r.word}`}>
                   <Trash2 className="h-3 w-3 text-destructive" />
                 </Button>
               </div>

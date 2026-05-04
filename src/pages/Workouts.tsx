@@ -268,6 +268,10 @@ const SportPanel = ({
   const remove = async (id: string) => {
     await deleteEntry(id);
     await reload();
+    toast("Entry deleted", {
+      action: { label: "OK", onClick: () => {} },
+      duration: 3000,
+    });
   };
 
   return (
@@ -458,6 +462,7 @@ const Workouts = () => {
   const [currentMonth, setCurrentMonth] = useState<string>(monthKey());
   const [rankUp, setRankUp] = useState<Rank | null>(null);
   const [weightUnit, setWeightUnitState] = useState<WeightUnit>("lbs");
+  const [pageLoading, setPageLoading] = useState(true);
 
   const reloadLifting = async () => { if (user) setLifting(await fetchEntries(user.id, "weightlifting")); };
   const reloadRunning = async () => { if (user) setRunning(await fetchEntries(user.id, "running")); };
@@ -465,39 +470,45 @@ const Workouts = () => {
   useEffect(() => {
     if (!user) return;
     (async () => {
-      const [p, stats, prefs] = await Promise.all([
-        fetchAthleteProfile(user.id),
-        fetchUserStats(user.id),
-        fetchPrefs(user.id),
-      ]);
-      setProfile(p);
-      setXp(stats.xp);
-      setCurrentMonth(stats.currentMonth);
-      setWeightUnitState(prefs.weight_unit);
-      await reloadLifting();
-      await reloadRunning();
-      // Check for active injury
-      const { supabase: sb } = await import("@/integrations/supabase/client");
-      const { data: inj } = await sb.from("injuries").select("body_part,estimated_return_date").eq("student_id", user.id).eq("status", "active").limit(1).maybeSingle();
-      if (inj) setActiveInjury(inj as any);
-
-      // Monthly rollover
-      const cur = monthKey();
-      if (stats.currentMonth !== cur) {
-        const prevRank = getRank(stats.xp);
-        await insertRankHistory(user.id, {
-          monthKey: stats.currentMonth,
-          monthName: new Date(stats.currentMonth + "-01").toLocaleDateString(undefined, { month: "long", year: "numeric" }),
-          finalXp: stats.xp,
-          highestRankName: prevRank.name,
-          highestRankIcon: prevRank.icon,
-        });
-        await saveUserStats(user.id, 0, cur);
-        setXp(0);
-        setCurrentMonth(cur);
-        toast.success("New month, fresh start!", {
-          description: `Last month you were ${prevRank.icon} ${prevRank.name} with ${stats.xp} XP.`,
-        });
+      try {
+        const [p, stats, prefs] = await Promise.all([
+          fetchAthleteProfile(user.id),
+          fetchUserStats(user.id),
+          fetchPrefs(user.id),
+        ]);
+        setProfile(p);
+        setXp(stats.xp);
+        setCurrentMonth(stats.currentMonth);
+        setWeightUnitState(prefs.weight_unit);
+        await reloadLifting();
+        await reloadRunning();
+        // Check for active injury
+        const { supabase: sbRaw } = await import("@/integrations/supabase/client");
+        const sbAny = sbRaw as any;
+        const { data: inj } = await sbAny.from("injuries").select("body_part,estimated_return_date").eq("student_id", user.id).eq("status", "active").limit(1).maybeSingle();
+        if (inj) setActiveInjury(inj as any);
+        // Monthly rollover
+        const cur = monthKey();
+        if (stats.currentMonth !== cur) {
+          const prevRank = getRank(stats.xp);
+          await insertRankHistory(user.id, {
+            monthKey: stats.currentMonth,
+            monthName: new Date(stats.currentMonth + "-01").toLocaleDateString(undefined, { month: "long", year: "numeric" }),
+            finalXp: stats.xp,
+            highestRankName: prevRank.name,
+            highestRankIcon: prevRank.icon,
+          });
+          await saveUserStats(user.id, 0, cur);
+          setXp(0);
+          setCurrentMonth(cur);
+          toast.success("New month, fresh start!", {
+            description: `Last month you were ${prevRank.icon} ${prevRank.name} with ${stats.xp} XP.`,
+          });
+        }
+      } catch (e: any) {
+        toast.error("Failed to load workouts", { description: e.message });
+      } finally {
+        setPageLoading(false);
       }
     })();
   }, [user?.id]);
@@ -534,6 +545,15 @@ const Workouts = () => {
 
   const rank = getRank(xp);
   const next = getNextRank(xp);
+
+  if (pageLoading) return (
+    <div className="p-6 md:p-10 max-w-5xl mx-auto space-y-4 animate-pulse">
+      <div className="h-8 w-48 rounded-lg bg-muted" />
+      <div className="h-32 rounded-2xl bg-muted" />
+      <div className="h-10 rounded-xl bg-muted" />
+      <div className="h-64 rounded-2xl bg-muted" />
+    </div>
+  );
 
   return (
     <div className="p-6 md:p-10 max-w-5xl mx-auto">

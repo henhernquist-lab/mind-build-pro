@@ -98,7 +98,7 @@ export const WaterTracker = ({
       } else {
         setGoalInfo(calculated);
       }
-    }).catch(console.error).finally(() => setLoading(false));
+    }).catch(() => {}).finally(() => setLoading(false));
   }, [userId, date, athletic]);
 
   // Compute streak from range
@@ -112,7 +112,7 @@ export const WaterTracker = ({
       const s = computeWaterStreak(range, goalInfo.goal_ml);
       setStreak(s);
       onStreakChange?.(s);
-    }).catch(console.error);
+    }).catch(() => {});
   }, [userId, date, logs, goalInfo.goal_ml]);
 
   const totalMl = sumWaterDay(logs);

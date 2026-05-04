@@ -154,7 +154,10 @@ const SubjectChat = ({
     setVideoCache({});
   }, [initialMessages, subject.id]);
 
+  const abortRef = useRef<AbortController | null>(null);
   const stream = async (history: Msg[], mode?: "practice" | "simpler", forceDeepSearch?: boolean) => {
+    if (abortRef.current) abortRef.current.abort();
+    abortRef.current = new AbortController();
     setLoading(true);
     const useDeep = forceDeepSearch ?? deepSearch;
     if (useDeep) setSearching(true);
@@ -165,6 +168,7 @@ const SubjectChat = ({
       const { data: { session } } = await supabase.auth.getSession();
       const authToken = session?.access_token ?? ANON_KEY;
       const resp = await fetch(CHAT_URL, {
+        signal: abortRef.current.signal,
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -230,8 +234,8 @@ const SubjectChat = ({
           }
         }
       }
-    } catch (e) {
-      console.error(e);
+    } catch (e: any) {
+      if (e?.name === "AbortError") return;
       toast({ title: "Connection error", description: "Could not reach the tutor." });
       setMessages((m) => m.slice(0, -1));
     } finally {
@@ -788,7 +792,7 @@ const Tutor = () => {
     (async () => {
       const prefs = await fetchPrefs(user.id);
       setVideosEnabled(prefs.videos_enabled);
-      try { setSavedChats(await listSavedChats()); } catch (e) { console.error(e); }
+      try { setSavedChats(await listSavedChats()); } catch { /* ignore */ }
     })();
   }, [user]);
 

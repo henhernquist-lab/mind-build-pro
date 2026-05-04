@@ -167,7 +167,7 @@ export const fetchPublicCard = async (username: string): Promise<PublicAthleteCa
     _username: username,
   });
   if (error) {
-    console.error(error);
+    // error handled by caller
     return null;
   }
   const row = Array.isArray(data) ? data[0] : data;

@@ -91,6 +91,7 @@ export default function Notes() {
     await supabase.from("study_notes").delete().eq("id", id);
     if (activeId === id) setActiveId(null);
     reload();
+    toast("Note deleted");
   };
 
   const updateActive = (patch: Partial<Note>) => {
@@ -234,7 +235,7 @@ export default function Notes() {
                 <Button onClick={save} disabled={saving} variant="outline" size="sm" className="press">
                   <Save className="h-4 w-4 mr-1" /> {saving ? "..." : "Save"}
                 </Button>
-                <Button onClick={() => remove(active.id)} variant="ghost" size="sm">
+                <Button onClick={() => remove(active.id)} variant="ghost" size="sm" aria-label="Delete note">
                   <Trash2 className="h-4 w-4 text-destructive" />
                 </Button>
               </div>

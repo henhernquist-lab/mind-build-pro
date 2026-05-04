@@ -23,8 +23,17 @@ import Recovery from "./pages/Recovery";
 import { AuthProvider } from "@/lib/auth";
 import { AuthGate } from "@/components/auth/AuthGate";
 import { FloatingXpLayer } from "@/components/fx/FloatingXp";
+import { ErrorBoundary } from "@/components/ErrorBoundary";
 
-const queryClient = new QueryClient();
+const queryClient = new QueryClient({
+  defaultOptions: {
+    queries: {
+      retry: 1,
+      staleTime: 30_000,
+      refetchOnWindowFocus: false,
+    },
+  },
+});
 
 const App = () => (
   <QueryClientProvider client={queryClient}>
@@ -38,7 +47,7 @@ const App = () => (
             <Route path="/auth" element={<Auth />} />
             <Route path="/reset-password" element={<ResetPassword />} />
             <Route path="/athlete/:username" element={<PublicAthlete />} />
-            <Route element={<AuthGate><AppShell /></AuthGate>}>
+            <Route element={<AuthGate><ErrorBoundary><AppShell /></ErrorBoundary></AuthGate>}>
               <Route path="/" element={<DailyPlanner />} />
               <Route path="/workouts" element={<Workouts />} />
               <Route path="/nutrition" element={<Nutrition />} />
