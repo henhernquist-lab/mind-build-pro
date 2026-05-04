@@ -73,13 +73,13 @@ export const DayDetailDrawer = ({
   const prevDay = () => {
     const d = new Date(date + "T12:00:00");
     d.setDate(d.getDate() - 1);
-    onDateChange(d.toISOString().slice(0, 10));
+    onDateChange(d.toLocaleDateString("en-CA"));
   };
 
   const nextDay = () => {
     const d = new Date(date + "T12:00:00");
     d.setDate(d.getDate() + 1);
-    const next = d.toISOString().slice(0, 10);
+    const next = d.toLocaleDateString("en-CA");
     if (next <= today) onDateChange(next);
   };
 
