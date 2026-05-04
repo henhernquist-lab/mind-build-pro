@@ -180,7 +180,7 @@ export const computeWaterStreak = (
   for (let i = 0; i < 365; i++) {
     const d = new Date(today);
     d.setDate(d.getDate() - i);
-    const iso = d.toISOString().slice(0, 10);
+    const iso = d.toLocaleDateString("en-CA");
     if ((byDate[iso] ?? 0) >= goalMl) {
       streak++;
     } else if (i > 0) {

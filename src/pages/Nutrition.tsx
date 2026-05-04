@@ -116,7 +116,7 @@ const WeekStrip = ({
   const isNextWeekDisabled = () => {
     const nextMonday = new Date(weekStart);
     nextMonday.setDate(nextMonday.getDate() + 7);
-    return nextMonday.toISOString().slice(0, 10) > today;
+    return nextMonday.toLocaleDateString("en-CA") > today;
   };
 
   return (
@@ -139,7 +139,7 @@ const WeekStrip = ({
       </div>
       <div className="grid grid-cols-7 gap-1">
         {days.map((d) => {
-          const iso = d.toISOString().slice(0, 10);
+          const iso = d.toLocaleDateString("en-CA");
           const isActive = iso === activeDate;
           const isToday = iso === today;
           const dotColor = getDotColor(iso);
@@ -231,8 +231,8 @@ const Nutrition = () => {
     const end = new Date(start);
     end.setDate(end.getDate() + 6);
     return {
-      startISO: start.toISOString().slice(0, 10),
-      endISO: end.toISOString().slice(0, 10),
+      startISO: start.toLocaleDateString("en-CA"),
+      endISO: end.toLocaleDateString("en-CA"),
     };
   };
 
@@ -257,7 +257,7 @@ const Nutrition = () => {
       setWeekMeals(weekData);
       // Streak: fetch last 60 days
       const streakStart = new Date(); streakStart.setDate(streakStart.getDate() - 60);
-      const streakData = await fetchMealsRange(user.id, streakStart.toISOString().slice(0, 10), todayISO());
+      const streakData = await fetchMealsRange(user.id, streakStart.toLocaleDateString("en-CA"), todayISO());
       setStreak(computeStreak(streakData));
       const p = await fetchPrefs(user.id);
       setPrefs(p);
@@ -514,7 +514,7 @@ const Nutrition = () => {
       const days: { date: string; calories: number; protein_g: number; carbs_g: number; fat_g: number }[] = [];
       for (let i = 0; i < 7; i++) {
         const d = new Date(weekStart); d.setDate(d.getDate() + i);
-        const iso = d.toISOString().slice(0, 10);
+        const iso = d.toLocaleDateString("en-CA");
         const dayMeals = weekMeals.filter((m) => m.log_date === iso);
         days.push({ date: iso, ...sumDay(dayMeals) });
       }
@@ -543,7 +543,7 @@ const Nutrition = () => {
     const days: { day: string; date: string; calories: number; protein: number; carbs: number; fat: number }[] = [];
     for (let i = 0; i < 7; i++) {
       const d = new Date(weekStart); d.setDate(d.getDate() + i);
-      const iso = d.toISOString().slice(0, 10);
+      const iso = d.toLocaleDateString("en-CA");
       const dayMeals = weekMeals.filter((m) => m.log_date === iso);
       const t = sumDay(dayMeals);
       days.push({

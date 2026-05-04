@@ -105,9 +105,9 @@ export const WaterTracker = ({
   useEffect(() => {
     if (!userId) return;
     const end = date;
-    const startD = new Date(date);
+    const startD = new Date(date + "T12:00:00");
     startD.setDate(startD.getDate() - 60);
-    const start = startD.toISOString().slice(0, 10);
+    const start = startD.toLocaleDateString("en-CA");
     fetchWaterLogsRange(userId, start, end).then((range) => {
       const s = computeWaterStreak(range, goalInfo.goal_ml);
       setStreak(s);
