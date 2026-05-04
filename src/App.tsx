@@ -19,6 +19,7 @@ import TestCalendar from "./pages/academic/TestCalendar";
 import VocabBuilder from "./pages/academic/VocabBuilder";
 import Notes from "./pages/academic/Notes";
 import Nutrition from "./pages/Nutrition";
+import Recovery from "./pages/Recovery";
 import { AuthProvider } from "@/lib/auth";
 import { AuthGate } from "@/components/auth/AuthGate";
 import { FloatingXpLayer } from "@/components/fx/FloatingXp";
@@ -41,6 +42,7 @@ const App = () => (
               <Route path="/" element={<DailyPlanner />} />
               <Route path="/workouts" element={<Workouts />} />
               <Route path="/nutrition" element={<Nutrition />} />
+              <Route path="/recovery" element={<Recovery />} />
               <Route path="/macros" element={<Nutrition />} />
               <Route path="/tutor" element={<Tutor />} />
               <Route path="/profile" element={<Profile />} />

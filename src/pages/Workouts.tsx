@@ -28,6 +28,7 @@ import { useAuth } from "@/lib/auth";
 import { RANKS, getRank, getNextRank, XP_PR_BONUS, type Rank } from "@/lib/rank";
 import { AthleticProfileBar } from "@/components/profile/AthleticProfileBar";
 import { MaxLifts } from "@/components/workouts/MaxLifts";
+import { PeakPerformance } from "@/components/workouts/PeakPerformance";
 
 const isLowerBetter = (u: Unit) => u === "seconds" || u === "minutes";
 
@@ -450,6 +451,7 @@ const Workouts = () => {
   const [sport, setSport] = useState<Sport>("weightlifting");
   const [lifting, setLifting] = useState<Entry[]>([]);
   const [running, setRunning] = useState<Entry[]>([]);
+  const [activeInjury, setActiveInjury] = useState<{ body_part: string; estimated_return_date: string | null } | null>(null);
   const [profile, setProfile] = useState<AthleteProfile | null>(null);
   const [profileOpen, setProfileOpen] = useState(false);
   const [xp, setXp] = useState(0);
@@ -474,6 +476,10 @@ const Workouts = () => {
       setWeightUnitState(prefs.weight_unit);
       await reloadLifting();
       await reloadRunning();
+      // Check for active injury
+      const { supabase: sb } = await import("@/integrations/supabase/client");
+      const { data: inj } = await sb.from("injuries").select("body_part,estimated_return_date").eq("student_id", user.id).eq("status", "active").limit(1).maybeSingle();
+      if (inj) setActiveInjury(inj as any);
 
       // Monthly rollover
       const cur = monthKey();
@@ -542,8 +548,18 @@ const Workouts = () => {
         </Button>
       </header>
 
-      <RankCard rank={rank} xp={xp} next={next} />
-
+       <RankCard rank={rank} xp={xp} next={next} />
+      {activeInjury && (
+        <div className="rounded-xl bg-red-500/10 border border-red-500/30 px-4 py-3 mb-4 flex items-center gap-3 text-sm">
+          <span className="text-lg">🏥</span>
+          <div>
+            <span className="font-semibold text-red-400">Active Injury: {activeInjury.body_part}</span>
+            {activeInjury.estimated_return_date && (
+              <span className="text-muted-foreground ml-2">— {Math.max(0, Math.round((new Date(activeInjury.estimated_return_date).getTime() - Date.now()) / 86400000))} days to projected return</span>
+            )}
+          </div>
+        </div>
+      )}
       <AthleticProfileBar />
 
       <Tabs value={sport} onValueChange={(v) => setSport(v as Sport)} >
@@ -581,6 +597,9 @@ const Workouts = () => {
         </TabsContent>
       </Tabs>
 
+      <div className="mt-6">
+        <PeakPerformance allEntries={[...lifting, ...running]} sport={profile ? `${profile.gender} athlete` : "athlete"} />
+      </div>
       <ProfileDialog open={profileOpen} onOpenChange={setProfileOpen} profile={profile} onSave={saveProfile} />
 
       <AnimatePresence>

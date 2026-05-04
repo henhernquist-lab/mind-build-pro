@@ -1641,6 +1641,162 @@ export type Database = {
         }
         Relationships: []
       }
+      injuries: {
+        Row: {
+          id: string
+          student_id: string
+          sport: string
+          body_part: string
+          injury_type: string
+          severity: string
+          date_of_injury: string
+          description: string | null
+          cleared_by_doctor: boolean
+          protocol_json: any | null
+          estimated_return_date: string | null
+          status: string
+          created_at: string
+        }
+        Insert: {
+          id?: string
+          student_id: string
+          sport?: string
+          body_part: string
+          injury_type: string
+          severity: string
+          date_of_injury: string
+          description?: string | null
+          cleared_by_doctor?: boolean
+          protocol_json?: any | null
+          estimated_return_date?: string | null
+          status?: string
+          created_at?: string
+        }
+        Update: {
+          id?: string
+          student_id?: string
+          sport?: string
+          body_part?: string
+          injury_type?: string
+          severity?: string
+          date_of_injury?: string
+          description?: string | null
+          cleared_by_doctor?: boolean
+          protocol_json?: any | null
+          estimated_return_date?: string | null
+          status?: string
+          created_at?: string
+        }
+        Relationships: []
+      }
+      recovery_checkins: {
+        Row: {
+          id: string
+          injury_id: string
+          student_id: string
+          date: string
+          pain_level: number
+          activities_completed: string[]
+          notes: string | null
+          created_at: string
+        }
+        Insert: {
+          id?: string
+          injury_id: string
+          student_id: string
+          date: string
+          pain_level: number
+          activities_completed?: string[]
+          notes?: string | null
+          created_at?: string
+        }
+        Update: {
+          id?: string
+          injury_id?: string
+          student_id?: string
+          date?: string
+          pain_level?: number
+          activities_completed?: string[]
+          notes?: string | null
+          created_at?: string
+        }
+        Relationships: []
+      }
+      consistency_scores: {
+        Row: {
+          id: string
+          student_id: string
+          week_start_date: string
+          workout_score: number
+          study_score: number
+          nutrition_score: number
+          water_score: number
+          total_score: number
+          xp_awarded: number
+          created_at: string
+        }
+        Insert: {
+          id?: string
+          student_id: string
+          week_start_date: string
+          workout_score?: number
+          study_score?: number
+          nutrition_score?: number
+          water_score?: number
+          total_score?: number
+          xp_awarded?: number
+          created_at?: string
+        }
+        Update: {
+          id?: string
+          student_id?: string
+          week_start_date?: string
+          workout_score?: number
+          study_score?: number
+          nutrition_score?: number
+          water_score?: number
+          total_score?: number
+          xp_awarded?: number
+          created_at?: string
+        }
+        Relationships: []
+      }
+      teacher_emails: {
+        Row: {
+          id: string
+          user_id: string
+          subject: string
+          teacher_name: string
+          email_subject_line: string
+          email_body: string
+          raw_input: string
+          tone_used: string
+          created_at: string
+        }
+        Insert: {
+          id?: string
+          user_id: string
+          subject?: string
+          teacher_name?: string
+          email_subject_line?: string
+          email_body?: string
+          raw_input?: string
+          tone_used?: string
+          created_at?: string
+        }
+        Update: {
+          id?: string
+          user_id?: string
+          subject?: string
+          teacher_name?: string
+          email_subject_line?: string
+          email_body?: string
+          raw_input?: string
+          tone_used?: string
+          created_at?: string
+        }
+        Relationships: []
+      }
     }
     Views: {
       [_ in never]: never

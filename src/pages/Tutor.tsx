@@ -48,6 +48,7 @@ import { DesmosGraph } from "@/components/tutor/DesmosGraph";
 import { VideoResults } from "@/components/tutor/VideoResults";
 import { MindMap } from "@/components/tutor/MindMap";
 import { VisualGallery } from "@/components/tutor/VisualGallery";
+import { TeacherEmailDrafter } from "@/components/tutor/TeacherEmailDrafter";
 
 type Msg = { role: "user" | "assistant"; content: string };
 type Subject = { id: string; label: string; emoji: string; color: string; description?: string; slug?: string; classInfo?: AcademicClass };
@@ -143,6 +144,7 @@ const SubjectChat = ({
   const [searching, setSearching] = useState(false);
   const [hiddenVisuals, setHiddenVisuals] = useState<Record<number, boolean>>({});
   const [videoCache, setVideoCache] = useState<Record<number, any[]>>({});
+  const [emailOpen, setEmailOpen] = useState(false);
   const { toast } = useToast();
   const scrollRef = useRef<HTMLDivElement>(null);
 
@@ -285,11 +287,14 @@ const SubjectChat = ({
         </div>
       )}
 
-      <div className="flex items-center justify-between gap-2 px-4 py-2 border-b border-border bg-background/50">
+        <div className="flex items-center justify-between gap-2 px-4 py-2 border-b border-border bg-background/50">
         <div className="flex items-center gap-2 min-w-0">
           <span className="text-lg flex-shrink-0">{subject.emoji}</span>
           <div className="text-sm font-medium truncate">{subject.label}</div>
         </div>
+        <Button size="sm" variant="ghost" onClick={() => setEmailOpen(true)} className="h-7 px-2 text-xs flex-shrink-0">
+          ✉️ Email Teacher
+        </Button>
         <TooltipProvider>
           <div className="flex items-center gap-2 flex-shrink-0">
             {canSave && onSaveRequested && (
@@ -485,6 +490,7 @@ const SubjectChat = ({
           </div>
         </div>
       )}
+      <TeacherEmailDrafter open={emailOpen} onClose={() => setEmailOpen(false)} defaultSubject={subject.label} />
     </div>
   );
 };

@@ -27,6 +27,7 @@ import { AiSuggestions } from "@/components/planner/AiSuggestions";
 import { NutritionTodayCard } from "@/components/planner/NutritionTodayCard";
 import { WeatherCheckCard } from "@/components/planner/WeatherCheckCard";
 import { ChampionshipBanner } from "@/components/seasons/ChampionshipBanner";
+import { ConsistencyScore } from "@/components/planner/ConsistencyScore";
 
 const CAT_META: Record<Category, { label: string; emoji: string; color: string }> = {
   school: { label: "School", emoji: "🔵", color: "hsl(var(--school))" },
@@ -263,6 +264,7 @@ const DailyPlanner = () => {
       />
 
       <ChampionshipBanner />
+      <ConsistencyScore />
 
       <AiSuggestions
         dateKey={dateKey}
