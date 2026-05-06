@@ -1,0 +1,32 @@
+name: Build & Deploy
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+jobs:
+  build:
+    name: Build
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+      - run: npm ci
+      - name: Create .env
+        run: |
+          echo "VITE_PEXELS_API_KEY=<LaTex>${{ secrets.PEXELS_API_KEY }}" >> .env
+          echo "VITE_ANTHROPIC_API_KEY=$</LaTex>{{ secrets.ANTHROPIC_API_KEY }}" >> .env
+          echo "VITE_ELEVENLABS_API_KEY=<LaTex>${{ secrets.ELEVENLABS_API_KEY }}" >> .env
+          echo "VITE_YOUTUBE_API_KEY=$</LaTex>{{ secrets.YOUTUBE_API_KEY }}" >> .env
+          echo "VITE_SUPABASE_URL=<LaTex>${{ secrets.SUPABASE_URL }}" >> .env
+          echo "VITE_SUPABASE_ANON_KEY=$</LaTex>{{ secrets.SUPABASE_ANON_KEY }}" >> .env
+      - run: npm run build
+      - uses: actions/upload-artifact@v4
+        with:
+          name: dist
+          path: dist/
