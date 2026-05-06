@@ -1,6 +1,9 @@
 import { supabase } from "@/integrations/supabase/client";
 import type { AthleticInfo } from "./profile";
 
+// Cast to any to avoid TS2589 on manually-added tables (water_logs, user_water_goals)
+const db = supabase as any;
+
 // ─── Types ────────────────────────────────────────────────────────────────────
 
 export type DrinkType = "water" | "sports_drink" | "juice" | "coffee" | "tea" | "soda" | "other";
@@ -120,7 +123,7 @@ export const calculateWaterGoal = (a: AthleticInfo | null): WaterGoalInfo => {
 // ─── Supabase helpers ──────────────────────────────────────────────────────────
 
 export const fetchWaterLogs = async (userId: string, date: string): Promise<WaterLog[]> => {
-  const { data, error } = await supabase
+  const { data, error } = await db
     .from("water_logs")
     .select("*")
     .eq("user_id", userId)
@@ -133,7 +136,7 @@ export const fetchWaterLogs = async (userId: string, date: string): Promise<Wate
 export const fetchWaterLogsRange = async (
   userId: string, startDate: string, endDate: string,
 ): Promise<WaterLog[]> => {
-  const { data, error } = await supabase
+  const { data, error } = await db
     .from("water_logs")
     .select("*")
     .eq("user_id", userId)
@@ -148,7 +151,7 @@ export const insertWaterLog = async (
   userId: string,
   log: Omit<WaterLog, "id" | "user_id">,
 ): Promise<WaterLog> => {
-  const { data, error } = await supabase
+  const { data, error } = await db
     .from("water_logs")
     .insert({ user_id: userId, ...log })
     .select()
@@ -158,7 +161,7 @@ export const insertWaterLog = async (
 };
 
 export const deleteWaterLog = async (id: string) => {
-  const { error } = await supabase.from("water_logs").delete().eq("id", id);
+  const { error } = await db.from("water_logs").delete().eq("id", id);
   if (error) throw error;
 };
 
@@ -192,21 +195,29 @@ export const computeWaterStreak = (
 
 /** Save / update user's custom water goal in Supabase */
 export const saveWaterGoal = async (userId: string, goal_ml: number, source: WaterGoalSource) => {
-  const { error } = await supabase.from("user_water_goals").upsert({
-    user_id: userId,
-    goal_ml,
-    source,
-    updated_at: new Date().toISOString(),
-  });
+  const { error } = await db.from("user_water_goals").upsert(
+    {
+      user_id: userId,
+      goal_ml,
+      source,
+      updated_at: new Date().toISOString(),
+    },
+    { onConflict: "user_id" },
+  );
   if (error) throw error;
 };
 
 export const fetchWaterGoalOverride = async (userId: string): Promise<{ goal_ml: number; source: WaterGoalSource } | null> => {
-  const { data } = await supabase
-    .from("user_water_goals")
-    .select("goal_ml, source")
-    .eq("user_id", userId)
-    .maybeSingle();
-  if (!data) return null;
-  return { goal_ml: (data as any).goal_ml, source: (data as any).source as WaterGoalSource };
+  try {
+    const { data, error } = await db
+      .from("user_water_goals")
+      .select("goal_ml, source")
+      .eq("user_id", userId)
+      .maybeSingle();
+    if (error || !data) return null;
+    return { goal_ml: data.goal_ml as number, source: data.source as WaterGoalSource };
+  } catch {
+    // Table may not exist yet (migration not run) — return null gracefully
+    return null;
+  }
 };

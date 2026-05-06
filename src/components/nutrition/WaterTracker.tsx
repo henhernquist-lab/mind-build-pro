@@ -98,7 +98,12 @@ export const WaterTracker = ({
       } else {
         setGoalInfo(calculated);
       }
-    }).catch(() => {}).finally(() => setLoading(false));
+    }).catch((e: any) => {
+      // Silently handle table-not-found (migration not run yet) — show empty state
+      if (!e?.message?.includes("does not exist")) {
+        toast({ title: "Couldn't load water data", description: e?.message });
+      }
+    }).finally(() => setLoading(false));
   }, [userId, date, athletic]);
 
   // Compute streak from range
