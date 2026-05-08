@@ -84,10 +84,10 @@ const accentColor = (a: string) =>
 
 const navItemClass = ({ isActive }: { isActive: boolean }) =>
   cn(
-    "group flex items-center gap-3 rounded-lg px-3 py-2 text-sm transition-colors",
+    "group relative flex items-center gap-3 rounded-lg pl-3 pr-3 py-2 text-sm transition-all duration-300",
     isActive
-      ? "bg-sidebar-accent text-sidebar-accent-foreground"
-      : "text-sidebar-foreground hover:bg-sidebar-accent/60 hover:text-sidebar-accent-foreground"
+      ? "text-foreground bg-[hsl(var(--cyan)/0.12)] border-l-2 border-[hsl(var(--cyan))] shadow-[inset_0_0_18px_hsl(var(--cyan)/0.10)]"
+      : "text-sidebar-foreground border-l-2 border-transparent hover:bg-[hsl(var(--cyan)/0.06)] hover:text-foreground"
   );
 
 export const AppShell = () => {
@@ -160,15 +160,17 @@ export const AppShell = () => {
 
       <OfflineBanner />
 
-      <aside className="hidden md:flex w-60 flex-col border-r border-sidebar-border bg-sidebar">
+      <aside className="relative hidden md:flex w-60 flex-col bg-sidebar/80 backdrop-blur-xl border-r border-sidebar-border grid-overlay">
+        {/* Left accent line */}
+        <span aria-hidden className="absolute left-0 top-0 bottom-0 w-[2px] bg-gradient-to-b from-[hsl(var(--cyan))] via-[hsl(var(--neon))] to-transparent opacity-60 pointer-events-none" />
         <div className="p-5 pl-16 flex items-center gap-2 justify-between">
           <div className="flex items-center gap-2 min-w-0">
-            <div className="h-9 w-9 rounded-xl flex items-center justify-center bg-gradient-to-br from-school to-sports flex-shrink-0">
+            <div className="h-9 w-9 rounded-xl flex items-center justify-center bg-gradient-to-br from-[hsl(var(--cyan))] to-[hsl(var(--neon))] flex-shrink-0 shadow-[0_0_18px_hsl(var(--cyan)/0.45)]">
               <Sparkles className="h-5 w-5" style={{ color: "hsl(var(--background))" }} />
             </div>
             <div className="min-w-0">
-              <div className="text-sm font-semibold leading-tight">LifeStack</div>
-              <div className="text-[11px] text-muted-foreground truncate">{user?.email}</div>
+              <div className="text-[15px] font-display tracking-[0.08em] leading-none">LIFESTACK</div>
+              <div className="text-[10px] text-muted-foreground truncate mt-1">{user?.email}</div>
             </div>
           </div>
           <StreakBadge />
@@ -265,8 +267,8 @@ export const AppShell = () => {
         </div>
       </aside>
 
-      {/* Mobile bottom nav — trimmed to 4 items, FAB handles the rest */}
-      <div className="md:hidden fixed bottom-0 inset-x-0 z-40 bg-sidebar/95 backdrop-blur border-t border-sidebar-border flex">
+      {/* Mobile bottom nav — frosted glass with sliding pill */}
+      <div className="md:hidden fixed bottom-0 inset-x-0 z-40 mobile-nav-glass flex">
         {MOBILE_NAV.map((item) => (
           <NavLink
             key={item.to}
@@ -274,18 +276,32 @@ export const AppShell = () => {
             end={item.to === "/"}
             className={({ isActive }) =>
               cn(
-                "flex-1 py-2.5 flex flex-col items-center gap-0.5 text-[10px]",
+                "relative flex-1 py-2.5 flex flex-col items-center gap-0.5 text-[10px] font-stat transition-colors duration-300",
                 isActive ? "text-foreground" : "text-muted-foreground"
               )
             }
+            data-testid={`mobile-nav-${item.label.toLowerCase()}`}
           >
             {({ isActive }) => (
               <>
+                {isActive && (
+                  <span
+                    aria-hidden
+                    className="absolute top-1 left-1/2 -translate-x-1/2 h-[3px] w-10 rounded-full"
+                    style={{
+                      background: accentColor(item.accent),
+                      boxShadow: `0 0 12px ${accentColor(item.accent)}`,
+                    }}
+                  />
+                )}
                 <item.icon
-                  className="h-5 w-5"
+                  className={cn(
+                    "h-5 w-5 transition-transform duration-300",
+                    isActive && "scale-110 drop-shadow-[0_0_8px_currentColor]"
+                  )}
                   style={{ color: isActive ? accentColor(item.accent) : undefined }}
                 />
-                <span>{item.label}</span>
+                <span className="tracking-wider">{item.label}</span>
               </>
             )}
           </NavLink>

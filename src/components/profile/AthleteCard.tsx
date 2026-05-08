@@ -40,12 +40,14 @@ export const AthleteCard = forwardRef<HTMLDivElement, { data: AthleteCardData; c
     return (
       <div
         ref={ref}
-        className="relative overflow-hidden rounded-3xl border-2 p-6 md:p-7 text-foreground"
+        className="relative overflow-hidden rounded-3xl border-2 p-6 md:p-7 text-foreground holo-sheen lift"
         style={{
           background:
-            "linear-gradient(135deg, hsl(var(--card)), hsl(var(--background)))",
+            "linear-gradient(135deg, hsl(var(--card) / 0.7), hsl(var(--background) / 0.85))",
           borderColor: rank.color,
-          boxShadow: `0 0 50px -10px ${rank.color}55`,
+          boxShadow: `0 0 50px -10px ${rank.color}55, inset 0 1px 0 rgba(255,255,255,0.06)`,
+          backdropFilter: "blur(18px) saturate(140%)",
+          WebkitBackdropFilter: "blur(18px) saturate(140%)",
         }}
       >
         {/* Glow */}
@@ -68,6 +70,7 @@ export const AthleteCard = forwardRef<HTMLDivElement, { data: AthleteCardData; c
               background: data.avatarUrl ? "transparent" : "hsl(var(--primary))",
               color: "hsl(var(--primary-foreground))",
               borderColor: rank.color,
+              boxShadow: `0 0 24px -4px ${rank.color}, inset 0 0 16px rgba(255,255,255,0.06)`,
             }}
           >
             {data.avatarUrl ? (

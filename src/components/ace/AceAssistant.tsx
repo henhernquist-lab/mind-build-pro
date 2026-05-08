@@ -127,14 +127,18 @@ export const AceAssistant = () => {
             exit={{ scale: 0, opacity: 0 }}
             transition={{ type: "spring", stiffness: 260, damping: 20 }}
             onClick={openDrawer}
-            className="fixed bottom-20 md:bottom-6 right-4 z-50 h-14 w-14 rounded-full bg-gradient-to-br from-primary to-school text-primary-foreground shadow-2xl flex items-center justify-center hover:scale-110 transition-transform"
-            style={{ boxShadow: "0 10px 30px -5px hsl(var(--primary) / 0.5)" }}
+            className={cn(
+              "fixed bottom-20 md:bottom-6 right-4 z-50 h-14 w-14 rounded-full text-[hsl(var(--background))] shadow-2xl flex items-center justify-center transition-transform press slow-spin",
+              "bg-gradient-to-br from-[hsl(var(--cyan))] to-[hsl(var(--neon))]",
+              hasUnreadSuggestion && "ripple-ring"
+            )}
+            style={{ boxShadow: "0 10px 30px -5px hsl(var(--cyan) / 0.55), 0 0 24px hsl(var(--neon) / 0.35)" }}
             aria-label="Open Ace assistant"
+            data-testid="ace-fab"
           >
-            <span className="absolute inset-0 rounded-full bg-primary/40 animate-ping" />
-            <Sparkles className="h-6 w-6 relative z-10" />
+            <Sparkles className="h-6 w-6 relative z-10 drop-shadow-[0_0_6px_hsl(var(--background)/0.6)]" />
             {hasUnreadSuggestion && (
-              <span className="absolute -top-1 -right-1 h-4 w-4 rounded-full bg-rose-500 ring-2 ring-background z-20 flex items-center justify-center">
+              <span className="absolute -top-1 -right-1 h-4 w-4 rounded-full bg-[hsl(var(--pr-red))] ring-2 ring-background z-20 flex items-center justify-center">
                 <span className="h-1.5 w-1.5 rounded-full bg-white" />
               </span>
             )}

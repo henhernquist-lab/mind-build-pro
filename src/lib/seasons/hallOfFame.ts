@@ -233,7 +233,7 @@ function fallbackRecap(i: { seasonNumber: number; athleticRank: string; totalPRs
   return `Season ${i.seasonNumber} — You hit ${i.athleticRank} rank${i.totalPRs ? ` and set ${i.totalPRs} PR${i.totalPRs > 1 ? "s" : ""}` : ""}. Keep stacking wins.`;
 }
 
-export const PERIOD_DAYS_EXPORT = PERIOD_DAYS;
+// (PERIOD_DAYS_EXPORT removed — was unused and caused a circular-import TDZ error)
 
 // Refresh "best season" flag — highest combined XP wins
 export async function refreshBestSeasonFlag(userId: string) {

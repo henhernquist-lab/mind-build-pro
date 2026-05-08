@@ -1,70 +1,90 @@
-@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;700&family=Quicksand:wght@400;500;600;700&family=Oswald:wght@400;500;600;700&family=Space+Grotesk:wght@400;500;600;700&display=swap');
+/* ==========================================================================
+   LifeStack — Premium visual layer
+   AAA-game-HUD × Nike Training Club × luxury sports dashboard
+   Pure visual/animation upgrade. Functionality untouched.
+   ========================================================================== */
+
+@import url('https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Barlow+Condensed:wght@500;600;700;800&family=Barlow:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500;700&display=swap');
 @import "katex/dist/katex.min.css";
 
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
 
-/* Design system + 5 swappable visual themes.
-   Theme is set via <html data-theme="..."> by ThemeProvider.
-   All colors MUST be HSL. */
-
+/* ---------- Theme tokens ---------- */
 @layer base {
-  /* ---------- Midnight Pro (default) ---------- */
+
+  /* ====================================================================
+     LIFESTACK — Default / Midnight (the new flagship aesthetic)
+     ==================================================================== */
   :root,
   [data-theme="midnight"] {
-    --background: 222 47% 7%;
-    --foreground: 210 40% 98%;
+    /* Spec hex → HSL */
+    --background: 210 33% 5%;          /* #080C10 deep space black */
+    --foreground: 214 32% 91%;         /* #E2E8F0 text primary */
 
-    --card: 222 40% 10%;
-    --card-foreground: 210 40% 98%;
+    --card: 210 30% 7%;                /* base card before glass overlay */
+    --card-foreground: 214 32% 91%;
 
-    --popover: 222 40% 10%;
-    --popover-foreground: 210 40% 98%;
+    --popover: 210 33% 6%;
+    --popover-foreground: 214 32% 91%;
 
-    --primary: 217 91% 60%;
-    --primary-foreground: 222 47% 7%;
+    --primary: 186 100% 50%;           /* #00E5FF electric cyan */
+    --primary-foreground: 210 33% 5%;
 
-    --secondary: 222 30% 14%;
-    --secondary-foreground: 210 40% 98%;
+    --secondary: 210 30% 10%;
+    --secondary-foreground: 214 32% 91%;
 
-    --muted: 222 30% 14%;
-    --muted-foreground: 215 20% 65%;
+    --muted: 210 25% 12%;
+    --muted-foreground: 215 16% 47%;   /* #64748B */
 
-    --accent: 222 30% 16%;
-    --accent-foreground: 210 40% 98%;
+    --accent: 152 100% 50%;            /* #00FF87 neon green */
+    --accent-foreground: 210 33% 5%;
 
-    --destructive: 0 75% 55%;
-    --destructive-foreground: 210 40% 98%;
+    --destructive: 0 100% 65%;         /* #FF4D4D */
+    --destructive-foreground: 210 33% 5%;
 
-    --border: 222 30% 18%;
-    --input: 222 30% 16%;
-    --ring: 217 91% 60%;
+    --border: 210 25% 14%;             /* base border */
+    --input: 210 25% 10%;
+    --ring: 186 100% 50%;
 
-    --radius: 0.75rem;
+    --radius: 1rem;                    /* 16px */
 
-    --school: 217 91% 60%;
-    --sports: 21 90% 54%;
-    --coding: 142 71% 45%;
-    --free: 215 20% 45%;
+    /* Domain accents (planner / training / academic / free) */
+    --school: 186 100% 50%;            /* cyan */
+    --sports: 25 95% 55%;              /* warm orange — preserved for sports semantic */
+    --coding: 152 100% 50%;            /* neon green */
+    --free:   210 15% 35%;             /* dim slate */
 
-    --sidebar-background: 222 50% 5%;
-    --sidebar-foreground: 215 20% 75%;
-    --sidebar-primary: 217 91% 60%;
-    --sidebar-primary-foreground: 0 0% 100%;
-    --sidebar-accent: 222 35% 12%;
-    --sidebar-accent-foreground: 210 40% 98%;
-    --sidebar-border: 222 35% 12%;
-    --sidebar-ring: 217 91% 60%;
+    /* LifeStack signature accents */
+    --gold:    43 96% 56%;             /* #FBBF24 */
+    --pr-red:  0 100% 65%;             /* #FF4D4D */
+    --neon:    152 100% 50%;
+    --cyan:    186 100% 50%;
 
-    --gradient-hero: linear-gradient(135deg, hsl(217 91% 60% / 0.15), hsl(142 71% 45% / 0.1));
-    --shadow-glow: 0 0 40px -10px hsl(217 91% 60% / 0.5);
+    /* Sidebar */
+    --sidebar-background: 210 35% 4%;
+    --sidebar-foreground: 215 16% 65%;
+    --sidebar-primary: 186 100% 50%;
+    --sidebar-primary-foreground: 210 33% 5%;
+    --sidebar-accent: 186 80% 12%;
+    --sidebar-accent-foreground: 186 100% 70%;
+    --sidebar-border: 210 25% 12%;
+    --sidebar-ring: 186 100% 50%;
 
-    --font-display: 'Inter', system-ui, sans-serif;
-    --font-body: 'Inter', system-ui, sans-serif;
+    --gradient-hero: linear-gradient(135deg, hsl(186 100% 50% / 0.18), hsl(152 100% 50% / 0.10));
+    --shadow-glow: 0 0 40px -10px hsl(186 100% 50% / 0.55);
+
+    --font-display: 'Bebas Neue', 'Barlow Condensed', system-ui, sans-serif;
+    --font-stat:    'Barlow Condensed', system-ui, sans-serif;
+    --font-body:    'Barlow', system-ui, sans-serif;
+    --font-mono:    'JetBrains Mono', ui-monospace, monospace;
   }
 
-  /* ---------- Neon Arcade ---------- */
+  /* ====================================================================
+     Other themes (kept intact for the theme switcher; only baseline
+     typography aligned to the LifeStack family for consistency)
+     ==================================================================== */
   [data-theme="neon"] {
     --background: 0 0% 5%;
     --foreground: 0 0% 98%;
@@ -89,6 +109,10 @@
     --sports: 300 100% 50%;
     --coding: 90 100% 50%;
     --free: 240 20% 40%;
+    --gold: 43 96% 56%;
+    --pr-red: 0 100% 65%;
+    --neon: 90 100% 50%;
+    --cyan: 180 100% 50%;
     --sidebar-background: 0 0% 3%;
     --sidebar-foreground: 180 30% 75%;
     --sidebar-primary: 300 100% 50%;
@@ -97,11 +121,12 @@
     --sidebar-accent-foreground: 180 100% 70%;
     --sidebar-border: 300 50% 18%;
     --sidebar-ring: 300 100% 50%;
-    --font-display: 'JetBrains Mono', monospace;
-    --font-body: 'JetBrains Mono', monospace;
+    --font-display: 'Bebas Neue', system-ui, sans-serif;
+    --font-stat:    'Barlow Condensed', system-ui, sans-serif;
+    --font-body:    'Barlow', system-ui, sans-serif;
+    --font-mono:    'JetBrains Mono', ui-monospace, monospace;
   }
 
-  /* ---------- Forest Focus ---------- */
   [data-theme="forest"] {
     --background: 120 25% 8%;
     --foreground: 100 30% 96%;
@@ -126,6 +151,10 @@
     --sports: 30 80% 60%;
     --coding: 90 60% 55%;
     --free: 100 15% 45%;
+    --gold: 43 96% 56%;
+    --pr-red: 0 100% 65%;
+    --neon: 142 70% 55%;
+    --cyan: 180 80% 55%;
     --sidebar-background: 120 30% 6%;
     --sidebar-foreground: 100 20% 75%;
     --sidebar-primary: 142 70% 55%;
@@ -134,12 +163,13 @@
     --sidebar-accent-foreground: 100 30% 96%;
     --sidebar-border: 120 25% 13%;
     --sidebar-ring: 142 70% 55%;
-    --font-display: 'Quicksand', system-ui, sans-serif;
-    --font-body: 'Quicksand', system-ui, sans-serif;
+    --font-display: 'Bebas Neue', system-ui, sans-serif;
+    --font-stat:    'Barlow Condensed', system-ui, sans-serif;
+    --font-body:    'Barlow', system-ui, sans-serif;
+    --font-mono:    'JetBrains Mono', ui-monospace, monospace;
     --radius: 1rem;
   }
 
-  /* ---------- Solar Flare ---------- */
   [data-theme="solar"] {
     --background: 20 60% 6%;
     --foreground: 40 90% 96%;
@@ -164,6 +194,10 @@
     --sports: 45 95% 60%;
     --coding: 10 90% 60%;
     --free: 30 25% 45%;
+    --gold: 43 96% 56%;
+    --pr-red: 0 100% 65%;
+    --neon: 45 95% 60%;
+    --cyan: 21 95% 55%;
     --sidebar-background: 20 65% 4%;
     --sidebar-foreground: 35 30% 75%;
     --sidebar-primary: 21 95% 55%;
@@ -172,11 +206,12 @@
     --sidebar-accent-foreground: 45 95% 70%;
     --sidebar-border: 20 50% 14%;
     --sidebar-ring: 21 95% 55%;
-    --font-display: 'Oswald', sans-serif;
-    --font-body: 'Inter', system-ui, sans-serif;
+    --font-display: 'Bebas Neue', system-ui, sans-serif;
+    --font-stat:    'Barlow Condensed', system-ui, sans-serif;
+    --font-body:    'Barlow', system-ui, sans-serif;
+    --font-mono:    'JetBrains Mono', ui-monospace, monospace;
   }
 
-  /* ---------- Arctic Clean (light) ---------- */
   [data-theme="arctic"] {
     --background: 210 40% 98%;
     --foreground: 220 30% 15%;
@@ -201,6 +236,10 @@
     --sports: 21 85% 55%;
     --coding: 142 65% 45%;
     --free: 220 15% 65%;
+    --gold: 43 96% 56%;
+    --pr-red: 0 100% 65%;
+    --neon: 142 65% 45%;
+    --cyan: 199 90% 48%;
     --sidebar-background: 0 0% 100%;
     --sidebar-foreground: 220 15% 40%;
     --sidebar-primary: 199 90% 48%;
@@ -209,136 +248,274 @@
     --sidebar-accent-foreground: 220 30% 15%;
     --sidebar-border: 210 25% 90%;
     --sidebar-ring: 199 90% 48%;
-    --font-display: 'Space Grotesk', system-ui, sans-serif;
-    --font-body: 'Inter', system-ui, sans-serif;
+    --font-display: 'Bebas Neue', system-ui, sans-serif;
+    --font-stat:    'Barlow Condensed', system-ui, sans-serif;
+    --font-body:    'Barlow', system-ui, sans-serif;
+    --font-mono:    'JetBrains Mono', ui-monospace, monospace;
   }
 }
 
+/* ---------- Base layer ---------- */
 @layer base {
-  * {
-    @apply border-border;
-  }
+  * { @apply border-border; }
 
-  body {
-    @apply bg-background text-foreground antialiased;
+  html, body {
+    background-color: hsl(var(--background));
+    color: hsl(var(--foreground));
     font-family: var(--font-body);
-    transition: background-color 0.4s ease, color 0.4s ease;
-    font-feature-settings: "cv02", "cv03", "cv04", "cv11";
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    font-feature-settings: "ss01", "cv11";
   }
 
+  /* Display family for headings, subtle wide tracking */
   h1, h2, h3, h4, h5 {
     font-family: var(--font-display);
+    letter-spacing: 0.02em;
+  }
+
+  /* Tabular numbers everywhere by default — scoreboard feel */
+  .tabular-nums, [data-numbers] { font-variant-numeric: tabular-nums; }
+
+  /* Selection */
+  ::selection {
+    background: hsl(var(--primary) / 0.35);
+    color: hsl(var(--foreground));
+  }
+
+  /* Text input caret */
+  input, textarea { caret-color: hsl(var(--primary)); }
+
+  /* Ambient breathing background — visible only on dark themes */
+  body::before,
+  body::after {
+    content: "";
+    position: fixed;
+    z-index: -1;
+    pointer-events: none;
+    width: 60vmax;
+    height: 60vmax;
+    border-radius: 50%;
+    filter: blur(140px);
+    opacity: 0.18;
+    will-change: transform, opacity;
+  }
+  body::before {
+    top: -20vmax; left: -20vmax;
+    background: radial-gradient(closest-side, hsl(var(--cyan) / 0.55), transparent 70%);
+    animation: breathe 14s ease-in-out infinite;
+  }
+  body::after {
+    bottom: -20vmax; right: -20vmax;
+    background: radial-gradient(closest-side, hsl(var(--neon) / 0.45), transparent 70%);
+    animation: breathe 16s ease-in-out infinite reverse;
+  }
+  [data-theme="arctic"] body::before,
+  [data-theme="arctic"] body::after { opacity: 0.10; }
+
+  @keyframes breathe {
+    0%, 100% { transform: scale(1) translate(0, 0); opacity: 0.14; }
+    50%      { transform: scale(1.18) translate(2vmax, 2vmax); opacity: 0.22; }
   }
 }
 
+/* ==========================================================================
+   Custom scrollbar — thin cyan from the LifeStack spec
+   ========================================================================== */
+@layer base {
+  ::-webkit-scrollbar { width: 4px; height: 4px; }
+  ::-webkit-scrollbar-track { background: transparent; }
+  ::-webkit-scrollbar-thumb {
+    background: hsl(var(--primary) / 0.30);
+    border-radius: 999px;
+  }
+  ::-webkit-scrollbar-thumb:hover {
+    background: hsl(var(--primary) / 0.60);
+  }
+  ::-webkit-scrollbar-corner { background: transparent; }
+  * { scrollbar-color: hsl(var(--primary) / 0.4) transparent; scrollbar-width: thin; }
+}
+
+/* ==========================================================================
+   Utility layer — LifeStack signature components
+   ========================================================================== */
 @layer utilities {
-  .scrollbar-thin::-webkit-scrollbar { width: 6px; height: 6px; }
-  .scrollbar-thin::-webkit-scrollbar-thumb { background: hsl(var(--border)); border-radius: 3px; }
-  .scrollbar-thin::-webkit-scrollbar-track { background: transparent; }
 
-  .deep-search-glow {
-    box-shadow: 0 0 0 2px hsl(var(--primary) / 0.3), 0 0 24px hsl(var(--primary) / 0.4);
-    animation: deepSearchPulse 2s ease-in-out infinite;
-  }
-  @keyframes deepSearchPulse {
-    0%, 100% { box-shadow: 0 0 0 2px hsl(var(--primary) / 0.3), 0 0 24px hsl(var(--primary) / 0.3); }
-    50% { box-shadow: 0 0 0 2px hsl(var(--primary) / 0.6), 0 0 32px hsl(var(--primary) / 0.6); }
-  }
+  /* ---------- Typography helpers ---------- */
+  .font-display { font-family: var(--font-display); letter-spacing: 0.04em; }
+  .font-stat    { font-family: var(--font-stat); letter-spacing: 0.04em; text-transform: uppercase; }
+  .font-body    { font-family: var(--font-body); }
+  .font-mono    { font-family: var(--font-mono); }
+  .scoreboard   { font-family: var(--font-mono); font-variant-numeric: tabular-nums; letter-spacing: 0.02em; }
 
-  /* ----- Polish pass utilities ----- */
-
-  /* Glassmorphism — frosted card */
+  /* ---------- Glassmorphism surfaces ---------- */
   .glass {
-    background: hsl(var(--card) / 0.55);
-    backdrop-filter: blur(14px) saturate(140%);
-    -webkit-backdrop-filter: blur(14px) saturate(140%);
-    border: 1px solid hsl(var(--foreground) / 0.08);
+    background: rgba(255,255,255,0.03);
+    backdrop-filter: blur(20px) saturate(140%);
+    -webkit-backdrop-filter: blur(20px) saturate(140%);
+    border: 1px solid rgba(255,255,255,0.06);
     box-shadow:
-      inset 0 1px 0 0 hsl(var(--foreground) / 0.06),
-      0 8px 30px -10px hsl(var(--background) / 0.8);
+      0 4px 24px rgba(0,0,0,0.4),
+      inset 0 1px 0 rgba(255,255,255,0.05);
   }
   .glass-strong {
-    background: hsl(var(--card) / 0.7);
-    backdrop-filter: blur(20px) saturate(160%);
-    -webkit-backdrop-filter: blur(20px) saturate(160%);
+    background: rgba(255,255,255,0.05);
+    backdrop-filter: blur(24px) saturate(160%);
+    -webkit-backdrop-filter: blur(24px) saturate(160%);
     border: 1px solid hsl(var(--primary) / 0.18);
     box-shadow:
-      inset 0 1px 0 0 hsl(var(--foreground) / 0.08),
-      0 12px 40px -12px hsl(var(--primary) / 0.25);
+      0 8px 40px rgba(0,0,0,0.5),
+      0 0 32px hsl(var(--primary) / 0.10),
+      inset 0 1px 0 rgba(255,255,255,0.08);
+  }
+  /* Light-theme variant — soft white panels */
+  [data-theme="arctic"] .glass {
+    background: rgba(255,255,255,0.65);
+    border-color: rgba(15,23,42,0.06);
+    box-shadow: 0 4px 24px rgba(15,23,42,0.05), inset 0 1px 0 rgba(255,255,255,0.6);
   }
 
-  /* Animated gradient text */
-  .gradient-text {
+  /* Default card hover lift — enable per-element with .lift */
+  .lift {
+    transition: transform 0.4s cubic-bezier(0.34, 1.56, 0.64, 1),
+                border-color 0.4s ease,
+                box-shadow 0.4s ease;
+    will-change: transform;
+  }
+  .lift:hover {
+    transform: translateY(-4px);
+    border-color: hsl(var(--primary) / 0.20);
+    box-shadow:
+      0 8px 40px rgba(0,0,0,0.55),
+      0 0 24px hsl(var(--primary) / 0.10);
+  }
+
+  /* ---------- Subtle grid pattern overlay (3% opacity) ---------- */
+  .grid-overlay { position: relative; }
+  .grid-overlay::before {
+    content: "";
+    position: absolute;
+    inset: 0;
+    background-image:
+      linear-gradient(hsl(var(--foreground) / 1) 1px, transparent 1px),
+      linear-gradient(90deg, hsl(var(--foreground) / 1) 1px, transparent 1px);
+    background-size: 32px 32px;
+    opacity: 0.03;
+    pointer-events: none;
+    mask-image: linear-gradient(180deg, rgba(0,0,0,0.7), rgba(0,0,0,0.2));
+    -webkit-mask-image: linear-gradient(180deg, rgba(0,0,0,0.7), rgba(0,0,0,0.2));
+  }
+
+  /* ---------- Holographic rotating border (rank cards) ---------- */
+  .holo-border {
+    position: relative;
+    border-radius: 1.25rem;
+    isolation: isolate;
+    overflow: hidden;
+  }
+  .holo-border::before {
+    content: "";
+    position: absolute;
+    inset: -2px;
+    border-radius: inherit;
+    padding: 2px;
+    background: conic-gradient(
+      from 0deg,
+      hsl(var(--cyan)) 0%,
+      hsl(var(--neon)) 33%,
+      hsl(var(--gold)) 66%,
+      hsl(var(--cyan)) 100%
+    );
+    -webkit-mask: linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0);
+            mask: linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0);
+    -webkit-mask-composite: xor;
+            mask-composite: exclude;
+    animation: holoRotate 8s linear infinite;
+    opacity: 0.85;
+    pointer-events: none;
+  }
+  .holo-border::after {
+    /* outer soft glow */
+    content: "";
+    position: absolute;
+    inset: -1px;
+    border-radius: inherit;
+    box-shadow: 0 0 32px -2px hsl(var(--cyan) / 0.25);
+    pointer-events: none;
+    transition: box-shadow 0.4s ease;
+  }
+  .holo-border:hover::after {
+    box-shadow:
+      0 0 48px -2px hsl(var(--cyan) / 0.45),
+      0 0 80px -10px hsl(var(--neon) / 0.35);
+  }
+  @keyframes holoRotate {
+    to { --angle: 360deg; transform: rotate(360deg) scale(1); }
+  }
+  /* Reduced motion: hold the gradient still */
+  @media (prefers-reduced-motion: reduce) {
+    .holo-border::before { animation: none; }
+  }
+
+  /* Alternative: rotating conic via background-position trick (works on every browser) */
+  @keyframes holoSpin { to { transform: rotate(1turn); } }
+
+  /* ---------- Shimmer sweep (rank text + buttons) ---------- */
+  .shimmer-text {
+    position: relative;
     background: linear-gradient(
       90deg,
-      hsl(var(--primary)) 0%,
-      hsl(var(--accent)) 50%,
-      hsl(var(--primary)) 100%
+      hsl(var(--foreground)) 0%,
+      hsl(var(--cyan)) 35%,
+      hsl(var(--gold)) 50%,
+      hsl(var(--neon)) 65%,
+      hsl(var(--foreground)) 100%
     );
-    background-size: 200% auto;
+    background-size: 250% 100%;
     -webkit-background-clip: text;
-    background-clip: text;
-    -webkit-text-fill-color: transparent;
+            background-clip: text;
     color: transparent;
-    animation: gradientShift 6s linear infinite;
+    -webkit-text-fill-color: transparent;
+    animation: shimmerSweep 4s ease-in-out infinite;
   }
-  @keyframes gradientShift {
-    0% { background-position: 0% center; }
-    100% { background-position: 200% center; }
-  }
-
-  /* Button micro-press */
-  .press {
-    transition: transform 120ms cubic-bezier(0.34, 1.56, 0.64, 1), box-shadow 120ms ease;
-  }
-  .press:active:not(:disabled) {
-    transform: scale(0.96);
+  @keyframes shimmerSweep {
+    0%, 100% { background-position: 100% 0; }
+    50%      { background-position: 0% 0; }
   }
 
-  /* Floating XP number */
-  @keyframes xpFloat {
-    0%   { transform: translate(-50%, 0) scale(0.7); opacity: 0; }
-    15%  { transform: translate(-50%, -8px) scale(1.15); opacity: 1; }
-    100% { transform: translate(-50%, -80px) scale(0.95); opacity: 0; }
+  .shimmer-surface {
+    position: relative;
+    overflow: hidden;
   }
-  .xp-float {
-    animation: xpFloat 1400ms cubic-bezier(0.22, 1, 0.36, 1) forwards;
+  .shimmer-surface::after {
+    content: "";
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(
+      100deg,
+      transparent 0%,
+      transparent 40%,
+      hsl(0 0% 100% / 0.25) 50%,
+      transparent 60%,
+      transparent 100%
+    );
+    transform: translateX(-100%);
+    animation: shimmerSurface 5s ease-in-out infinite;
+    pointer-events: none;
   }
-
-  /* Rank-up burst */
-  @keyframes rankBurst {
-    0%   { transform: scale(1); box-shadow: 0 0 0 0 hsl(var(--primary) / 0.8); }
-    50%  { transform: scale(1.04); box-shadow: 0 0 0 12px hsl(var(--primary) / 0); }
-    100% { transform: scale(1); box-shadow: 0 0 0 0 hsl(var(--primary) / 0); }
-  }
-  .rank-burst { animation: rankBurst 800ms ease-out; }
-}
-
-/* ----- Page transitions (snappy 150/200ms) ----- */
-@layer utilities {
-  .page-transition { will-change: transform, opacity; }
-  .page-transition-in {
-    animation: pageIn 200ms cubic-bezier(0.22, 1, 0.36, 1) both;
-  }
-  .page-transition-out {
-    animation: pageOut 150ms ease-in both;
-  }
-  @keyframes pageIn {
-    from { opacity: 0; transform: translateY(10px); }
-    to   { opacity: 1; transform: translateY(0); }
-  }
-  @keyframes pageOut {
-    from { opacity: 1; transform: translateY(0); }
-    to   { opacity: 0; transform: translateY(-10px); }
+  @keyframes shimmerSurface {
+    0%   { transform: translateX(-100%); }
+    50%  { transform: translateX(100%); }
+    100% { transform: translateX(100%); }
   }
 
-  /* Glowing XP bar */
+  /* ---------- XP bar — liquid fill + shimmer ---------- */
   .xp-bar-track {
     position: relative;
     overflow: hidden;
     border-radius: 9999px;
-    background: hsl(var(--muted) / 0.6);
-    box-shadow: inset 0 1px 2px hsl(var(--background) / 0.5);
+    background: hsl(var(--muted) / 0.55);
+    box-shadow: inset 0 1px 2px rgba(0,0,0,0.5), inset 0 0 0 1px rgba(255,255,255,0.04);
   }
   .xp-bar-fill {
     position: relative;
@@ -346,17 +523,18 @@
     border-radius: 9999px;
     background: linear-gradient(
       90deg,
-      hsl(var(--primary)) 0%,
-      hsl(var(--accent)) 50%,
-      hsl(var(--primary)) 100%
+      hsl(var(--cyan)) 0%,
+      hsl(var(--neon)) 50%,
+      hsl(var(--cyan)) 100%
     );
     background-size: 200% 100%;
     animation: xpGradient 3s linear infinite;
     box-shadow:
-      0 0 12px hsl(var(--primary) / 0.55),
-      0 0 28px hsl(var(--primary) / 0.35),
-      inset 0 1px 0 hsl(var(--foreground) / 0.25);
+      0 0 12px hsl(var(--cyan) / 0.55),
+      0 0 28px hsl(var(--cyan) / 0.30),
+      inset 0 1px 0 rgba(255,255,255,0.30);
     transition: width 600ms cubic-bezier(0.22, 1, 0.36, 1);
+    will-change: width, transform;
   }
   .xp-bar-fill::after {
     content: "";
@@ -372,33 +550,247 @@
     transform: translateX(-100%);
     animation: xpShimmer 2.4s ease-in-out infinite;
   }
-  @keyframes xpGradient {
-    0%   { background-position: 0% 50%; }
-    100% { background-position: 200% 50%; }
+  .xp-bar-fill.urgent {
+    animation: xpGradient 1.5s linear infinite, xpUrgent 1s ease-in-out infinite;
   }
-  @keyframes xpShimmer {
-    0%   { transform: translateX(-100%); }
-    60%  { transform: translateX(120%); }
-    100% { transform: translateX(120%); }
+  @keyframes xpGradient { from { background-position: 0% 50%; } to { background-position: 200% 50%; } }
+  @keyframes xpShimmer  { 0% { transform: translateX(-100%);} 60% { transform: translateX(120%);} 100% { transform: translateX(120%);} }
+  @keyframes xpUrgent   { 0%, 100% { box-shadow: 0 0 12px hsl(var(--cyan) / 0.55), 0 0 28px hsl(var(--cyan) / 0.30); }
+                          50%      { box-shadow: 0 0 18px hsl(var(--gold) / 0.85), 0 0 48px hsl(var(--gold) / 0.55); } }
+
+  /* ---------- Live-broadcast pulsing dot ---------- */
+  .live-dot {
+    display: inline-block;
+    width: 0.5rem;
+    height: 0.5rem;
+    border-radius: 999px;
+    background: hsl(var(--pr-red));
+    box-shadow: 0 0 0 0 hsl(var(--pr-red) / 0.7);
+    animation: livePulse 1.6s ease-out infinite;
+  }
+  @keyframes livePulse {
+    0%   { box-shadow: 0 0 0 0 hsl(var(--pr-red) / 0.7); }
+    70%  { box-shadow: 0 0 0 8px hsl(var(--pr-red) / 0); }
+    100% { box-shadow: 0 0 0 0 hsl(var(--pr-red) / 0); }
+  }
+
+  /* ---------- Floating XP number ---------- */
+  @keyframes xpFloat {
+    0%   { transform: translate(-50%, 0) scale(0.7); opacity: 0; }
+    15%  { transform: translate(-50%, -8px) scale(1.15); opacity: 1; }
+    100% { transform: translate(-50%, -80px) scale(0.95); opacity: 0; }
+  }
+  .xp-float { animation: xpFloat 1400ms cubic-bezier(0.22, 1, 0.36, 1) forwards; }
+
+  /* ---------- Rank-up burst ---------- */
+  @keyframes rankBurst {
+    0%   { transform: scale(1);    box-shadow: 0 0 0 0    hsl(var(--primary) / 0.85); }
+    50%  { transform: scale(1.04); box-shadow: 0 0 0 14px hsl(var(--primary) / 0); }
+    100% { transform: scale(1);    box-shadow: 0 0 0 0    hsl(var(--primary) / 0); }
+  }
+  .rank-burst { animation: rankBurst 800ms ease-out; }
+
+  /* ---------- Press / button micro-interactions ---------- */
+  .press {
+    transition: transform 140ms cubic-bezier(0.34, 1.56, 0.64, 1),
+                box-shadow 200ms ease,
+                filter 200ms ease;
+    will-change: transform;
+  }
+  .press:hover:not(:disabled)  { filter: brightness(1.10); }
+  .press:active:not(:disabled) { transform: scale(0.97); }
+
+  /* Primary gradient button (apply on top of <Button>) */
+  .btn-primary-glow {
+    position: relative;
+    background: linear-gradient(135deg, hsl(var(--cyan)), hsl(var(--neon)));
+    color: hsl(var(--background));
+    box-shadow:
+      0 8px 24px -8px hsl(var(--cyan) / 0.55),
+      inset 0 1px 0 rgba(255,255,255,0.35);
+    overflow: hidden;
+  }
+  .btn-primary-glow::before {
+    content: "";
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(
+      100deg,
+      transparent 0%,
+      transparent 40%,
+      hsl(0 0% 100% / 0.3) 50%,
+      transparent 60%,
+      transparent 100%
+    );
+    transform: translateX(-100%);
+    animation: shimmerSurface 5s ease-in-out infinite;
+    pointer-events: none;
+  }
+  .btn-primary-glow:hover {
+    box-shadow:
+      0 12px 32px -6px hsl(var(--cyan) / 0.7),
+      0 0 28px hsl(var(--neon) / 0.35);
+    transform: translateY(-2px);
+  }
+  .btn-primary-glow:active { transform: translateY(0) scale(0.97); }
+
+  /* ---------- Page transitions (snappy) ---------- */
+  .page-transition { will-change: transform, opacity; }
+  .page-transition-in {
+    animation: pageIn 240ms cubic-bezier(0.22, 1, 0.36, 1) both;
+  }
+  .page-transition-out {
+    animation: pageOut 150ms ease-in both;
+  }
+  @keyframes pageIn  { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+  @keyframes pageOut { from { opacity: 1; transform: translateY(0); }  to { opacity: 0; transform: translateY(-6px); } }
+
+  /* ---------- Stagger entrance (apply on container; children get delays) ---------- */
+  .stagger > * {
+    opacity: 0;
+    transform: translateY(40px);
+    animation: staggerIn 600ms cubic-bezier(0.22, 1, 0.36, 1) forwards;
+  }
+  .stagger > *:nth-child(1)  { animation-delay: 60ms; }
+  .stagger > *:nth-child(2)  { animation-delay: 120ms; }
+  .stagger > *:nth-child(3)  { animation-delay: 180ms; }
+  .stagger > *:nth-child(4)  { animation-delay: 240ms; }
+  .stagger > *:nth-child(5)  { animation-delay: 300ms; }
+  .stagger > *:nth-child(6)  { animation-delay: 360ms; }
+  .stagger > *:nth-child(7)  { animation-delay: 420ms; }
+  .stagger > *:nth-child(8)  { animation-delay: 480ms; }
+  .stagger > *:nth-child(9)  { animation-delay: 540ms; }
+  .stagger > *:nth-child(10) { animation-delay: 600ms; }
+  @keyframes staggerIn {
+    to { opacity: 1; transform: translateY(0); }
+  }
+
+  /* ---------- Animated gradient text (general) ---------- */
+  .gradient-text {
+    background: linear-gradient(90deg, hsl(var(--cyan)), hsl(var(--neon)), hsl(var(--cyan)));
+    background-size: 200% auto;
+    -webkit-background-clip: text;
+            background-clip: text;
+    color: transparent;
+    -webkit-text-fill-color: transparent;
+    animation: gradientShift 6s linear infinite;
+  }
+  @keyframes gradientShift { from { background-position: 0% 50%; } to { background-position: 200% 50%; } }
+
+  /* ---------- Holographic sheen sweep (athlete card hover) ---------- */
+  .holo-sheen { position: relative; overflow: hidden; }
+  .holo-sheen::before {
+    content: "";
+    position: absolute;
+    inset: -1px;
+    background: linear-gradient(
+      115deg,
+      transparent 30%,
+      hsl(var(--cyan) / 0.18) 45%,
+      hsl(var(--gold) / 0.22) 50%,
+      hsl(var(--neon) / 0.18) 55%,
+      transparent 70%
+    );
+    transform: translateX(-110%);
+    transition: transform 0.9s cubic-bezier(0.22, 1, 0.36, 1);
+    pointer-events: none;
+  }
+  .holo-sheen:hover::before { transform: translateX(110%); }
+
+  /* ---------- Deep search glow ---------- */
+  .deep-search-glow {
+    box-shadow: 0 0 0 2px hsl(var(--primary) / 0.30), 0 0 24px hsl(var(--primary) / 0.40);
+    animation: deepSearchPulse 2s ease-in-out infinite;
+  }
+  @keyframes deepSearchPulse {
+    0%, 100% { box-shadow: 0 0 0 2px hsl(var(--primary) / 0.30), 0 0 24px hsl(var(--primary) / 0.30); }
+    50%      { box-shadow: 0 0 0 2px hsl(var(--primary) / 0.60), 0 0 32px hsl(var(--primary) / 0.60); }
+  }
+
+  /* ---------- Soft accent glow utility ---------- */
+  .glow-cyan { box-shadow: 0 0 20px hsl(var(--cyan) / 0.35); }
+  .glow-neon { box-shadow: 0 0 20px hsl(var(--neon) / 0.35); }
+  .glow-gold { box-shadow: 0 0 20px hsl(var(--gold) / 0.45); }
+  .glow-red  { box-shadow: 0 0 20px hsl(var(--pr-red) / 0.45); }
+
+  /* ---------- Sidebar scrollbar (thin) ---------- */
+  .scrollbar-thin::-webkit-scrollbar { width: 4px; height: 4px; }
+  .scrollbar-thin::-webkit-scrollbar-thumb { background: hsl(var(--primary) / 0.30); border-radius: 99px; }
+  .scrollbar-thin::-webkit-scrollbar-track { background: transparent; }
+
+  /* ---------- Mobile bottom nav helpers ---------- */
+  .mobile-nav-glass {
+    background: hsl(var(--background) / 0.80);
+    backdrop-filter: blur(22px) saturate(160%);
+    -webkit-backdrop-filter: blur(22px) saturate(160%);
+    border-top: 1px solid hsl(var(--foreground) / 0.06);
+  }
+
+  /* ---------- Number count-up smoothness ---------- */
+  .count-up { font-variant-numeric: tabular-nums; transition: opacity 200ms ease; }
+
+  /* ---------- Checkmark bounce ---------- */
+  @keyframes checkPop {
+    0%   { transform: scale(0.5); opacity: 0; }
+    60%  { transform: scale(1.15); opacity: 1; }
+    100% { transform: scale(1); opacity: 1; }
+  }
+  .check-pop { animation: checkPop 360ms cubic-bezier(0.34, 1.56, 0.64, 1) both; }
+
+  /* ---------- Trophy bounce ---------- */
+  @keyframes trophyBounce {
+    0%   { transform: translateY(20px) scale(0.6); opacity: 0; }
+    60%  { transform: translateY(-6px) scale(1.1); opacity: 1; }
+    100% { transform: translateY(0) scale(1); opacity: 1; }
+  }
+  .trophy-bounce { animation: trophyBounce 520ms cubic-bezier(0.34, 1.56, 0.64, 1) both; }
+
+  /* ---------- Slow spin (Ace assistant idle) ---------- */
+  @keyframes slowSpin { to { transform: rotate(360deg); } }
+  .slow-spin:hover { animation: slowSpin 6s linear infinite; }
+
+  /* ---------- Ripple ring (Ace FAB suggestion) ---------- */
+  .ripple-ring { position: relative; }
+  .ripple-ring::before, .ripple-ring::after {
+    content: "";
+    position: absolute;
+    inset: 0;
+    border-radius: 999px;
+    border: 2px solid hsl(var(--cyan) / 0.55);
+    animation: rippleOut 2.4s ease-out infinite;
+    pointer-events: none;
+  }
+  .ripple-ring::after { animation-delay: 1.2s; }
+  @keyframes rippleOut {
+    0%   { transform: scale(1);   opacity: 0.7; }
+    80%  { transform: scale(1.7); opacity: 0; }
+    100% { transform: scale(1.7); opacity: 0; }
+  }
+
+  /* ---------- Reduced motion safety ---------- */
+  @media (prefers-reduced-motion: reduce) {
+    *,
+    *::before,
+    *::after {
+      animation-duration: 0.001ms !important;
+      animation-iteration-count: 1 !important;
+      transition-duration: 0.001ms !important;
+      scroll-behavior: auto !important;
+    }
+    body::before, body::after { animation: none; }
   }
 }
 
-/* ----- Custom themed scrollbar (global) ----- */
-@layer base {
-  /* WebKit */
-  ::-webkit-scrollbar { width: 10px; height: 10px; }
-  ::-webkit-scrollbar-track { background: transparent; }
-  ::-webkit-scrollbar-thumb {
-    background: hsl(var(--primary) / 0.35);
-    border-radius: 6px;
-    border: 2px solid transparent;
-    background-clip: content-box;
+/* ==========================================================================
+   Component-level paint tweaks (non-invasive — only visual)
+   ========================================================================== */
+@layer components {
+  /* Auth/login page card upgrade */
+  [data-lifestack-auth] {
+    background: rgba(255,255,255,0.03);
+    backdrop-filter: blur(20px) saturate(140%);
+    -webkit-backdrop-filter: blur(20px) saturate(140%);
+    border: 1px solid rgba(255,255,255,0.06) !important;
+    box-shadow: 0 4px 24px rgba(0,0,0,0.4), inset 0 1px 0 rgba(255,255,255,0.05);
   }
-  ::-webkit-scrollbar-thumb:hover {
-    background: hsl(var(--primary) / 0.6);
-    background-clip: content-box;
-  }
-  ::-webkit-scrollbar-corner { background: transparent; }
-  /* Firefox */
-  * { scrollbar-color: hsl(var(--primary) / 0.4) transparent; scrollbar-width: thin; }
 }

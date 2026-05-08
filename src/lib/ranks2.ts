@@ -9,6 +9,8 @@ import { showFloatingXp } from "@/components/fx/FloatingXp";
 import { recordStudyActivity, isMultiplierActive } from "@/lib/streak";
 import { unlockBadge } from "@/lib/achievements";
 import { incrementChallengeProgress } from "@/lib/dailyChallenges";
+export const PERIOD_DAYS = 14;
+
 import { aggregatePeriodStats, computeAwards, generateRecap, listSnapshots, refreshBestSeasonFlag } from "@/lib/seasons/hallOfFame";
 
 export type Rank = { name: string; icon: string; xpRequired: number; color: string };
@@ -30,8 +32,6 @@ export const ACADEMIC_RANKS: Rank[] = [
 ];
 
 export type RankType = "athletic" | "academic";
-
-export const PERIOD_DAYS = 14;
 
 export const getRank = (xp: number, ranks: Rank[]): Rank => {
   let r = ranks[0];

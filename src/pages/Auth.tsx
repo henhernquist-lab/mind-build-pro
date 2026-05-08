@@ -94,14 +94,14 @@ const Auth = () => {
         className="relative w-full max-w-md"
       >
         <div className="text-center mb-6">
-          <div className="inline-flex h-12 w-12 rounded-2xl items-center justify-center bg-gradient-to-br from-school to-coding mb-3">
-            <Sparkles className="h-6 w-6" style={{ color: "hsl(var(--background))" }} />
+          <div className="inline-flex h-14 w-14 rounded-2xl items-center justify-center bg-gradient-to-br from-[hsl(var(--cyan))] to-[hsl(var(--neon))] mb-3 shadow-[0_0_28px_hsl(var(--cyan)/0.55)]">
+            <Sparkles className="h-7 w-7" style={{ color: "hsl(var(--background))" }} />
           </div>
-          <h1 className="text-2xl font-bold">LifeStack</h1>
-          <p className="text-sm text-muted-foreground mt-1">Stack the days. Win the year.</p>
+          <h1 className="text-4xl md:text-5xl font-display tracking-[0.08em] shimmer-text">LIFESTACK</h1>
+          <p className="text-xs font-stat tracking-[0.2em] text-muted-foreground mt-2">STACK THE DAYS · WIN THE YEAR</p>
         </div>
 
-        <div className="rounded-2xl border border-border bg-card p-6 shadow-2xl">
+        <div data-lifestack-auth className="rounded-2xl p-6 shadow-2xl">
           <AnimatePresence mode="wait">
             <motion.div
               key={mode}
@@ -197,7 +197,7 @@ const Auth = () => {
                     </div>
                   </div>
                 )}
-                <Button type="submit" className="w-full" disabled={loading}>
+                <Button type="submit" className="w-full btn-primary-glow press" disabled={loading} data-testid="auth-submit">
                   {loading ? (
                     <Loader2 className="h-4 w-4 animate-spin" />
                   ) : (
