@@ -127,6 +127,14 @@ export const WaterTracker = ({
   const cupsTotal = 6;
   const cupsFilled = Math.round(pct * cupsTotal);
 
+  // Flood pulse when crossing goal threshold
+  const [floodKey, setFloodKey] = useState(0);
+  const prevHitRef = useRef(false);
+  useEffect(() => {
+    if (goalHit && !prevHitRef.current) setFloodKey((k) => k + 1);
+    prevHitRef.current = goalHit;
+  }, [goalHit]);
+
   // ─── Log water ──────────────────────────────────────────────────────────────
   const logWater = async (amount_ml: number, drink_type: DrinkType = "water", input_method: "manual" | "camera_scan" = "manual") => {
     try {
@@ -261,7 +269,12 @@ export const WaterTracker = ({
   }
 
   return (
-    <div className="rounded-2xl border border-border bg-card p-5 space-y-4">
+    <div
+      className={cn("rounded-2xl border border-border bg-card p-5 space-y-4 water-card lift", floodKey > 0 && "water-flood")}
+      key={floodKey}
+      style={{ ["--water-fill" as any]: `${(pct * 100).toFixed(1)}%` }}
+      data-testid="water-tracker"
+    >
       {/* Header */}
       <div className="flex items-center justify-between gap-2 flex-wrap">
         <div className="flex items-center gap-2">
@@ -325,19 +338,25 @@ export const WaterTracker = ({
 
       {/* Main display */}
       <div className="flex items-center gap-4">
-        <div className="text-3xl font-bold tabular-nums text-blue-400">
+        <div className="text-4xl font-display tracking-wider scoreboard text-[hsl(199_100%_60%)] drop-shadow-[0_0_12px_hsl(199_100%_55%/0.6)]">
           {(totalMl / 1000).toFixed(1)}L
         </div>
-        <div className="text-sm text-muted-foreground">/ {(goalMl / 1000).toFixed(1)}L</div>
-        {goalHit && <span className="text-green-400 font-semibold text-sm">✅ Goal hit!</span>}
+        <div className="text-sm text-muted-foreground scoreboard">/ {(goalMl / 1000).toFixed(1)}L</div>
+        {goalHit && <span className="text-[hsl(var(--neon))] font-stat text-sm tracking-wider">✓ GOAL HIT</span>}
       </div>
 
       {/* Progress bar */}
-      <div className="h-3 rounded-full bg-muted overflow-hidden">
+      <div className="h-3 rounded-full bg-muted/60 overflow-hidden relative">
         <div
-          className={cn("h-full rounded-full transition-all duration-500", goalHit ? "bg-blue-400" : "bg-blue-500")}
-          style={{ width: `${pct * 100}%` }}
-        />
+          className={cn("h-full rounded-full transition-all duration-700 ease-out relative overflow-hidden",
+            "bg-gradient-to-r from-[hsl(199_100%_45%)] via-[hsl(199_100%_60%)] to-[hsl(199_100%_45%)]")}
+          style={{
+            width: `${pct * 100}%`,
+            boxShadow: "0 0 14px hsl(199 100% 60% / 0.55), inset 0 1px 0 rgba(255,255,255,0.3)",
+          }}
+        >
+          <span className="absolute inset-0 bg-gradient-to-r from-transparent via-white/30 to-transparent -translate-x-full animate-[xpShimmer_2.6s_ease-in-out_infinite]" />
+        </div>
       </div>
 
       {/* Cup icons */}

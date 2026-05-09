@@ -7,6 +7,7 @@ interface Props {
   rankIcon: string;
   rankColor?: string;
   label?: string;                 // e.g. "Athletic" / "Academic"
+  ranks?: { name: string; icon: string; xpRequired: number; color: string }[]; // optional tier journey
 }
 
 /**
@@ -17,7 +18,7 @@ interface Props {
  * - Monospaced scoreboard XP number that counts up
  * - Pulses urgent when near rank-up threshold
  */
-export const GlowingXpBar = ({ xp, nextXp, rankName, rankIcon, rankColor, label }: Props) => {
+export const GlowingXpBar = ({ xp, nextXp, rankName, rankIcon, rankColor, label, ranks }: Props) => {
   const pct = nextXp == null ? 100 : Math.max(0, Math.min(100, (xp / nextXp) * 100));
   const nearRankUp = nextXp != null && pct >= 92;
   const [animatedXp, setAnimatedXp] = useState(0);
@@ -97,6 +98,55 @@ export const GlowingXpBar = ({ xp, nextXp, rankName, rankIcon, rankColor, label 
             style={{ width: `${pct}%` }}
           />
         </div>
+
+        {/* Rank-tier journey strip */}
+        {ranks && ranks.length > 0 && (
+          <div className="mt-4 flex items-center gap-1" data-testid="rank-journey">
+            {ranks.map((r, i) => {
+              const reached = xp >= r.xpRequired;
+              const current = r.name === rankName;
+              return (
+                <div key={r.name} className="flex-1 flex items-center gap-1 min-w-0">
+                  <div
+                    className={`flex flex-col items-center gap-0.5 transition-all duration-300 ${current ? "scale-110" : ""}`}
+                    title={`${r.name} — ${r.xpRequired} XP`}
+                  >
+                    <span
+                      className="text-base leading-none"
+                      style={{
+                        filter: reached ? `drop-shadow(0 0 8px ${r.color})` : "grayscale(0.85) opacity(0.45)",
+                        animation: current ? "livePulse 1.6s ease-out infinite" : undefined,
+                      }}
+                      aria-hidden
+                    >
+                      {r.icon}
+                    </span>
+                    <span
+                      className="text-[9px] font-stat tracking-wider"
+                      style={{
+                        color: reached ? r.color : "hsl(var(--muted-foreground))",
+                        opacity: reached ? 1 : 0.55,
+                      }}
+                    >
+                      {r.name.length > 8 ? r.name.slice(0, 7) + "…" : r.name.toUpperCase()}
+                    </span>
+                  </div>
+                  {i < ranks.length - 1 && (
+                    <div
+                      className="flex-1 h-[2px] rounded-full"
+                      style={{
+                        background: reached
+                          ? `linear-gradient(90deg, ${r.color}, ${ranks[i + 1].color})`
+                          : "hsl(var(--muted) / 0.5)",
+                        boxShadow: reached ? `0 0 8px ${r.color}88` : undefined,
+                      }}
+                    />
+                  )}
+                </div>
+              );
+            })}
+          </div>
+        )}
       </div>
     </div>
   );

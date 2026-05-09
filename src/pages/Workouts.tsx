@@ -417,24 +417,36 @@ const SportPanel = ({
                   .map((e) => (
                     <motion.div
                       key={e.id}
-                      initial={{ opacity: 0 }}
-                      animate={{ opacity: 1 }}
+                      initial={{ opacity: 0, x: -8 }}
+                      animate={{ opacity: 1, x: 0 }}
                       exit={{ opacity: 0 }}
-                      className={cn("flex items-center gap-2 text-xs px-3 py-2 rounded-md group", e.isPR && "bg-accent")}
+                      transition={{ duration: 0.25, ease: [0.34, 1.56, 0.64, 1] }}
+                      className={cn(
+                        "flex items-center gap-2 text-xs px-3 py-2 rounded-md group transition-all duration-300",
+                        e.isPR
+                          ? "bg-[hsl(var(--gold)/0.10)] border-l-2 border-[hsl(var(--gold))] shadow-[0_0_18px_hsl(var(--gold)/0.20)]"
+                          : "border-l-2 border-[hsl(var(--neon)/0.45)]"
+                      )}
+                      data-testid={e.isPR ? "pr-row" : "set-row"}
                     >
                       {e.grade && <GradeBadge grade={e.grade} />}
-                      {e.isPR && <Trophy className="h-3 w-3 flex-shrink-0" style={{ color: meta.accent }} />}
-                      <span className="font-medium">
+                      {e.isPR && (
+                        <Trophy
+                          className="h-3.5 w-3.5 flex-shrink-0 trophy-bounce"
+                          style={{ color: "hsl(var(--gold))", filter: "drop-shadow(0 0 6px hsl(var(--gold)/0.7))" }}
+                        />
+                      )}
+                      <span className={cn("font-stat tracking-wider", e.isPR ? "text-[hsl(var(--gold))]" : "")}>
                         {e.value} {e.unit}
                         {e.addedWeight ? ` +${e.addedWeight.toFixed(0)}lb` : ""}
                       </span>
-                      {e.xp !== undefined && <span className="text-muted-foreground">· +{e.xp} XP</span>}
-                      <span className="ml-auto text-muted-foreground">
+                      {e.xp !== undefined && <span className="text-muted-foreground scoreboard">· +{e.xp} XP</span>}
+                      <span className="ml-auto text-muted-foreground scoreboard">
                         {new Date(e.loggedAt).toLocaleDateString()}
                       </span>
                       <button
                         onClick={() => remove(e.id)}
-                        className="opacity-0 group-hover:opacity-100 text-muted-foreground hover:text-destructive"
+                        className="opacity-0 group-hover:opacity-100 text-muted-foreground hover:text-destructive transition-opacity"
                       >
                         <Trash2 className="h-3 w-3" />
                       </button>
@@ -556,13 +568,13 @@ const Workouts = () => {
   );
 
   return (
-    <div className="p-6 md:p-10 max-w-5xl mx-auto">
+    <div className="p-6 md:p-10 max-w-5xl mx-auto stagger">
       <header className="flex items-start justify-between gap-4 mb-6 flex-wrap">
         <div>
-          <p className="text-xs uppercase tracking-widest text-muted-foreground">Workouts</p>
-          <h1 className="text-3xl font-bold mt-1">Train. Log. Level up.</h1>
+          <p className="text-xs font-stat tracking-[0.25em] text-muted-foreground">WORKOUTS</p>
+          <h1 className="text-4xl md:text-5xl font-display tracking-wide mt-1 gradient-text">Train. Log. Level up.</h1>
         </div>
-        <Button variant="outline" size="sm" onClick={() => setProfileOpen(true)}>
+        <Button variant="outline" size="sm" onClick={() => setProfileOpen(true)} className="press">
           <User className="h-4 w-4 mr-1.5" />
           {profile ? `Profile (${profile.weightLbs}lb)` : "Setup profile"}
         </Button>

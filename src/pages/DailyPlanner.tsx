@@ -193,18 +193,18 @@ const DailyPlanner = () => {
   });
 
   return (
-    <div className="p-6 md:p-10 max-w-5xl mx-auto">
+    <div className="p-6 md:p-10 max-w-5xl mx-auto stagger">
       <header className="mb-6">
         <motion.h1
           initial={{ opacity: 0, y: -4 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.25 }}
-          className="text-3xl md:text-4xl font-bold"
+          className="text-4xl md:text-5xl font-display tracking-wide"
         >
-          Hello, {firstName || "friend"}! 👋
+          <span className="gradient-text">Hello, {firstName || "friend"}!</span> <span className="inline-block">👋</span>
         </motion.h1>
-        <p className="text-sm md:text-base text-muted-foreground mt-1">
-          {isToday ? `Today — ${dateLabel}` : dateLabel}
+        <p className="text-sm md:text-base font-stat text-muted-foreground tracking-wider mt-2">
+          {isToday ? `TODAY · ${dateLabel.toUpperCase()}` : dateLabel.toUpperCase()}
         </p>
 
         <div className="mt-4 flex items-center gap-2 flex-wrap">
@@ -234,16 +234,21 @@ const DailyPlanner = () => {
         {CATEGORIES.map((k) => (
           <motion.div
             key={k}
-            whileHover={{ y: -2 }}
-            className="rounded-xl border border-border bg-card p-4"
-            style={{ borderTop: `2px solid ${CAT_META[k].color}` }}
+            whileHover={{ y: -4 }}
+            className="rounded-xl glass p-4 lift relative overflow-hidden"
+            style={{
+              ["--block-accent" as any]: CAT_META[k].color,
+              borderTop: `2px solid ${CAT_META[k].color}`,
+              boxShadow: `0 0 0 1px hsl(var(--foreground) / 0.04), 0 0 24px -8px ${CAT_META[k].color}`,
+            }}
+            data-testid={`summary-${k}`}
           >
-            <div className="text-xs text-muted-foreground flex items-center gap-1.5">
-              <span>{CAT_META[k].emoji}</span>
+            <div className="text-[10px] font-stat tracking-wider text-muted-foreground flex items-center gap-1.5">
+              <span className="h-2 w-2 rounded-full" style={{ background: CAT_META[k].color, boxShadow: `0 0 8px ${CAT_META[k].color}` }} />
               <span>{CAT_META[k].label}</span>
             </div>
-            <div className="text-2xl font-semibold mt-1" style={{ color: CAT_META[k].color }}>
-              {totals[k].toFixed(1)}h
+            <div className="text-3xl font-display tracking-wide mt-1 scoreboard" style={{ color: CAT_META[k].color }}>
+              {totals[k].toFixed(1)}<span className="text-sm font-body font-normal">h</span>
             </div>
           </motion.div>
         ))}
@@ -280,7 +285,7 @@ const DailyPlanner = () => {
         initial={{ opacity: 0, y: 4 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.2 }}
-        className="rounded-2xl border border-border bg-card overflow-hidden"
+        className="rounded-2xl glass overflow-hidden lift"
       >
         {resolved.length === 0 && (
           <button
@@ -297,21 +302,26 @@ const DailyPlanner = () => {
             <button
               key={(b.id ?? b.recurringId ?? i) + b.startTime}
               onClick={() => setEditing(b)}
-              className="w-full flex items-start gap-4 px-4 py-3 text-left border-b border-border last:border-b-0 hover:bg-accent/40"
+              className="w-full flex items-start gap-4 px-4 py-3 text-left border-b border-border last:border-b-0 hover:bg-[hsl(var(--cyan)/0.05)] transition-colors"
+              data-testid="schedule-block"
             >
               <div className="w-24 flex-shrink-0 pt-0.5">
-                <div className="text-xs font-medium tabular-nums">{fmt12(b.startTime)}</div>
-                <div className="text-[10px] text-muted-foreground tabular-nums">→ {fmt12(b.endTime)}</div>
+                <div className="text-xs font-stat tracking-wider scoreboard">{fmt12(b.startTime)}</div>
+                <div className="text-[10px] text-muted-foreground scoreboard">→ {fmt12(b.endTime)}</div>
               </div>
               <div
-                className="flex-1 rounded-md px-3 py-2 flex items-center gap-2 min-w-0"
-                style={{ backgroundColor: meta.color, color: "hsl(var(--background))" }}
+                className="flex-1 rounded-full px-4 py-2 flex items-center gap-2 min-w-0 relative"
+                style={{
+                  background: `linear-gradient(90deg, ${meta.color}26 0%, ${meta.color}10 50%, transparent 100%)`,
+                  borderLeft: `3px solid ${meta.color}`,
+                  boxShadow: `inset 0 0 0 1px ${meta.color}22, 0 0 14px -4px ${meta.color}`,
+                }}
               >
-                {b.recurringId && <Repeat className="h-3 w-3 flex-shrink-0" />}
-                <span className="font-medium truncate flex-1">
-                  {b.label || meta.label}
+                {b.recurringId && <Repeat className="h-3 w-3 flex-shrink-0" style={{ color: meta.color }} />}
+                <span className="font-stat tracking-wider truncate flex-1" style={{ color: meta.color }}>
+                  {(b.label || meta.label).toUpperCase()}
                 </span>
-                <span className="text-[10px] opacity-80 tabular-nums">{durationLabel(mins)}</span>
+                <span className="text-[10px] scoreboard text-muted-foreground">{durationLabel(mins)}</span>
               </div>
             </button>
           );

@@ -767,7 +767,90 @@
     100% { transform: scale(1.7); opacity: 0; }
   }
 
-  /* ---------- Reduced motion safety ---------- */
+  /* ---------- Water tracker — liquid fill ---------- */
+  .water-card {
+    position: relative;
+    overflow: hidden;
+    isolation: isolate;
+  }
+  .water-card::before {
+    content: "";
+    position: absolute;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    height: var(--water-fill, 0%);
+    background:
+      linear-gradient(180deg,
+        hsl(199 100% 55% / 0.18) 0%,
+        hsl(199 100% 50% / 0.30) 100%);
+    transition: height 800ms cubic-bezier(0.22, 1, 0.36, 1);
+    z-index: -1;
+    pointer-events: none;
+  }
+  .water-card::after {
+    content: "";
+    position: absolute;
+    left: -50%;
+    right: -50%;
+    bottom: calc(var(--water-fill, 0%) - 6px);
+    height: 12px;
+    background: radial-gradient(ellipse at center,
+      hsl(199 100% 60% / 0.55) 0%,
+      transparent 70%);
+    z-index: -1;
+    pointer-events: none;
+    transition: bottom 800ms cubic-bezier(0.22, 1, 0.36, 1);
+    animation: waterWave 4s ease-in-out infinite;
+  }
+  @keyframes waterWave {
+    0%, 100% { transform: translateY(0) scaleY(1); }
+    50%      { transform: translateY(-2px) scaleY(1.15); }
+  }
+  .water-flood {
+    animation: waterFlood 1.4s ease-out;
+  }
+  @keyframes waterFlood {
+    0%   { box-shadow: 0 0 0 0 hsl(199 100% 50% / 0.7) inset; }
+    50%  { box-shadow: 0 0 0 200px hsl(199 100% 50% / 0.18) inset; }
+    100% { box-shadow: 0 0 0 0 hsl(199 100% 50% / 0) inset; }
+  }
+
+  /* ---------- Time-block left-accent pill (planner) ---------- */
+  .time-block {
+    position: relative;
+    border-radius: 999px;
+    padding-left: 0.875rem;
+  }
+  .time-block::before {
+    content: "";
+    position: absolute;
+    left: 0;
+    top: 0.25rem;
+    bottom: 0.25rem;
+    width: 3px;
+    border-radius: 999px;
+    background: var(--block-accent, hsl(var(--cyan)));
+    box-shadow: 0 0 10px var(--block-accent, hsl(var(--cyan) / 0.6));
+  }
+
+  /* ---------- Active workout timer (large monospaced cyan) ---------- */
+  .timer-hero {
+    font-family: var(--font-display);
+    font-variant-numeric: tabular-nums;
+    color: hsl(var(--cyan));
+    text-shadow:
+      0 0 12px hsl(var(--cyan) / 0.55),
+      0 0 28px hsl(var(--cyan) / 0.30);
+    letter-spacing: 0.06em;
+  }
+
+  /* ---------- Sliding indicator pill (mobile/tabs) ---------- */
+  .pill-indicator {
+    transition: all 0.35s cubic-bezier(0.34, 1.56, 0.64, 1);
+  }
+
+
   @media (prefers-reduced-motion: reduce) {
     *,
     *::before,
