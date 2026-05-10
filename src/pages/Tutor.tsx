@@ -364,7 +364,7 @@ const SubjectChat = ({
               <div
                 className={cn(
                   "rounded-2xl px-4 py-2.5 max-w-[85%] text-sm space-y-2",
-                  m.role === "user" ? "bg-primary text-primary-foreground" : "bg-muted text-foreground"
+                  m.role === "user" ? "chat-bubble-user" : "chat-bubble-ai"
                 )}
               >
                 {m.role === "assistant" ? (
@@ -377,9 +377,9 @@ const SubjectChat = ({
                         </>
                       ) : (
                         <>
-                          <span className="h-1.5 w-1.5 rounded-full bg-foreground/60 animate-bounce" style={{ animationDelay: "0ms" }} />
-                          <span className="h-1.5 w-1.5 rounded-full bg-foreground/60 animate-bounce" style={{ animationDelay: "150ms" }} />
-                          <span className="h-1.5 w-1.5 rounded-full bg-foreground/60 animate-bounce" style={{ animationDelay: "300ms" }} />
+                          <span className="typing-dot" style={{ animationDelay: "0ms" }} />
+                          <span className="typing-dot" style={{ animationDelay: "200ms" }} />
+                          <span className="typing-dot" style={{ animationDelay: "400ms" }} />
                         </>
                       )}
                     </div>

@@ -36,8 +36,16 @@ export const FloatingXpLayer = () => {
       {items.map((it) => (
         <div
           key={it.id}
-          className="absolute xp-float font-extrabold text-base md:text-lg drop-shadow-lg"
-          style={{ left: it.x, top: it.y, color: it.color }}
+          className="absolute xp-float font-extrabold"
+          style={{
+            left: it.x,
+            top: it.y,
+            color: it.color,
+            fontFamily: "'Bebas Neue', 'Barlow Condensed', sans-serif",
+            fontSize: '1.4rem',
+            letterSpacing: '0.05em',
+            textShadow: `0 0 10px ${it.color}, 0 0 20px ${it.color}88`,
+          }}
         >
           {it.amount > 0 ? "+" : ""}{it.amount} XP
         </div>

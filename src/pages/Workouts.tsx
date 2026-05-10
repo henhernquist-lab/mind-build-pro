@@ -109,22 +109,22 @@ const RankCard = ({ rank, xp, next }: { rank: Rank; xp: number; next: Rank | nul
   const progress = next ? Math.min(100, Math.max(0, ((xp - rank.xpRequired) / (next.xpRequired - rank.xpRequired)) * 100)) : 100;
   const xpToNext = next ? next.xpRequired - xp : 0;
   return (
-    <div className="rounded-2xl border border-border bg-card p-5 mb-6 relative overflow-hidden" style={{ borderTop: `3px solid ${rank.color}` }}>
+    <div className="rank-card rounded-2xl p-5 mb-6 relative overflow-hidden" style={{ background: 'rgba(255,255,255,0.03)', backdropFilter: 'blur(20px)', boxShadow: '0 4px 24px rgba(0,0,0,0.4), inset 0 1px 0 rgba(255,255,255,0.05)' }}>
       <div className="absolute inset-0 pointer-events-none opacity-10" style={{ background: `radial-gradient(circle at top right, ${rank.color}, transparent 60%)` }} />
       <div className="relative flex items-center gap-4 flex-wrap">
-        <div className="h-16 w-16 rounded-2xl flex items-center justify-center text-4xl flex-shrink-0" style={{ background: `${rank.color}22`, border: `1px solid ${rank.color}44` }}>
+        <div className="h-16 w-16 rounded-2xl flex items-center justify-center text-4xl flex-shrink-0" style={{ background: `${rank.color}22`, border: `1px solid ${rank.color}44`, boxShadow: `0 0 20px ${rank.color}33` }}>
           {rank.icon}
         </div>
         <div className="flex-1 min-w-[180px]">
-          <div className="text-[11px] uppercase tracking-widest text-muted-foreground">Current rank</div>
-          <div className="text-2xl font-bold" style={{ color: rank.color }}>{rank.name}</div>
-          <div className="text-xs text-muted-foreground mt-0.5">
+          <div className="text-[11px] uppercase tracking-widest text-muted-foreground" style={{ fontFamily: "'Barlow Condensed', sans-serif" }}>Current rank</div>
+          <div className="rank-name-shimmer">{rank.name}</div>
+          <div className="text-xs text-muted-foreground mt-0.5" style={{ fontFamily: "'Barlow Condensed', sans-serif" }}>
             {xp} XP {next ? `· ${xpToNext} XP to ${next.icon} ${next.name}` : "· max rank 🔥"}
           </div>
         </div>
       </div>
-      <div className="mt-4 h-2 rounded-full bg-muted overflow-hidden">
-        <motion.div className="h-full rounded-full" style={{ background: rank.color }} initial={false} animate={{ width: `${progress}%` }} transition={{ duration: 0.6 }} />
+      <div className="xp-bar-track mt-4 h-2">
+        <motion.div className="xp-bar-fill" initial={false} animate={{ width: `${progress}%` }} transition={{ duration: 0.6 }} />
       </div>
     </div>
   );

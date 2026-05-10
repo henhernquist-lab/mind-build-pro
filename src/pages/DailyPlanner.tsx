@@ -193,7 +193,7 @@ const DailyPlanner = () => {
   });
 
   return (
-    <div className="p-6 md:p-10 max-w-5xl mx-auto">
+    <div className="p-6 md:p-10 max-w-5xl mx-auto stagger-container">
       <header className="mb-6">
         <motion.h1
           initial={{ opacity: 0, y: -4 }}
@@ -235,7 +235,7 @@ const DailyPlanner = () => {
           <motion.div
             key={k}
             whileHover={{ y: -2 }}
-            className="rounded-xl border border-border bg-card p-4"
+            className="stagger-child rounded-xl border border-border bg-card p-4"
             style={{ borderTop: `2px solid ${CAT_META[k].color}` }}
           >
             <div className="text-xs text-muted-foreground flex items-center gap-1.5">

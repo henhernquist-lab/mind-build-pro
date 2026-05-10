@@ -84,11 +84,16 @@ const accentColor = (a: string) =>
 
 const navItemClass = ({ isActive }: { isActive: boolean }) =>
   cn(
-    "group flex items-center gap-3 rounded-lg px-3 py-2 text-sm transition-colors",
+    "group flex items-center gap-3 rounded-lg px-3 py-2 text-sm transition-all duration-200",
     isActive
-      ? "bg-sidebar-accent text-sidebar-accent-foreground"
-      : "text-sidebar-foreground hover:bg-sidebar-accent/60 hover:text-sidebar-accent-foreground"
+      ? "bg-[rgba(0,229,255,0.1)] text-[#00E5FF] border-l-[3px] border-[#00E5FF] !pl-[9px]"
+      : "text-sidebar-foreground hover:bg-[rgba(0,229,255,0.05)] hover:text-[#00E5FF] border-l-[3px] border-transparent !pl-[9px]"
   );
+
+// Trigger page-load stagger animation
+if (typeof document !== 'undefined') {
+  setTimeout(() => document.body.classList.add('loaded'), 100);
+}
 
 export const AppShell = () => {
   const location = useLocation();
@@ -160,7 +165,7 @@ export const AppShell = () => {
 
       <OfflineBanner />
 
-      <aside className="hidden md:flex w-60 flex-col border-r border-sidebar-border bg-sidebar">
+      <aside className="hidden md:flex w-60 flex-col border-r border-sidebar-border bg-sidebar" style={{ background: 'rgba(8,12,16,0.85)', backdropFilter: 'blur(20px)', WebkitBackdropFilter: 'blur(20px)', borderRight: '1px solid rgba(255,255,255,0.06)', position: 'relative' }}>
         <div className="p-5 pl-16 flex items-center gap-2 justify-between">
           <div className="flex items-center gap-2 min-w-0">
             <div className="h-9 w-9 rounded-xl flex items-center justify-center bg-gradient-to-br from-school to-sports flex-shrink-0">
