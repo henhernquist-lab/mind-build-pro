@@ -1,7 +1,7 @@
 import { supabase } from "@/integrations/supabase/client";
 import type { AthleticInfo } from "./profile";
 
-// Cast to any to avoid TS2589 on manually-added tables (water_logs, user_water_goals)
+// Cast to any to avoid TS2589 on manually-added tables
 const db = supabase as any;
 
 // ─── Types ────────────────────────────────────────────────────────────────────
@@ -11,7 +11,7 @@ export type DrinkType = "water" | "sports_drink" | "juice" | "coffee" | "tea" | 
 export type WaterLog = {
   id: string;
   user_id: string;
-  log_date: string;           // YYYY-MM-DD
+  log_date: string;           // local date "YYYY-MM-DD" (never UTC)
   logged_at: string;          // ISO timestamp
   amount_ml: number;
   drink_type: DrinkType;
@@ -38,6 +38,34 @@ export type WaterGoalInfo = {
   };
   missing_fields?: string[];
 };
+
+export interface WaterChartDay {
+  date: string;       // short weekday label e.g. "Mon"
+  localDate: string;  // "YYYY-MM-DD"
+  amount: number;     // sum of hydration_credit_ml
+  goalHit: boolean;
+}
+
+// ─── Timezone helpers ─────────────────────────────────────────────────────────
+
+/** Get the user's IANA timezone */
+export const getUserTimezone = (): string =>
+  Intl.DateTimeFormat().resolvedOptions().timeZone;
+
+/** Get today's local date string "YYYY-MM-DD" using the user's timezone */
+export const getLocalToday = (): string =>
+  new Date().toLocaleDateString("en-CA", { timeZone: getUserTimezone() });
+
+/** Get a local date string for `daysAgo` days before today */
+export const getLocalDateDaysAgo = (daysAgo: number): string => {
+  const tz = getUserTimezone();
+  const d = new Date(Date.now() - daysAgo * 86400000);
+  return d.toLocaleDateString("en-CA", { timeZone: tz });
+};
+
+/** Get the last 7 local date strings (oldest first) */
+export const getLast7LocalDates = (): string[] =>
+  Array.from({ length: 7 }, (_, i) => getLocalDateDaysAgo(6 - i));
 
 // ─── Hydration credit multipliers ─────────────────────────────────────────────
 
@@ -67,25 +95,23 @@ export const hydrationCredit = (amount_ml: number, drink_type: DrinkType): numbe
 // ─── Personalized goal calculator ─────────────────────────────────────────────
 
 export const calculateWaterGoal = (a: AthleticInfo | null): WaterGoalInfo => {
-  if (!a) return { goal_ml: 2000, source: "default", missing_fields: ["age", "height", "weight", "training_days"] };
+  // Return default 2000ml if profile is incomplete
+  if (!a?.weight_lbs || !a?.height_ft || !a?.age) {
+    const missing: string[] = [];
+    if (!a?.weight_lbs) missing.push("weight");
+    if (!a?.height_ft) missing.push("height");
+    if (!a?.age) missing.push("age");
+    return { goal_ml: 2000, source: "default", missing_fields: missing.length ? missing : ["age", "height", "weight"] };
+  }
 
-  const missing: string[] = [];
-  if (!a.weight_lbs || a.weight_lbs <= 0) missing.push("weight");
-  if (!a.age || a.age <= 0) missing.push("age");
-  if (a.height_ft === undefined || a.height_in === undefined) missing.push("height");
-
-  const weight = a.weight_lbs || 120;
-  const heightInches = (a.height_ft || 5) * 12 + (a.height_in || 0);
-  const age = a.age || 14;
+  const weightLbs = a.weight_lbs;
+  const heightInches = (a.height_ft * 12) + (a.height_in || 0);
+  const age = a.age;
   const trainingDays = a.training_days_per_week || 3;
 
-  // Step 1 — base from weight
-  const baseOz = weight * 0.6;
-
-  // Step 2 — height bonus
+  const baseOz = weightLbs * 0.6;
   const heightBonusOz = Math.max(0, (heightInches - 60) * 1);
 
-  // Step 3 — age multiplier
   let ageMultiplier = 1.0;
   if (age <= 12) ageMultiplier = 0.85;
   else if (age === 13) ageMultiplier = 0.90;
@@ -94,7 +120,6 @@ export const calculateWaterGoal = (a: AthleticInfo | null): WaterGoalInfo => {
   else if (age === 16) ageMultiplier = 1.05;
   else ageMultiplier = 1.10;
 
-  // Step 4 — activity bonus
   let activityBonusOz = 0;
   if (trainingDays >= 5) activityBonusOz = 16;
   else if (trainingDays >= 3) activityBonusOz = 8;
@@ -107,7 +132,7 @@ export const calculateWaterGoal = (a: AthleticInfo | null): WaterGoalInfo => {
     goal_ml: dailyGoalMl,
     source: "calculated",
     breakdown: {
-      weight_lbs: weight,
+      weight_lbs: weightLbs,
       height_in: heightInches,
       age,
       training_days: trainingDays,
@@ -116,18 +141,21 @@ export const calculateWaterGoal = (a: AthleticInfo | null): WaterGoalInfo => {
       age_multiplier: ageMultiplier,
       activity_bonus_ml: Math.round(activityBonusOz * 29.5735),
     },
-    missing_fields: missing.length > 0 ? missing : undefined,
   };
 };
 
 // ─── Supabase helpers ──────────────────────────────────────────────────────────
 
-export const fetchWaterLogs = async (userId: string, date: string): Promise<WaterLog[]> => {
+/**
+ * Fetch today's water logs using local_date (timezone-correct).
+ * Pass getLocalToday() as `localDate` — never a UTC date.
+ */
+export const fetchWaterLogs = async (userId: string, localDate: string): Promise<WaterLog[]> => {
   const { data, error } = await db
     .from("water_logs")
     .select("*")
     .eq("user_id", userId)
-    .eq("log_date", date)
+    .eq("log_date", localDate)
     .order("logged_at", { ascending: true });
   if (error) throw error;
   return (data ?? []) as WaterLog[];
@@ -147,6 +175,9 @@ export const fetchWaterLogsRange = async (
   return (data ?? []) as WaterLog[];
 };
 
+/**
+ * Insert a water log. Always pass log_date from getLocalToday() — never UTC.
+ */
 export const insertWaterLog = async (
   userId: string,
   log: Omit<WaterLog, "id" | "user_id">,
@@ -165,49 +196,136 @@ export const deleteWaterLog = async (id: string) => {
   if (error) throw error;
 };
 
+/** Sum hydration_credit_ml (NOT amount_ml) — this is the correct daily total */
 export const sumWaterDay = (logs: WaterLog[]): number =>
   logs.reduce((acc, l) => acc + l.hydration_credit_ml, 0);
 
-/** Compute consecutive days where water goal was hit */
-export const computeWaterStreak = (
-  logsRange: WaterLog[],
-  goalMl: number,
-): number => {
-  if (logsRange.length === 0) return 0;
-  const byDate: Record<string, number> = {};
-  for (const l of logsRange) {
-    byDate[l.log_date] = (byDate[l.log_date] ?? 0) + l.hydration_credit_ml;
-  }
-  let streak = 0;
-  const today = new Date();
-  for (let i = 0; i < 365; i++) {
-    const d = new Date(today);
-    d.setDate(d.getDate() - i);
-    const iso = d.toLocaleDateString("en-CA");
-    if ((byDate[iso] ?? 0) >= goalMl) {
-      streak++;
-    } else if (i > 0) {
-      break;
+// ─── Streak (uses user_stats.water_streak) ────────────────────────────────────
+
+/**
+ * Update water streak in user_stats using timezone-correct local dates.
+ * Returns the new streak count.
+ */
+export const updateWaterStreak = async (
+  userId: string,
+  userWaterGoal: number,
+): Promise<number> => {
+  try {
+    const tz = getUserTimezone();
+    const today = new Date().toLocaleDateString("en-CA", { timeZone: tz });
+    const yesterday = new Date(Date.now() - 86400000).toLocaleDateString("en-CA", { timeZone: tz });
+
+    // Check if goal was hit today
+    const { data: todayLogs } = await db
+      .from("water_logs")
+      .select("hydration_credit_ml")
+      .eq("user_id", userId)
+      .eq("log_date", today);
+    const todayTotal = (todayLogs ?? []).reduce((sum: number, l: any) => sum + l.hydration_credit_ml, 0);
+    const goalHitToday = todayTotal >= userWaterGoal;
+
+    // Check if goal was hit yesterday
+    const { data: yesterdayLogs } = await db
+      .from("water_logs")
+      .select("hydration_credit_ml")
+      .eq("user_id", userId)
+      .eq("log_date", yesterday);
+    const yesterdayTotal = (yesterdayLogs ?? []).reduce((sum: number, l: any) => sum + l.hydration_credit_ml, 0);
+    const goalHitYesterday = yesterdayTotal >= userWaterGoal;
+
+    // Get current streak from user_stats
+    const { data: stats } = await db
+      .from("user_stats")
+      .select("water_streak, last_water_streak_date")
+      .eq("user_id", userId)
+      .maybeSingle();
+
+    let newStreak = stats?.water_streak || 0;
+
+    if (goalHitToday && stats?.last_water_streak_date !== today) {
+      // Goal hit today and not yet counted
+      if (goalHitYesterday || stats?.last_water_streak_date === yesterday) {
+        newStreak += 1; // continue streak
+      } else {
+        newStreak = 1; // restart streak
+      }
+      await db
+        .from("user_stats")
+        .update({ water_streak: newStreak, last_water_streak_date: today })
+        .eq("user_id", userId);
+    } else if (!goalHitYesterday && stats?.last_water_streak_date !== today) {
+      // Missed yesterday and haven't hit today — streak broken
+      if (newStreak > 0) {
+        await db
+          .from("user_stats")
+          .update({ water_streak: 0 })
+          .eq("user_id", userId);
+        newStreak = 0;
+      }
     }
+
+    return newStreak;
+  } catch {
+    return 0;
   }
-  return streak;
 };
 
-/** Save / update user's custom water goal in Supabase */
+/** Read-only streak fetch from user_stats */
+export const fetchWaterStreak = async (userId: string): Promise<number> => {
+  try {
+    const { data } = await db
+      .from("user_stats")
+      .select("water_streak")
+      .eq("user_id", userId)
+      .maybeSingle();
+    return data?.water_streak || 0;
+  } catch {
+    return 0;
+  }
+};
+
+// ─── 7-day chart data ─────────────────────────────────────────────────────────
+
+/**
+ * Fetch and build the 7-day water chart data using timezone-correct local dates.
+ */
+export const fetchWaterChartData = async (
+  userId: string,
+  goalMl: number,
+): Promise<WaterChartDay[]> => {
+  const tz = getUserTimezone();
+  const last7 = getLast7LocalDates();
+
+  const { data: weekLogs } = await db
+    .from("water_logs")
+    .select("log_date, hydration_credit_ml")
+    .eq("user_id", userId)
+    .in("log_date", last7);
+
+  return last7.map((localDate) => {
+    const dayLogs = (weekLogs ?? []).filter((l: any) => l.log_date === localDate);
+    const total = dayLogs.reduce((sum: number, l: any) => sum + l.hydration_credit_ml, 0);
+    const label = new Date(localDate + "T12:00:00").toLocaleDateString("en-US", {
+      weekday: "short",
+      timeZone: tz,
+    });
+    return { date: label, localDate, amount: total, goalHit: total >= goalMl };
+  });
+};
+
+// ─── Goal persistence ─────────────────────────────────────────────────────────
+
 export const saveWaterGoal = async (userId: string, goal_ml: number, source: WaterGoalSource) => {
   const { error } = await db.from("user_water_goals").upsert(
-    {
-      user_id: userId,
-      goal_ml,
-      source,
-      updated_at: new Date().toISOString(),
-    },
+    { user_id: userId, goal_ml, source, updated_at: new Date().toISOString() },
     { onConflict: "user_id" },
   );
   if (error) throw error;
 };
 
-export const fetchWaterGoalOverride = async (userId: string): Promise<{ goal_ml: number; source: WaterGoalSource } | null> => {
+export const fetchWaterGoalOverride = async (
+  userId: string,
+): Promise<{ goal_ml: number; source: WaterGoalSource } | null> => {
   try {
     const { data, error } = await db
       .from("user_water_goals")
@@ -217,7 +335,6 @@ export const fetchWaterGoalOverride = async (userId: string): Promise<{ goal_ml:
     if (error || !data) return null;
     return { goal_ml: data.goal_ml as number, source: data.source as WaterGoalSource };
   } catch {
-    // Table may not exist yet (migration not run) — return null gracefully
     return null;
   }
 };

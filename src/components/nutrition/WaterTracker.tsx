@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Loader2, Camera, Upload, Info, Trash2, RotateCcw, ChevronDown, ChevronUp, Settings, Check, X } from "lucide-react";
@@ -7,10 +7,10 @@ import { cn } from "@/lib/utils";
 import { supabase } from "@/integrations/supabase/client";
 import {
   type WaterLog, type DrinkType, type WaterGoalInfo,
-  DRINK_LABELS, HYDRATION_MULTIPLIER, hydrationCredit,
+  DRINK_LABELS, hydrationCredit,
   fetchWaterLogs, insertWaterLog, deleteWaterLog, sumWaterDay,
-  computeWaterStreak, fetchWaterLogsRange, saveWaterGoal, fetchWaterGoalOverride,
-  calculateWaterGoal,
+  updateWaterStreak, fetchWaterStreak, saveWaterGoal, fetchWaterGoalOverride,
+  calculateWaterGoal, getLocalToday,
 } from "@/lib/water";
 import type { AthleticInfo } from "@/lib/profile";
 
@@ -79,16 +79,20 @@ export const WaterTracker = ({
   const [scanResult, setScanResult] = useState<ScanResult | null>(null);
   const [sliderAmount, setSliderAmount] = useState(500);
   const [sliderDrinkType, setSliderDrinkType] = useState<DrinkType>("water");
+  const [quickAddDisabled, setQuickAddDisabled] = useState(false);
+  const debounceRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const cameraInputId = "water-camera-input";
   const cameraRef = useRef<HTMLInputElement>(null);
   const uploadRef = useRef<HTMLInputElement>(null);
   const { toast } = useToast();
+  const localToday = getLocalToday();
 
   // Load logs + goal on mount / date change
   useEffect(() => {
     if (!userId) return;
     setLoading(true);
     Promise.all([
-      fetchWaterLogs(userId, date),
+      fetchWaterLogs(userId, localToday),
       fetchWaterGoalOverride(userId),
     ]).then(([fetchedLogs, override]) => {
       setLogs(fetchedLogs);
@@ -104,21 +108,9 @@ export const WaterTracker = ({
         toast({ title: "Couldn't load water data", description: e?.message });
       }
     }).finally(() => setLoading(false));
-  }, [userId, date, athletic]);
+  }, [userId, localToday]);
 
-  // Compute streak from range
-  useEffect(() => {
-    if (!userId) return;
-    const end = date;
-    const startD = new Date(date + "T12:00:00");
-    startD.setDate(startD.getDate() - 60);
-    const start = startD.toLocaleDateString("en-CA");
-    fetchWaterLogsRange(userId, start, end).then((range) => {
-      const s = computeWaterStreak(range, goalInfo.goal_ml);
-      setStreak(s);
-      onStreakChange?.(s);
-    }).catch(() => {});
-  }, [userId, date, logs, goalInfo.goal_ml]);
+
 
   const totalMl = sumWaterDay(logs);
   const goalMl = goalInfo.goal_ml;
@@ -378,7 +370,7 @@ export const WaterTracker = ({
         <p className="text-xs text-muted-foreground mb-2">Quick add</p>
         <div className="flex flex-wrap gap-2">
           {QUICK_AMOUNTS.map((ml) => (
-            <Button key={ml} size="sm" variant="outline" className="h-8 text-xs border-blue-500/30 hover:bg-blue-500/10 hover:text-blue-400" onClick={() => handleQuickLog(ml)}>
+            <Button key={ml} size="sm" variant="outline" disabled={quickAddDisabled} className="h-8 text-xs border-blue-500/30 hover:bg-blue-500/10 hover:text-blue-400" onClick={() => handleQuickLog(ml)}>
               +{ml >= 1000 ? `${ml / 1000}L` : `${ml}ml`}
             </Button>
           ))}
@@ -400,7 +392,7 @@ export const WaterTracker = ({
       <div className="flex gap-2 flex-wrap">
         <input ref={cameraRef} type="file" accept="image/*" capture="environment" className="hidden" onChange={(e) => handleFileSelected(e.target.files?.[0])} />
         <input ref={uploadRef} type="file" accept="image/*" className="hidden" onChange={(e) => handleFileSelected(e.target.files?.[0])} />
-        <Button variant="outline" size="sm" className="h-8 text-xs gap-1.5" onClick={() => cameraRef.current?.click()}>
+        <Button variant="outline" size="sm" className="h-8 text-xs gap-1.5" onClick={() => { const el = document.getElementById(cameraInputId) as HTMLInputElement | null; el?.click(); }}>
           <Camera className="h-3.5 w-3.5" /> Take Photo
         </Button>
         <Button variant="outline" size="sm" className="h-8 text-xs gap-1.5" onClick={() => uploadRef.current?.click()}>
