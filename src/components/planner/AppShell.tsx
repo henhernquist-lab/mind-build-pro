@@ -75,6 +75,7 @@ const GROUPS: NavGroup[] = [
 const MOBILE_NAV: NavItem[] = [
   { to: "/", label: "Planner", icon: Calendar, accent: "school" },
   { to: "/workouts", label: "Training", icon: Dumbbell, accent: "sports" },
+  { to: "/recovery", label: "Recovery", icon: Heart, accent: "sports" },
   { to: "/tutor", label: "Academic", icon: Brain, accent: "primary" },
   { to: "/leaderboard", label: "Compete", icon: Trophy, accent: "primary" },
 ];
@@ -270,7 +271,7 @@ export const AppShell = () => {
         </div>
       </aside>
 
-      {/* Mobile bottom nav — trimmed to 4 items, FAB handles the rest */}
+      {/* Mobile bottom nav — trimmed to 5 items to include Recovery */}
       <div className="md:hidden fixed bottom-0 inset-x-0 z-40 bg-sidebar/95 backdrop-blur border-t border-sidebar-border flex">
         {MOBILE_NAV.map((item) => (
           <NavLink

@@ -7,12 +7,12 @@ import { cn } from "@/lib/utils";
 
 type Section = { to: string; label: string; members: string[] };
 
-// 4 top-level swipeable tabs. `members` are all routes that belong to the tab —
+// 5 top-level swipeable tabs. `members` are all routes that belong to the tab —
 // swiping from any member navigates to the next tab's root.
 const SECTIONS: Section[] = [
   { to: "/", label: "Planner", members: ["/"] },
-  { to: "/workouts", label: "Training", members: ["/workouts", "/nutrition", "/macros"] },
-  { to: "/tutor", label: "Academic", members: ["/tutor", "/tests", "/vocab", "/notes"] },
+  { to: "/workouts", label: "Training", members: ["/workouts", "/nutrition", "/macros", "/recovery"] },
+  { to: "/tutor", label: "Academic", members: ["/tutor", "/tests", "/vocab", "/notes", "/practice"] },
   { to: "/leaderboard", label: "Compete", members: ["/leaderboard", "/championship"] },
 ];
 

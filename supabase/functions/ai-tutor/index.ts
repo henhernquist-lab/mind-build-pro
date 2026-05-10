@@ -126,7 +126,31 @@ serve(async (req) => {
         : "";
 
       const mmPrompt = useMermaid
-        ? `You are an expert tutor creating a Mermaid.js mind map for a student about: "${mindmap}"${customLabel ? ` (subject: ${customLabel})` : ``}.${photoContext}\n\nReturn ONLY a valid Mermaid mindmap block (no prose, no backtick fences, no markdown):\nmindmap\n  root((${mindmap}))\n    Branch1\n      SubIdea1\n      SubIdea2\n    Branch2\n      SubIdea3\n\nRules: 4-6 top-level branches, 2-4 children per branch, labels under 5 words, proper Mermaid indentation, output ONLY the mindmap block.`
+        ? `Generate a Mermaid.js mindmap for the topic: "${mindmap}"
+
+Rules:
+- Use mindmap syntax (not flowchart)
+- Root node uses double parentheses: ((${mindmap}))
+- Maximum 4 main branches from root
+- Each branch has 2-3 sub-nodes maximum
+- Keep all node labels under 4 words
+- Cover the most important concepts only — quality over quantity
+- No special characters except hyphens in node labels
+
+Format exactly like this (no backticks, no markdown):
+mindmap
+  root((${mindmap}))
+    Branch One
+      Sub concept
+      Sub concept
+    Branch Two
+      Sub concept
+      Sub concept
+    Branch Three
+      Sub concept
+    Branch Four
+      Sub concept
+      Sub concept`
         : `You are an expert tutor creating a study mind map for a student about: "${mindmap}"${customLabel ? ` (subject: ${customLabel})` : ``}.${photoContext}\n\nReturn ONLY valid JSON (no prose, no fences):\n{\n  "topic": "<short central topic>",\n  "summary": "<one-sentence overview>",\n  "branches": [\n    { "title": "<key concept>", "color": "<blue|green|orange|purple|pink|cyan>", "children": [ { "title": "<sub-idea>", "detail": "<short clarifier>" } ] }\n  ]\n}\n\n4-6 branches, 2-4 children each. Titles <5 words; details <12 words. Vary colors. JSON only.`;
 
       const mmResp = await fetch("https://ai.gateway.lovable.dev/v1/chat/completions", {

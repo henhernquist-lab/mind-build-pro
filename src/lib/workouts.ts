@@ -50,7 +50,7 @@ export const insertEntry = async (userId: string, entry: Omit<Entry, "id" | "log
     exercise: entry.exercise,
     value: entry.value,
     unit: entry.unit,
-    added_weight: entry.addedWeight ?? null,
+    added_weight: entry.added_weight ?? null,
     is_pr: !!entry.isPR,
     grade: entry.grade ?? null,
     xp: entry.xp ?? null,
@@ -82,7 +82,124 @@ export const deleteEntry = async (id: string) => {
   if (error) throw error;
 };
 
-// Athlete profile
+// --- New Session-based Workout functions ---
+
+export const fetchRecentSessions = async (userId: string, limit = 5) => {
+  const { data } = await supabase
+    .from("workout_sessions")
+    .select("*")
+    .eq("user_id", userId)
+    .order("finished_at", { ascending: false })
+    .limit(limit);
+  return data || [];
+};
+
+export const fetchAllTimePRs = async (userId: string) => {
+  // We'll use session_sets for this
+  const { data } = await supabase
+    .from("session_sets")
+    .select("exercise_name:session_exercises(exercise_name), weight_lbs, reps, time_seconds, distance_meters, completed_at")
+    .eq("user_id", userId)
+    .eq("is_pr", true)
+    .order("completed_at", { ascending: false });
+
+  // Transform and unique by exercise_name
+  const seen = new Set();
+  const prs: any[] = [];
+  (data || []).forEach((row: any) => {
+    const name = row.exercise_name?.exercise_name;
+    if (name && !seen.has(name)) {
+      seen.add(name);
+      prs.push({
+        exercise_name: name,
+        value: row.weight_lbs || row.time_seconds || row.distance_meters,
+        unit: row.weight_lbs ? "lbs" : (row.time_seconds ? "s" : "m"),
+        date: row.completed_at
+      });
+    }
+  });
+  return prs;
+};
+
+export const fetchPreviousExerciseData = async (userId: string, exerciseName: string) => {
+  const { data } = await supabase
+    .from("session_sets")
+    .select("weight_lbs, reps, time_seconds, distance_meters")
+    .eq("user_id", userId)
+    .eq("session_exercises.exercise_name", exerciseName)
+    .order("completed_at", { ascending: false })
+    .limit(1);
+
+  if (data && data[0]) {
+    const d = data[0];
+    if (d.weight_lbs) return `${d.weight_lbs} × ${d.reps}`;
+    if (d.time_seconds) return `${d.time_seconds}s`;
+    return `${d.distance_meters}m`;
+  }
+  return null;
+};
+
+export const saveWorkoutSession = async (userId: string, session: any) => {
+  // 1. Insert session
+  const { data: sessionData, error: sessionError } = await supabase
+    .from("workout_sessions")
+    .insert({
+      user_id: userId,
+      name: session.name,
+      started_at: new Date(Date.now() - session.duration * 1000).toISOString(),
+      finished_at: new Date().toISOString(),
+      duration_seconds: session.duration,
+      total_volume_lbs: session.totalVolume,
+      total_sets: session.exercises.reduce((acc: number, ex: any) => acc + ex.sets.length, 0),
+      total_reps: session.exercises.reduce((acc: number, ex: any) => acc + ex.sets.reduce((sAcc: number, s: any) => sAcc + (parseInt(s.reps) || 0), 0), 0),
+      pr_count: session.prCount,
+      xp_earned: session.xpEarned,
+      rating: session.rating,
+      local_date: new Date().toISOString().split('T')[0]
+    })
+    .select()
+    .single();
+
+  if (sessionError) throw sessionError;
+
+  // 2. Insert exercises and sets
+  for (const [index, ex] of session.exercises.entries()) {
+    const { data: exData, error: exError } = await supabase
+      .from("session_exercises")
+      .insert({
+        session_id: sessionData.id,
+        user_id: userId,
+        exercise_name: ex.name,
+        exercise_id: ex.id,
+        muscle_group: ex.muscle_group,
+        exercise_type: ex.type,
+        order_in_session: index
+      })
+      .select()
+      .single();
+
+    if (exError) throw exError;
+
+    const setsToInsert = ex.sets.map((s: any, sIdx: number) => ({
+      session_exercise_id: exData.id,
+      session_id: sessionData.id,
+      user_id: userId,
+      set_number: sIdx + 1,
+      weight_lbs: parseFloat(s.weight) || null,
+      reps: parseInt(s.reps) || null,
+      is_pr: !!s.isPR,
+      grade: s.grade,
+      completed_at: new Date().toISOString()
+    }));
+
+    const { error: setsError } = await supabase.from("session_sets").insert(setsToInsert);
+    if (setsError) throw setsError;
+  }
+
+  return sessionData;
+};
+
+// --- Profile ---
 export const fetchAthleteProfile = async (userId: string): Promise<AthleteProfile | null> => {
   const { data } = await supabase
     .from("athlete_profile")
@@ -103,8 +220,8 @@ export const saveAthleteProfile = async (userId: string, p: AthleteProfile) => {
   await supabase.from("athlete_profile").upsert({
     user_id: userId,
     age: p.age,
-    height_ft: p.heightFt,
-    height_in: p.heightIn,
+    height_ft: p.height_ft,
+    height_in: p.height_in,
     weight_lbs: p.weightLbs,
     gender: p.gender,
   });
