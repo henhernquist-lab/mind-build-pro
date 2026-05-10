@@ -1461,23 +1461,29 @@ export type Database = {
       user_stats: {
         Row: {
           current_month: string
+          last_water_streak_date: string | null
           period_start: string
           updated_at: string
           user_id: string
+          water_streak: number
           xp: number
         }
         Insert: {
           current_month?: string
+          last_water_streak_date?: string | null
           period_start?: string
           updated_at?: string
           user_id: string
+          water_streak?: number
           xp?: number
         }
         Update: {
           current_month?: string
+          last_water_streak_date?: string | null
           period_start?: string
           updated_at?: string
           user_id?: string
+          water_streak?: number
           xp?: number
         }
         Relationships: []

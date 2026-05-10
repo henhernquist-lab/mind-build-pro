@@ -11,7 +11,7 @@ export type DrinkType = "water" | "sports_drink" | "juice" | "coffee" | "tea" | 
 export type WaterLog = {
   id: string;
   user_id: string;
-  log_date: string;           // local date "YYYY-MM-DD" (never UTC)
+  local_date: string;           // local date "YYYY-MM-DD" (never UTC)
   logged_at: string;          // ISO timestamp
   amount_ml: number;
   drink_type: DrinkType;
@@ -148,14 +148,14 @@ export const calculateWaterGoal = (a: AthleticInfo | null): WaterGoalInfo => {
 
 /**
  * Fetch today's water logs using local_date (timezone-correct).
- * Pass getLocalToday() as `localDate` — never a UTC date.
+ * Pass getLocalToday() as localDate — never a UTC date.
  */
 export const fetchWaterLogs = async (userId: string, localDate: string): Promise<WaterLog[]> => {
   const { data, error } = await db
     .from("water_logs")
     .select("*")
     .eq("user_id", userId)
-    .eq("log_date", localDate)
+    .eq("local_date", localDate)
     .order("logged_at", { ascending: true });
   if (error) throw error;
   return (data ?? []) as WaterLog[];
@@ -168,15 +168,15 @@ export const fetchWaterLogsRange = async (
     .from("water_logs")
     .select("*")
     .eq("user_id", userId)
-    .gte("log_date", startDate)
-    .lte("log_date", endDate)
-    .order("log_date", { ascending: true });
+    .gte("local_date", startDate)
+    .lte("local_date", endDate)
+    .order("local_date", { ascending: true });
   if (error) throw error;
   return (data ?? []) as WaterLog[];
 };
 
 /**
- * Insert a water log. Always pass log_date from getLocalToday() — never UTC.
+ * Insert a water log. Always pass local_date from getLocalToday() — never UTC.
  */
 export const insertWaterLog = async (
   userId: string,
@@ -220,7 +220,7 @@ export const updateWaterStreak = async (
       .from("water_logs")
       .select("hydration_credit_ml")
       .eq("user_id", userId)
-      .eq("log_date", today);
+      .eq("local_date", today);
     const todayTotal = (todayLogs ?? []).reduce((sum: number, l: any) => sum + l.hydration_credit_ml, 0);
     const goalHitToday = todayTotal >= userWaterGoal;
 
@@ -229,7 +229,7 @@ export const updateWaterStreak = async (
       .from("water_logs")
       .select("hydration_credit_ml")
       .eq("user_id", userId)
-      .eq("log_date", yesterday);
+      .eq("local_date", yesterday);
     const yesterdayTotal = (yesterdayLogs ?? []).reduce((sum: number, l: any) => sum + l.hydration_credit_ml, 0);
     const goalHitYesterday = yesterdayTotal >= userWaterGoal;
 
@@ -298,12 +298,12 @@ export const fetchWaterChartData = async (
 
   const { data: weekLogs } = await db
     .from("water_logs")
-    .select("log_date, hydration_credit_ml")
+    .select("local_date, hydration_credit_ml")
     .eq("user_id", userId)
-    .in("log_date", last7);
+    .in("local_date", last7);
 
   return last7.map((localDate) => {
-    const dayLogs = (weekLogs ?? []).filter((l: any) => l.log_date === localDate);
+    const dayLogs = (weekLogs ?? []).filter((l: any) => l.local_date === localDate);
     const total = dayLogs.reduce((sum: number, l: any) => sum + l.hydration_credit_ml, 0);
     const label = new Date(localDate + "T12:00:00").toLocaleDateString("en-US", {
       weekday: "short",

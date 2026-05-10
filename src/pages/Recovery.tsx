@@ -99,6 +99,7 @@ const CompletionRing = ({ done, total }: { done: number; total: number }) => {
 };
 
 export default function Recovery() {
+  const sb = supabase as any;
   const { user } = useAuth();
   const [injuries, setInjuries] = useState<Injury[]>([]);
   const [checkIns, setCheckIns] = useState<Record<string, CheckIn[]>>({});
@@ -128,7 +129,7 @@ export default function Recovery() {
     (async () => {
       const [ath, { data: inj }] = await Promise.all([
         fetchAthletic(user.id),
-        supabase.from("injuries").select("*").eq("student_id", user.id).order("created_at", { ascending: false }),
+        sb.from("injuries").select("*").eq("student_id", user.id).order("created_at", { ascending: false }),
       ]);
       if (ath) {
         setAthleteInfo({ age: ath.age ?? 16, weight_lbs: ath.weight_lbs ?? 150, height_ft: ath.height_ft ?? 5, height_in: ath.height_in ?? 8, sport: (ath.primary_sports ?? []).join(", ") });
@@ -138,7 +139,7 @@ export default function Recovery() {
       setInjuries(injuries);
       // Load check-ins for active injuries
       for (const inj of injuries.filter((i) => i.status === "active")) {
-        const { data: ci } = await supabase.from("recovery_checkins").select("*").eq("injury_id", inj.id).order("date", { ascending: true });
+        const { data: ci } = await sb.from("recovery_checkins").select("*").eq("injury_id", inj.id).order("date", { ascending: true });
         setCheckIns((prev) => ({ ...prev, [inj.id]: (ci ?? []) as CheckIn[] }));
       }
       setLoading(false);
@@ -214,7 +215,7 @@ Include 3-5 phases progressing from rest to full return. Be specific with exerci
       returnDate.setDate(returnDate.getDate() + protocol.estimated_recovery_days);
       const estimated_return_date = returnDate.toISOString().slice(0, 10);
 
-      const { data, error } = await supabase.from("injuries").insert({
+      const { data, error } = await sb.from("injuries").insert({
         student_id: user.id,
         sport: form.sport,
         body_part: form.body_part,
@@ -241,7 +242,7 @@ Include 3-5 phases progressing from rest to full return. Be specific with exerci
   const submitCheckIn = async (injuryId: string) => {
     if (!user) return;
     const today = todayISO();
-    const { data, error } = await supabase.from("recovery_checkins").insert({
+    const { data, error } = await sb.from("recovery_checkins").insert({
       injury_id: injuryId,
       student_id: user.id,
       date: today,
@@ -261,7 +262,7 @@ Include 3-5 phases progressing from rest to full return. Be specific with exerci
     if (!user) return;
     const inj = injuries.find((i) => i.id === injuryId);
     if (!inj) return;
-    await supabase.from("injuries").update({ status: "recovered" }).eq("id", injuryId);
+    await sb.from("injuries").update({ status: "recovered" }).eq("id", injuryId);
     setInjuries((prev) => prev.map((i) => i.id === injuryId ? { ...i, status: "recovered" } : i));
     // Award XP
     await supabase.rpc("increment_xp" as any, { p_user_id: user.id, p_amount: 200 });
@@ -275,7 +276,7 @@ Include 3-5 phases progressing from rest to full return. Be specific with exerci
     const updated = ci.activities_completed.includes(activity)
       ? ci.activities_completed.filter((a) => a !== activity)
       : [...ci.activities_completed, activity];
-    await supabase.from("recovery_checkins").update({ activities_completed: updated }).eq("id", checkInId);
+    await sb.from("recovery_checkins").update({ activities_completed: updated }).eq("id", checkInId);
     setCheckIns((prev) => ({
       ...prev,
       [injuryId]: prev[injuryId].map((c) => c.id === checkInId ? { ...c, activities_completed: updated } : c),
