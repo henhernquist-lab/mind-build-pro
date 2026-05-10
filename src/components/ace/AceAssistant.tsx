@@ -204,12 +204,12 @@ export const AceAssistant = () => {
                   ))
                 )}
                 {loading && (
-                  <div className="flex items-center gap-2 text-xs text-muted-foreground">
+                  <div className="flex items-center gap-2 text-xs text-muted-foreground bubble-pop-left">
                     <Bot className="h-3.5 w-3.5" />
-                    <span className="inline-flex gap-1">
-                      <span className="h-1.5 w-1.5 rounded-full bg-primary animate-bounce" />
-                      <span className="h-1.5 w-1.5 rounded-full bg-primary animate-bounce" style={{ animationDelay: "0.15s" }} />
-                      <span className="h-1.5 w-1.5 rounded-full bg-primary animate-bounce" style={{ animationDelay: "0.3s" }} />
+                    <span className="inline-flex gap-1.5 items-center">
+                      <span className="typing-dot" />
+                      <span className="typing-dot" />
+                      <span className="typing-dot" />
                     </span>
                   </div>
                 )}
@@ -256,8 +256,18 @@ export const AceAssistant = () => {
 const MessageBubble = ({ msg, onNavigate }: { msg: Msg; onNavigate: (href: string) => void }) => {
   if (msg.role === "user") {
     return (
-      <div className="flex justify-end">
-        <div className="max-w-[85%] rounded-2xl rounded-tr-sm bg-primary text-primary-foreground px-3 py-2 text-sm">
+      <div className="flex justify-end bubble-pop-right">
+        <div
+          className="max-w-[85%] rounded-2xl rounded-tr-sm px-3.5 py-2 text-sm"
+          style={{
+            background: "hsl(var(--cyan) / 0.18)",
+            color: "hsl(var(--foreground))",
+            border: "1px solid hsl(var(--cyan) / 0.30)",
+            backdropFilter: "blur(14px)",
+            WebkitBackdropFilter: "blur(14px)",
+            boxShadow: "0 6px 24px -8px hsl(var(--cyan) / 0.45), inset 0 1px 0 rgba(255,255,255,0.06)",
+          }}
+        >
           {msg.content}
         </div>
       </div>
@@ -265,18 +275,30 @@ const MessageBubble = ({ msg, onNavigate }: { msg: Msg; onNavigate: (href: strin
   }
   const { text, href } = stripNavigate(msg.content);
   return (
-    <div className="flex gap-2">
-      <div className="h-7 w-7 rounded-full bg-gradient-to-br from-primary to-school flex items-center justify-center flex-shrink-0 mt-0.5">
-        <Bot className="h-3.5 w-3.5 text-primary-foreground" />
+    <div className="flex gap-2 bubble-pop-left">
+      <div className="h-7 w-7 rounded-full bg-gradient-to-br from-[hsl(var(--cyan))] to-[hsl(var(--neon))] flex items-center justify-center flex-shrink-0 mt-0.5 shadow-[0_0_14px_hsl(var(--cyan)/0.45)]">
+        <Bot className="h-3.5 w-3.5" style={{ color: "hsl(var(--background))" }} />
       </div>
       <div className="flex-1 min-w-0 space-y-1.5">
-        <div className="rounded-2xl rounded-tl-sm bg-muted px-3 py-2 text-sm prose prose-sm dark:prose-invert max-w-none prose-p:my-1 prose-p:leading-snug">
+        <div
+          className="rounded-2xl rounded-tl-sm px-3.5 py-2 text-sm prose prose-sm dark:prose-invert max-w-none prose-p:my-1 prose-p:leading-snug"
+          style={{
+            background: "rgba(13, 21, 32, 0.7)",
+            backdropFilter: "blur(14px)",
+            WebkitBackdropFilter: "blur(14px)",
+            borderLeft: "2px solid hsl(var(--cyan) / 0.55)",
+            border: "1px solid rgba(255,255,255,0.06)",
+            borderLeftWidth: "2px",
+            borderLeftColor: "hsl(var(--cyan))",
+            boxShadow: "0 6px 24px -10px rgba(0,0,0,0.6), inset 0 1px 0 rgba(255,255,255,0.05)",
+          }}
+        >
           <ReactMarkdown>{text}</ReactMarkdown>
         </div>
         {href && (
           <button
             onClick={() => onNavigate(href)}
-            className="inline-flex items-center gap-1 text-xs font-semibold text-primary hover:underline px-3"
+            className="inline-flex items-center gap-1 text-xs font-semibold text-[hsl(var(--cyan))] hover:underline px-3"
           >
             Take me there <ArrowRight className="h-3 w-3" />
           </button>

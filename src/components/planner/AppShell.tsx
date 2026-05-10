@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
 import { NavLink, Outlet, useLocation, useNavigate } from "react-router-dom";
+import { motion } from "framer-motion";
 import {
   Calendar, Dumbbell, Brain, Sparkles, LogOut, User,
   CalendarDays, BookText, NotebookPen, ChevronDown, Search, GraduationCap, Trophy, Apple, Utensils, Crown, ClipboardCheck, Heart,
@@ -84,10 +85,8 @@ const accentColor = (a: string) =>
 
 const navItemClass = ({ isActive }: { isActive: boolean }) =>
   cn(
-    "group relative flex items-center gap-3 rounded-lg pl-3 pr-3 py-2 text-sm transition-all duration-300",
-    isActive
-      ? "text-foreground bg-[hsl(var(--cyan)/0.12)] border-l-2 border-[hsl(var(--cyan))] shadow-[inset_0_0_18px_hsl(var(--cyan)/0.10)]"
-      : "text-sidebar-foreground border-l-2 border-transparent hover:bg-[hsl(var(--cyan)/0.06)] hover:text-foreground"
+    "group relative flex items-center gap-3 rounded-lg pl-3 pr-3 py-2 text-sm transition-colors duration-300",
+    isActive ? "text-foreground" : "text-sidebar-foreground hover:text-foreground"
   );
 
 export const AppShell = () => {
@@ -211,15 +210,25 @@ export const AppShell = () => {
                       <NavLink key={item.to} to={item.to} end={item.to === "/"} className={navItemClass}>
                         {({ isActive }) => (
                           <>
-                            <span
-                              className="h-2 w-2 rounded-full transition-all"
-                              style={{
-                                backgroundColor: accentColor(item.accent),
-                                boxShadow: isActive ? `0 0 12px ${accentColor(item.accent)}` : "none",
-                              }}
-                            />
-                            <item.icon className="h-4 w-4" />
-                            <span className="font-medium">{item.label}</span>
+                            {isActive && (
+                              <motion.span
+                                layoutId="sidebar-active-pill"
+                                className="absolute inset-0 sidebar-pill-bg"
+                                transition={{ type: "spring", stiffness: 380, damping: 30 }}
+                                aria-hidden
+                              />
+                            )}
+                            <span className="relative flex items-center gap-3 z-10 w-full">
+                              <span
+                                className="h-2 w-2 rounded-full transition-all"
+                                style={{
+                                  backgroundColor: accentColor(item.accent),
+                                  boxShadow: isActive ? `0 0 12px ${accentColor(item.accent)}` : "none",
+                                }}
+                              />
+                              <item.icon className={cn("h-4 w-4 transition-transform duration-200", isActive && "scale-110 drop-shadow-[0_0_6px_currentColor]")} />
+                              <span className="font-medium">{item.label}</span>
+                            </span>
                           </>
                         )}
                       </NavLink>
@@ -267,13 +276,18 @@ export const AppShell = () => {
         </div>
       </aside>
 
-      {/* Mobile bottom nav — frosted glass with sliding pill */}
+      {/* Mobile bottom nav — frosted glass with sliding pill + haptic */}
       <div className="md:hidden fixed bottom-0 inset-x-0 z-40 mobile-nav-glass flex">
         {MOBILE_NAV.map((item) => (
           <NavLink
             key={item.to}
             to={item.to}
             end={item.to === "/"}
+            onClick={() => {
+              if (typeof navigator !== "undefined" && "vibrate" in navigator) {
+                try { navigator.vibrate(20); } catch {}
+              }
+            }}
             className={({ isActive }) =>
               cn(
                 "relative flex-1 py-2.5 flex flex-col items-center gap-0.5 text-[10px] font-stat transition-colors duration-300",
@@ -285,23 +299,32 @@ export const AppShell = () => {
             {({ isActive }) => (
               <>
                 {isActive && (
-                  <span
-                    aria-hidden
+                  <motion.span
+                    layoutId="mobile-nav-pill"
                     className="absolute top-1 left-1/2 -translate-x-1/2 h-[3px] w-10 rounded-full"
+                    transition={{ type: "spring", stiffness: 420, damping: 30 }}
                     style={{
                       background: accentColor(item.accent),
                       boxShadow: `0 0 12px ${accentColor(item.accent)}`,
                     }}
+                    aria-hidden
                   />
                 )}
                 <item.icon
                   className={cn(
                     "h-5 w-5 transition-transform duration-300",
-                    isActive && "scale-110 drop-shadow-[0_0_8px_currentColor]"
+                    isActive && "scale-[1.15] drop-shadow-[0_0_8px_currentColor]"
                   )}
                   style={{ color: isActive ? accentColor(item.accent) : undefined }}
                 />
-                <span className="tracking-wider">{item.label}</span>
+                <span
+                  className={cn(
+                    "tracking-wider transition-all duration-300",
+                    isActive ? "opacity-100 translate-y-0" : "opacity-70 translate-y-[1px]"
+                  )}
+                >
+                  {item.label}
+                </span>
               </>
             )}
           </NavLink>

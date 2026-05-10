@@ -1,4 +1,5 @@
 import { useEffect, useState } from "react";
+import { RankParticles } from "@/components/fx/RankParticles";
 
 interface Props {
   xp: number;
@@ -12,23 +13,26 @@ interface Props {
 
 /**
  * LifeStack premium rank card — championship-trophy energy.
- * - Holographic rotating border
- * - Bebas Neue rank name with shimmer-sweep
- * - Liquid-fill XP bar (defined in index.css) with shimmer
- * - Monospaced scoreboard XP number that counts up
+ * - Holographic 4-color rotating border (cyan→neon→gold→purple)
+ * - Bebas Neue 40px rank name with shimmer-sweep
+ * - 52px rank icon with soft glow pulse
+ * - Liquid-fill XP bar with shimmer + rising spark particles
+ * - Monospaced scoreboard XP that counts up over 1.2s
  * - Pulses urgent when near rank-up threshold
  */
 export const GlowingXpBar = ({ xp, nextXp, rankName, rankIcon, rankColor, label, ranks }: Props) => {
   const pct = nextXp == null ? 100 : Math.max(0, Math.min(100, (xp / nextXp) * 100));
   const nearRankUp = nextXp != null && pct >= 92;
   const [animatedXp, setAnimatedXp] = useState(0);
+  const [rankUp, setRankUp] = useState(false);
+  const [prevRank, setPrevRank] = useState(rankName);
 
-  // Tween the number from current animated value -> target xp (~700ms)
+  // Tween the number from current animated value -> target xp (~1200ms cubic ease-out)
   useEffect(() => {
     const start = animatedXp;
     const delta = xp - start;
     if (delta === 0) return;
-    const duration = 700;
+    const duration = 1200;
     const t0 = performance.now();
     let raf = 0;
     const tick = (now: number) => {
@@ -42,17 +46,31 @@ export const GlowingXpBar = ({ xp, nextXp, rankName, rankIcon, rankColor, label,
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [xp]);
 
+  // Detect rank-up — fire dramatic burst class for 1.2s
+  useEffect(() => {
+    if (rankName !== prevRank) {
+      setRankUp(true);
+      const t = window.setTimeout(() => setRankUp(false), 1500);
+      setPrevRank(rankName);
+      return () => window.clearTimeout(t);
+    }
+  }, [rankName, prevRank]);
+
   const accent = rankColor || "hsl(var(--cyan))";
 
   return (
-    <div className="holo-border lift" data-testid={`rank-card-${(label || "rank").toLowerCase()}`}>
+    <div className={`holo-border lift ${rankUp ? "ranking-up" : ""}`} data-testid={`rank-card-${(label || "rank").toLowerCase()}`}>
       <div className="relative rounded-[calc(1.25rem-2px)] p-5 glass-strong">
         <div className="flex items-start justify-between gap-3">
           <div className="flex items-center gap-3 min-w-0">
-            {/* Rank icon with glow */}
+            {/* Rank icon — 52px with breathing soft glow in rank color */}
             <span
-              className="text-5xl leading-none flex-shrink-0"
-              style={{ filter: `drop-shadow(0 0 14px ${accent})` }}
+              className="leading-none flex-shrink-0"
+              style={{
+                fontSize: "52px",
+                filter: `drop-shadow(0 0 16px ${accent})`,
+                animation: "livePulse 3s ease-in-out infinite",
+              }}
               aria-hidden
             >
               {rankIcon}
@@ -65,7 +83,7 @@ export const GlowingXpBar = ({ xp, nextXp, rankName, rankIcon, rankColor, label,
                 </div>
               )}
               <div
-                className="font-display text-[32px] leading-none shimmer-text truncate"
+                className="font-display text-[40px] leading-none shimmer-text truncate"
                 style={{ ["--rank-color" as any]: accent }}
               >
                 {rankName.toUpperCase()}
@@ -74,7 +92,7 @@ export const GlowingXpBar = ({ xp, nextXp, rankName, rankIcon, rankColor, label,
           </div>
 
           <div className="text-right flex-shrink-0">
-            <div className="scoreboard text-2xl font-bold">
+            <div className="scoreboard text-2xl font-bold" key={`xp-${animatedXp}`}>
               <span style={{ color: accent }}>{animatedXp}</span>
               {nextXp != null && (
                 <span className="text-muted-foreground font-normal text-sm">
@@ -91,12 +109,28 @@ export const GlowingXpBar = ({ xp, nextXp, rankName, rankIcon, rankColor, label,
           </div>
         </div>
 
-        {/* XP progress bar */}
-        <div className="xp-bar-track h-3 mt-4">
-          <div
-            className={`xp-bar-fill ${nearRankUp ? "urgent" : ""}`}
-            style={{ width: `${pct}%` }}
-          />
+        {/* XP progress bar with rising particles overlay */}
+        <div className="relative mt-4">
+          <RankParticles color={accent} count={pct > 0 ? 8 : 0} active={pct > 0} />
+          <div className="xp-bar-track h-3 relative">
+            <div
+              className={`xp-bar-fill ${nearRankUp ? "urgent" : ""}`}
+              style={{ width: `${pct}%` }}
+            />
+            {/* Lighter leading edge — emphasises the liquid front */}
+            {pct > 1 && pct < 100 && (
+              <span
+                aria-hidden
+                className="absolute top-0 bottom-0 w-2 rounded-full"
+                style={{
+                  left: `calc(${pct}% - 4px)`,
+                  background: "linear-gradient(180deg, rgba(255,255,255,0.85), rgba(255,255,255,0.25))",
+                  boxShadow: `0 0 10px ${accent}, 0 0 22px ${accent}`,
+                  pointerEvents: "none",
+                }}
+              />
+            )}
+          </div>
         </div>
 
         {/* Rank-tier journey strip */}
