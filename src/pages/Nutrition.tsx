@@ -261,10 +261,26 @@ const Nutrition = () => {
       setAthletic(ath);
       if (!ath || ath.weight_lbs <= 0 || ath.age <= 0) {
         setHasProfile(false);
-        setTargets(null);
+        // Even without an athletic profile, allow custom targets if saved
+        const custom = await fetchCustomTargets(user.id);
+        if (custom) {
+          setTargets({ ...custom, bmr: 0, tdee: 0, goal: "custom" });
+          setIsCustomTargets(true);
+        } else {
+          setTargets(null);
+          setIsCustomTargets(false);
+        }
       } else {
         setHasProfile(true);
-        setTargets(calculateTargets(ath));
+        const custom = await fetchCustomTargets(user.id);
+        if (custom) {
+          const base = calculateTargets(ath);
+          setTargets({ ...base, ...custom });
+          setIsCustomTargets(true);
+        } else {
+          setTargets(calculateTargets(ath));
+          setIsCustomTargets(false);
+        }
       }
       const today = await fetchMeals(user.id, activeDate);
       setMeals(today);
