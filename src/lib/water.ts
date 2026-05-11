@@ -18,6 +18,7 @@ export type WaterLog = {
   is_water: boolean;
   hydration_credit_ml: number;
   input_method: "manual" | "camera_scan";
+  user_timezone?: string;
   notes?: string | null;
 };
 
