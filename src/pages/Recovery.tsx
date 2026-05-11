@@ -54,7 +54,6 @@ const CompletionRing = ({ done, total }: { done: number; total: number }) => {
 };
 
 export default function Recovery() {
-  const sb = supabase as any;
   const { user } = useAuth();
   const [injuries, setInjuries] = useState<any[]>([]);
   const [checkIns, setCheckIns] = useState<Record<string, any[]>>({});
@@ -83,18 +82,17 @@ export default function Recovery() {
     (async () => {
       const [ath, { data: inj }] = await Promise.all([
         fetchAthletic(user.id),
-        sb.from("injuries").select("*").eq("student_id", user.id).order("created_at", { ascending: false }),
+        supabase.from("injuries").select("*").eq("user_id", user.id).order("created_at", { ascending: false }),
       ]);
       if (ath) {
         setAthleteInfo(ath);
         setForm((f) => ({ ...f, sport: (ath.primary_sports ?? []).join(", ") }));
       }
-      const injuries = (inj ?? []) as Injury[];
-      setInjuries(injuries);
-      // Load check-ins for active injuries
-      for (const inj of injuries.filter((i) => i.status === "active")) {
-        const { data: ci } = await sb.from("recovery_checkins").select("*").eq("injury_id", inj.id).order("date", { ascending: true });
-        setCheckIns((prev) => ({ ...prev, [inj.id]: (ci ?? []) as CheckIn[] }));
+      const injuriesList = (inj ?? []) as any[];
+      setInjuries(injuriesList);
+      for (const injItem of injuriesList.filter((i) => i.status === "active")) {
+        const { data: ci } = await supabase.from("recovery_checkins").select("*").eq("injury_id", injItem.id).order("date", { ascending: true });
+        setCheckIns((prev) => ({ ...prev, [injItem.id]: (ci ?? []) }));
       }
       setLoading(false);
     })();
@@ -174,8 +172,8 @@ Return ONLY valid JSON:
       const returnDate = new Date(form.date_of_injury);
       returnDate.setDate(returnDate.getDate() + protocol.estimated_recovery_days);
 
-      const { data, error } = await sb.from("injuries").insert({
-        student_id: user.id,
+      const { data, error } = await supabase.from("injuries").insert({
+        user_id: user.id,
         sport: form.sport,
         body_part: form.body_part,
         injury_type: form.injury_type,
@@ -201,8 +199,7 @@ Return ONLY valid JSON:
 
   const submitCheckIn = async (injuryId: string) => {
     if (!user) return;
-    const today = todayISO();
-    const { data, error } = await sb.from("recovery_checkins").insert({
+    const { data, error } = await supabase.from("recovery_checkins").insert({
       injury_id: injuryId,
       user_id: user.id,
       date: todayISO(),
@@ -214,16 +211,10 @@ Return ONLY valid JSON:
     setCheckIns((prev) => ({ ...prev, [injuryId]: [...(prev[injuryId] ?? []), data] }));
     setCheckInOpen(null);
 
-  const markRecovered = async (injuryId: string) => {
-    if (!user) return;
-    const inj = injuries.find((i) => i.id === injuryId);
-    if (!inj) return;
-    await sb.from("injuries").update({ status: "recovered" }).eq("id", injuryId);
-    setInjuries((prev) => prev.map((i) => i.id === injuryId ? { ...i, status: "recovered" } : i));
-    // Award XP
-    await supabase.rpc("increment_xp" as any, { p_user_id: user.id, p_amount: 200 });
-    setRecoveryOpen(null);
-    toast.success("🎉 Welcome back! +200 XP awarded for completing your recovery protocol!");
+    const msg = painLevel <= 2 ? "Great progress — consider advancing to next phase activities"
+      : painLevel <= 5 ? "Stay at current phase — don't rush recovery"
+      : "Pull back to previous phase. If pain persists please see a medical professional";
+    toast.info(msg, { duration: 6000 });
   };
 
   const toggleActivity = async (injuryId: string, checkInId: string, activity: string) => {
@@ -232,7 +223,7 @@ Return ONLY valid JSON:
     const updated = ci.activities_completed.includes(activity)
       ? ci.activities_completed.filter((a: string) => a !== activity)
       : [...ci.activities_completed, activity];
-    await sb.from("recovery_checkins").update({ activities_completed: updated }).eq("id", checkInId);
+    await supabase.from("recovery_checkins").update({ activities_completed: updated }).eq("id", checkInId);
     setCheckIns((prev) => ({
       ...prev,
       [injuryId]: prev[injuryId].map((c) => c.id === checkInId ? { ...c, activities_completed: updated } : c),
