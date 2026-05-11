@@ -147,6 +147,7 @@ export const WaterTracker = ({
         is_water: drink_type === "water",
         hydration_credit_ml: credit,
         input_method,
+        user_timezone: Intl.DateTimeFormat().resolvedOptions().timeZone,
       });
       // Replace optimistic entry with the real persisted entry
       setLogs((prev) => prev.map((l) => l.id === tempId ? newLog : l));
