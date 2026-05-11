@@ -449,27 +449,6 @@ const ProfileDialog = ({ open, onOpenChange, profile, onSave }: any) => {
                 <SelectItem value="female">Female</SelectItem>
               </SelectContent>
             </Select>
-    <div className="p-6 md:p-10 max-w-5xl mx-auto stagger">
-      <header className="flex items-start justify-between gap-4 mb-6 flex-wrap">
-        <div>
-          <p className="text-xs font-stat tracking-[0.25em] text-muted-foreground">WORKOUTS</p>
-          <h1 className="text-4xl md:text-5xl font-display tracking-wide mt-1 gradient-text">Train. Log. Level up.</h1>
-        </div>
-        <Button variant="outline" size="sm" onClick={() => setProfileOpen(true)} className="press">
-          <User className="h-4 w-4 mr-1.5" />
-          {profile ? `Profile (${profile.weightLbs}lb)` : "Setup profile"}
-        </Button>
-      </header>
-
-       <RankCard rank={rank} xp={xp} next={next} />
-      {activeInjury && (
-        <div className="rounded-xl bg-red-500/10 border border-red-500/30 px-4 py-3 mb-4 flex items-center gap-3 text-sm">
-          <span className="text-lg">🏥</span>
-          <div>
-            <span className="font-semibold text-red-400">Active Injury: {activeInjury.body_part}</span>
-            {activeInjury.estimated_return_date && (
-              <span className="text-muted-foreground ml-2">— {Math.max(0, Math.round((new Date(activeInjury.estimated_return_date).getTime() - Date.now()) / 86400000))} days to projected return</span>
-            )}
           </div>
         </div>
         <DialogFooter>
@@ -478,6 +457,8 @@ const ProfileDialog = ({ open, onOpenChange, profile, onSave }: any) => {
       </DialogContent>
     </Dialog>
   );
+};
+
 };
 
 export default Workouts;
