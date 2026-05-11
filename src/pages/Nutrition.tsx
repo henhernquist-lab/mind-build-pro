@@ -19,6 +19,7 @@ import { supabase } from "@/integrations/supabase/client";
 import {
   MEAL_TYPES, MealType, MealLog, MacroTargets, calculateTargets, fetchMeals, fetchMealsRange,
   insertMeal, deleteMeal, sumDay, remaining, todayISO, fetchPrefs, savePrefs, NutritionPrefs, goalLabel, computeStreak,
+  fetchCustomTargets, saveCustomTargets, clearCustomTargets,
 } from "@/lib/nutrition";
 import { motion, AnimatePresence } from "framer-motion";
 import { BarChart, Bar, XAxis, YAxis, ResponsiveContainer, Tooltip, ReferenceLine, CartesianGrid, Cell } from "recharts";
@@ -228,6 +229,11 @@ const Nutrition = () => {
   // Prefs
   const [prefsOpen, setPrefsOpen] = useState(false);
   const [prefs, setPrefs] = useState<NutritionPrefs>({ preferences: "", allergies: "" });
+
+  // Custom macro target overrides
+  const [isCustomTargets, setIsCustomTargets] = useState(false);
+  const [editTargetsOpen, setEditTargetsOpen] = useState(false);
+  const [targetForm, setTargetForm] = useState({ calories: 0, protein_g: 0, carbs_g: 0, fat_g: 0 });
 
   // Suggestions
   const [suggestions, setSuggestions] = useState<any[] | null>(null);
