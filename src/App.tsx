@@ -6,7 +6,7 @@ import { TooltipProvider } from "@/components/ui/tooltip";
 import NotFound from "./pages/NotFound.tsx";
 import { AppShell } from "@/components/planner/AppShell";
 import DailyPlanner from "./pages/DailyPlanner";
-import Workouts from "./pages/Workouts";
+import WorkoutsRaw from "./pages/Workouts";
 import Tutor from "./pages/Tutor";
 import Auth from "./pages/Auth";
 import ResetPassword from "./pages/ResetPassword";
@@ -19,12 +19,15 @@ import TestCalendar from "./pages/academic/TestCalendar";
 import VocabBuilder from "./pages/academic/VocabBuilder";
 import Notes from "./pages/academic/Notes";
 import Nutrition from "./pages/Nutrition";
-import Recovery from "./pages/Recovery";
+import RecoveryRaw from "./pages/Recovery";
 import { AuthProvider } from "@/lib/auth";
 import { AuthGate } from "@/components/auth/AuthGate";
 import { FloatingXpLayer } from "@/components/fx/FloatingXp";
 import { CustomCursor } from "@/components/fx/CustomCursor";
 import { ErrorBoundary } from "@/components/ErrorBoundary";
+
+const Workouts = WorkoutsRaw as unknown as React.FC;
+const Recovery = RecoveryRaw as unknown as React.FC;
 
 const queryClient = new QueryClient({
   defaultOptions: {
