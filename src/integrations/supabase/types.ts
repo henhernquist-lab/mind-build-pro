@@ -1422,6 +1422,33 @@ export type Database = {
         }
         Relationships: []
       }
+      user_macro_targets: {
+        Row: {
+          calories: number
+          carbs_g: number
+          fat_g: number
+          protein_g: number
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          calories: number
+          carbs_g: number
+          fat_g: number
+          protein_g: number
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          calories?: number
+          carbs_g?: number
+          fat_g?: number
+          protein_g?: number
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       user_preferences: {
         Row: {
           accent_hue: number | null
