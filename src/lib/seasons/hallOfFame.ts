@@ -1,5 +1,5 @@
 import { supabase } from "@/integrations/supabase/client";
-import { ATHLETIC_RANKS, ACADEMIC_RANKS, getRank, PERIOD_DAYS } from "@/lib/ranks2";
+import { ATHLETIC_RANKS, ACADEMIC_RANKS, getRank } from "@/lib/ranks2";
 
 export type SeasonSnapshot = {
   id: string;
@@ -233,7 +233,7 @@ function fallbackRecap(i: { seasonNumber: number; athleticRank: string; totalPRs
   return `Season ${i.seasonNumber} — You hit ${i.athleticRank} rank${i.totalPRs ? ` and set ${i.totalPRs} PR${i.totalPRs > 1 ? "s" : ""}` : ""}. Keep stacking wins.`;
 }
 
-export const PERIOD_DAYS_EXPORT = PERIOD_DAYS;
+export const PERIOD_DAYS_EXPORT = 14;
 
 // Refresh "best season" flag — highest combined XP wins
 export async function refreshBestSeasonFlag(userId: string) {
