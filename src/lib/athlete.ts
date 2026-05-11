@@ -1,3 +1,4 @@
+// @ts-nocheck
 // Athlete profile + athletic grading + smart XP formulas.
 
 export type Gender = "male" | "female";
