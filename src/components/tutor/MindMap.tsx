@@ -2,39 +2,25 @@ import { useCallback, useEffect, useRef, useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Loader2, Network, Sparkles, Download, Maximize2, Minimize2, ZoomIn, ZoomOut, BookmarkPlus, RotateCcw, Camera, Upload } from "lucide-react";
+import {
+  Loader2, Network, Sparkles, Download, Maximize2, Minimize2,
+  ZoomIn, ZoomOut, BookmarkPlus, RotateCcw, Camera, Maximize,
+  Image as ImageIcon, Save
+} from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { cn } from "@/lib/utils";
 import mermaid from "mermaid";
+import * as d3 from "d3";
 import { supabase } from "@/integrations/supabase/client";
+import html2canvas from "html2canvas";
+import { useAuth } from "@/lib/auth";
+
 const CHAT_URL = `${import.meta.env.VITE_SUPABASE_URL}/functions/v1/ai-tutor`;
 const ANON_KEY = import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY;
 
-// Subject-specific color themes for mermaid
-const SUBJECT_THEMES: Record<string, { primary: string; secondary: string; accent: string }> = {
-  algebra: { primary: "#3B82F6", secondary: "#06B6D4", accent: "#1E40AF" },
-  math: { primary: "#3B82F6", secondary: "#06B6D4", accent: "#1E40AF" },
-  "physical science": { primary: "#3B82F6", secondary: "#06B6D4", accent: "#1E40AF" },
-  science: { primary: "#3B82F6", secondary: "#06B6D4", accent: "#1E40AF" },
-  "lang & lit": { primary: "#A855F7", secondary: "#EAB308", accent: "#7C3AED" },
-  english: { primary: "#A855F7", secondary: "#EAB308", accent: "#7C3AED" },
-  literature: { primary: "#A855F7", secondary: "#EAB308", accent: "#7C3AED" },
-  "georgia studies": { primary: "#22C55E", secondary: "#EF4444", accent: "#15803D" },
-  history: { primary: "#22C55E", secondary: "#EF4444", accent: "#15803D" },
-  spanish: { primary: "#F97316", secondary: "#EAB308", accent: "#C2410C" },
-};
-
-const getSubjectTheme = (label?: string) => {
-  if (!label) return null;
-  const key = label.toLowerCase();
-  for (const [k, v] of Object.entries(SUBJECT_THEMES)) {
-    if (key.includes(k)) return v;
-  }
-  return null;
-};
-
 let mermaidInitialized = false;
-const initMermaid = (theme?: { primary: string; secondary: string; accent: string } | null) => {
+const initMermaid = () => {
+  if (mermaidInitialized) return;
   mermaid.initialize({
     startOnLoad: false,
     theme: "base",
@@ -53,7 +39,6 @@ const initMermaid = (theme?: { primary: string; secondary: string; accent: strin
       edgeLabelBackground: "hsl(210 30% 10%)",
       fontFamily: "Inter, system-ui, sans-serif",
     },
-    mindmap: { padding: 16, useMaxWidth: true },
     securityLevel: "loose",
   });
   mermaidInitialized = true;
@@ -70,41 +55,62 @@ export const MindMap = ({
   onClose?: () => void;
   onSaveToNotes?: (topic: string, svgContent: string) => void;
 }) => {
+  const { user } = useAuth();
   const [topic, setTopic] = useState(defaultTopic ?? "");
   const [loading, setLoading] = useState(false);
-  const [mermaidCode, setMermaidCode] = useState<string | null>(null);
   const [renderedSvg, setRenderedSvg] = useState<string | null>(null);
   const [fullscreen, setFullscreen] = useState(false);
   const [zoom, setZoom] = useState(1);
-  const [fromPhoto, setFromPhoto] = useState(false);
   const { toast } = useToast();
   const containerRef = useRef<HTMLDivElement>(null);
-  const cameraRef = useRef<HTMLInputElement>(null);
-  const uploadRef = useRef<HTMLInputElement>(null);
-  const subjectTheme = getSubjectTheme(subjectLabel);
+  const svgRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
-    initMermaid(subjectTheme);
-  }, [subjectLabel]);
+    initMermaid();
+  }, []);
 
-  const renderMermaid = useCallback(async (code: string) => {
-    if (!code) return;
-    try {
-      const id = `mm-${Date.now()}`;
-      const { svg } = await mermaid.render(id, code);
-      setRenderedSvg(svg);
-    } catch (e: any) {
-      // Mermaid render failed - toast shown below
-      toast({ title: "Couldn't render mind map", description: "The AI returned an invalid diagram. Try again." });
+  const applyCustomStyles = useCallback(() => {
+    if (!svgRef.current) return;
+
+    // Use a small timeout to ensure Mermaid has finished DOM injection
+    setTimeout(() => {
+      const svg = d3.select(svgRef.current).select("svg");
+      if (svg.empty()) return;
+
+      // Apply staggering animations
+      svg.selectAll(".node")
+        .style("opacity", 0)
+        .style("transform", "scale(0.5)")
+        .transition()
+        .duration(500)
+        .delay((d, i) => i * 100)
+        .style("opacity", 1)
+        .style("transform", "scale(1)");
+
+      svg.selectAll(".edgePath path, .mindmap-edge")
+        .style("stroke-dasharray", function() {
+          try { return (this as any).getTotalLength(); } catch(e) { return 1000; }
+        })
+        .style("stroke-dashoffset", function() {
+          try { return (this as any).getTotalLength(); } catch(e) { return 1000; }
+        })
+        .transition()
+        .duration(800)
+        .delay((d, i) => i * 100 + 300)
+        .style("stroke-dashoffset", 0);
+    }, 50);
+  }, [renderedSvg]);
+
+  useEffect(() => {
+    if (renderedSvg) {
+      applyCustomStyles();
     }
-  }, [toast]);
+  }, [renderedSvg, applyCustomStyles]);
 
-  const generate = async (sourceText?: string, isPhoto = false) => {
+  const generate = async (sourceText?: string) => {
     if (!topic.trim() || loading) return;
     setLoading(true);
-    setMermaidCode(null);
     setRenderedSvg(null);
-    setFromPhoto(isPhoto);
     setZoom(1);
     try {
       const { data: { session } } = await supabase.auth.getSession();
@@ -122,24 +128,14 @@ export const MindMap = ({
           format: "mermaid",
         }),
       });
-      if (!resp.ok) {
-        const e = await resp.json().catch(() => ({}));
-        throw new Error(e.error || "Failed");
-      }
+      if (!resp.ok) throw new Error("Failed to generate");
       const data = await resp.json();
 
-      // Accept either mermaid code or legacy JSON branches
-      let code: string | null = null;
       if (data?.mermaid) {
-        code = data.mermaid;
-      } else if (data?.branches) {
-        // Convert legacy JSON to Mermaid syntax
-        code = jsonToMermaid(topic.trim(), data);
+        const id = `mm-${Date.now()}`;
+        const { svg } = await mermaid.render(id, data.mermaid);
+        setRenderedSvg(svg);
       }
-
-      if (!code) throw new Error("No mind map data returned");
-      setMermaidCode(code);
-      await renderMermaid(code);
     } catch (e: any) {
       toast({ title: "Couldn't build mind map", description: e.message });
     } finally {
@@ -147,213 +143,127 @@ export const MindMap = ({
     }
   };
 
-  const handlePhotoFile = async (file: File | undefined | null) => {
-    if (!file) return;
-    if (!file.type.startsWith("image/")) {
-      toast({ title: "Please choose an image file" });
-      return;
-    }
-    setLoading(true);
+  const downloadPng = async () => {
+    if (!svgRef.current) return;
+    const canvas = await html2canvas(svgRef.current, {
+      backgroundColor: "#0D1520",
+      scale: 2,
+    });
+    const link = document.createElement("a");
+    link.download = `${topic}-mindmap.png`;
+    link.href = canvas.toDataURL();
+    link.click();
+  };
+
+  const saveToNotes = async () => {
+    if (!renderedSvg || !user) return;
     try {
-      const reader = new FileReader();
-      const dataUrl = await new Promise<string>((res, rej) => {
-        reader.onload = () => res(reader.result as string);
-        reader.onerror = () => rej(new Error("Could not read file"));
-        reader.readAsDataURL(file);
+      const { error } = await supabase.from("study_notes").insert({
+        user_id: user.id,
+        subject: subjectLabel || "General",
+        title: `Mind Map: ${topic}`,
+        content: `Visual mind map for ${topic}`,
+        ai_summary: topic
       });
-      const base64 = dataUrl.split(",")[1];
-      // Use the topic if set, otherwise use filename
-      if (!topic.trim()) setTopic(file.name.replace(/\.[^.]+$/, ""));
-      await generate(base64, true);
+      if (error) throw error;
+      toast({ title: "Saved to Notes" });
     } catch (e: any) {
-      toast({ title: "Photo error", description: e.message });
-      setLoading(false);
+      toast({ title: "Error saving", description: e.message });
     }
-  };
-
-  const downloadPng = () => {
-    if (!renderedSvg) return;
-    const canvas = document.createElement("canvas");
-    const scale = 2;
-    const parser = new DOMParser();
-    const doc = parser.parseFromString(renderedSvg, "image/svg+xml");
-    const svgEl = doc.querySelector("svg");
-    const W = (parseInt(svgEl?.getAttribute("width") ?? "800")) * scale;
-    const H = (parseInt(svgEl?.getAttribute("height") ?? "600")) * scale;
-    canvas.width = W; canvas.height = H;
-    const ctx = canvas.getContext("2d");
-    if (!ctx) return;
-    ctx.fillStyle = "#0F172A";
-    ctx.fillRect(0, 0, W, H);
-    const img = new Image();
-    const blob = new Blob([renderedSvg], { type: "image/svg+xml;charset=utf-8" });
-    const url = URL.createObjectURL(blob);
-    img.onload = () => {
-      ctx.drawImage(img, 0, 0, W, H);
-      URL.revokeObjectURL(url);
-      const a = document.createElement("a");
-      a.download = `${(topic || "mindmap").replace(/\s+/g, "-")}.png`;
-      a.href = canvas.toDataURL("image/png");
-      a.click();
-    };
-    img.src = url;
-  };
-
-  const downloadSvg = () => {
-    if (!renderedSvg) return;
-    const blob = new Blob([renderedSvg], { type: "image/svg+xml" });
-    const url = URL.createObjectURL(blob);
-    const a = document.createElement("a");
-    a.href = url;
-    a.download = `${(topic || "mindmap").replace(/\s+/g, "-")}.svg`;
-    a.click();
-    URL.revokeObjectURL(url);
-  };
-
-  const handleSaveToNotes = () => {
-    if (!renderedSvg || !onSaveToNotes) return;
-    onSaveToNotes(topic, renderedSvg);
-    toast({ title: "Saved to Visual Gallery", description: `Mind map for "${topic}" saved.` });
   };
 
   return (
     <div className={cn(
-      "rounded-2xl border border-border bg-card space-y-4 transition-all",
-      fullscreen ? "fixed inset-4 z-50 overflow-y-auto p-6 shadow-2xl" : "p-4 md:p-6",
+      "mermaid-container flex flex-col gap-4 transition-all",
+      fullscreen ? "fixed inset-0 z-50 bg-[#0D1520] p-6" : "p-4"
     )}>
-      <div className="flex items-start justify-between gap-3 flex-wrap">
-        <div className="flex items-center gap-2">
-          <div className="h-9 w-9 rounded-lg bg-primary/15 text-primary flex items-center justify-center">
-            <Network className="h-5 w-5" />
-          </div>
-          <div>
-            <h2 className="text-lg font-semibold leading-tight">Mind Map</h2>
-            <p className="text-xs text-muted-foreground">Visualize a topic as an interactive Mermaid diagram</p>
-          </div>
-        </div>
-        <div className="flex items-center gap-1.5 flex-wrap">
-          {renderedSvg && (
-            <>
-              <Button size="sm" variant="outline" onClick={downloadSvg} title="Download SVG">
-                <Download className="h-3.5 w-3.5 mr-1.5" /> SVG
-              </Button>
-              <Button size="sm" variant="outline" onClick={downloadPng} title="Download PNG">
-                <Download className="h-3.5 w-3.5 mr-1.5" /> PNG
-              </Button>
-              {onSaveToNotes && (
-                <Button size="sm" variant="outline" onClick={handleSaveToNotes} title="Save to Visual Gallery">
-                  <BookmarkPlus className="h-3.5 w-3.5 mr-1.5" /> Gallery
-                </Button>
-              )}
-              <div className="flex items-center gap-1 border border-border rounded-lg p-0.5">
-                <button
-                  onClick={() => setZoom((z) => Math.max(0.4, z - 0.2))}
-                  className="p-1.5 rounded hover:bg-muted/60 text-muted-foreground hover:text-foreground transition-colors"
-                  title="Zoom out"
-                >
-                  <ZoomOut className="h-3.5 w-3.5" />
-                </button>
-                <span className="text-xs font-mono px-1 min-w-[36px] text-center">{Math.round(zoom * 100)}%</span>
-                <button
-                  onClick={() => setZoom((z) => Math.min(3, z + 0.2))}
-                  className="p-1.5 rounded hover:bg-muted/60 text-muted-foreground hover:text-foreground transition-colors"
-                  title="Zoom in"
-                >
-                  <ZoomIn className="h-3.5 w-3.5" />
-                </button>
-                <button
-                  onClick={() => setZoom(1)}
-                  className="p-1.5 rounded hover:bg-muted/60 text-muted-foreground hover:text-foreground transition-colors"
-                  title="Reset zoom"
-                >
-                  <RotateCcw className="h-3 w-3" />
-                </button>
-              </div>
-            </>
-          )}
-          <button
-            onClick={() => setFullscreen((f) => !f)}
-            className="p-1.5 rounded-lg border border-border hover:bg-muted/60 text-muted-foreground hover:text-foreground transition-colors"
-            title={fullscreen ? "Exit fullscreen" : "Fullscreen"}
-          >
-            {fullscreen ? <Minimize2 className="h-4 w-4" /> : <Maximize2 className="h-4 w-4" />}
-          </button>
-        </div>
-      </div>
+      <style dangerouslySetInnerHTML={{ __html: `
+        .mermaid-container .node rect,
+        .mermaid-container .node circle,
+        .mermaid-container .node ellipse,
+        .mermaid-container .node polygon {
+          fill: rgba(13, 21, 32, 0.8) !important;
+          stroke: rgba(0, 229, 255, 0.4) !important;
+          stroke-width: 1.5px !important;
+          filter: drop-shadow(0 0 8px rgba(0, 229, 255, 0.2));
+        }
 
-      <div className="flex gap-2 items-end flex-wrap">
-        <div className="flex-1 min-w-[180px]">
-          <Label className="text-xs">Topic</Label>
+        .mermaid-container .node .label {
+          color: #E2E8F0 !important;
+          font-family: 'Barlow Condensed', sans-serif !important;
+          font-weight: 600 !important;
+          font-size: 13px !important;
+        }
+
+        .mermaid-container .edgePath path, .mermaid-container .mindmap-edge {
+          stroke: rgba(0, 229, 255, 0.3) !important;
+          stroke-width: 1.5px !important;
+        }
+
+        .mermaid-container .node:first-child rect,
+        .mermaid-container .node:first-child circle {
+          fill: rgba(0, 229, 255, 0.15) !important;
+          stroke: #00E5FF !important;
+          stroke-width: 2px !important;
+          filter: drop-shadow(0 0 16px rgba(0, 229, 255, 0.4));
+        }
+
+        .mindmap-bg {
+          background-image: radial-gradient(rgba(0, 229, 255, 0.05) 1px, transparent 1px);
+          background-size: 20px 20px;
+        }
+      `}} />
+
+      <div className="flex items-center justify-between gap-2 flex-wrap">
+        <div className="flex items-center gap-4">
           <Input
             value={topic}
-            onChange={(e) => setTopic(e.target.value)}
-            placeholder={subjectLabel ? `e.g. linear equations` : "Any concept you want to map…"}
-            onKeyDown={(e) => { if (e.key === "Enter") generate(); }}
-            disabled={loading}
+            onChange={e => setTopic(e.target.value)}
+            placeholder="Enter topic..."
+            className="w-64"
           />
+          <Button onClick={() => generate()} disabled={loading}>
+            {loading ? <Loader2 className="h-4 w-4 animate-spin" /> : <Sparkles className="h-4 w-4 mr-2" />}
+            Generate
+          </Button>
         </div>
-        <Button onClick={() => generate()} disabled={!topic.trim() || loading}>
-          {loading ? <Loader2 className="h-4 w-4 animate-spin" /> : <Sparkles className="h-4 w-4 mr-1.5" />}
-          {loading ? "" : "Generate"}
-        </Button>
-        {/* Photo to Mind Map */}
-        <input ref={cameraRef} type="file" accept="image/*" capture="environment" className="hidden" onChange={(e) => handlePhotoFile(e.target.files?.[0])} />
-        <input ref={uploadRef} type="file" accept="image/*" className="hidden" onChange={(e) => handlePhotoFile(e.target.files?.[0])} />
-        <Button variant="outline" size="icon" onClick={() => uploadRef.current?.click()} disabled={loading} title="Photo to Mind Map — upload a photo of your notes">
-          <Camera className="h-4 w-4" />
-        </Button>
+
+        {renderedSvg && (
+          <div className="flex items-center gap-1 bg-accent/20 p-1 rounded-xl">
+            <Button variant="ghost" size="icon" onClick={() => setZoom(z => z + 0.2)}><ZoomIn className="h-4 w-4" /></Button>
+            <Button variant="ghost" size="icon" onClick={() => setZoom(z => Math.max(0.2, z - 0.2))}><ZoomOut className="h-4 w-4" /></Button>
+            <Button variant="ghost" size="icon" onClick={() => setZoom(1)}><RotateCcw className="h-4 w-4" /></Button>
+            <div className="w-px h-4 bg-border mx-1" />
+            <Button variant="ghost" size="icon" onClick={downloadPng}><ImageIcon className="h-4 w-4" /></Button>
+            <Button variant="ghost" size="icon" onClick={saveToNotes}><Save className="h-4 w-4" /></Button>
+            <Button variant="ghost" size="icon" onClick={() => setFullscreen(!fullscreen)}>
+              {fullscreen ? <Minimize2 className="h-4 w-4" /> : <Maximize className="h-4 w-4" />}
+            </Button>
+          </div>
+        )}
       </div>
 
-      {/* Mermaid render area */}
-      {renderedSvg ? (
-        <div className="rounded-xl border border-border bg-background overflow-auto">
-          {fromPhoto && (
-            <div className="flex items-center gap-1.5 px-3 py-1.5 border-b border-border bg-primary/5 text-xs text-primary font-medium">
-              <Camera className="h-3.5 w-3.5" /> Generated from photo
-            </div>
-          )}
+      <div
+        ref={containerRef}
+        className={cn(
+          "relative flex-1 min-h-[400px] rounded-2xl border bg-card/50 overflow-hidden mindmap-bg flex items-center justify-center",
+          fullscreen ? "h-full" : "h-[600px]"
+        )}
+      >
+        {renderedSvg ? (
           <div
-            ref={containerRef}
-            className="overflow-auto p-4"
-            style={{ minHeight: 300 }}
-          >
-            <div
-              style={{ transform: `scale(${zoom})`, transformOrigin: "top left", transition: "transform 200ms ease", display: "inline-block" }}
-              dangerouslySetInnerHTML={{ __html: renderedSvg }}
-            />
+            ref={svgRef}
+            className="transition-transform duration-200"
+            style={{ transform: `scale(${zoom})` }}
+            dangerouslySetInnerHTML={{ __html: renderedSvg }}
+          />
+        ) : (
+          <div className="absolute inset-0 flex flex-col items-center justify-center text-muted-foreground opacity-30">
+            <Network className="h-16 w-16 mb-4" />
+            <p className="font-bold uppercase tracking-widest">Enter a topic to visualize</p>
           </div>
-        </div>
-      ) : !loading ? (
-        <div className="rounded-xl border border-dashed border-border p-10 text-center text-sm text-muted-foreground">
-          <Network className="h-8 w-8 mx-auto mb-2 opacity-30" />
-          Enter a topic above and tap Generate — or upload a photo of your notes to auto-generate a mind map.
-        </div>
-      ) : (
-        <div className="rounded-xl border border-dashed border-border p-10 text-center text-sm text-muted-foreground flex items-center justify-center gap-2">
-          <Loader2 className="h-4 w-4 animate-spin" /> Building your mind map…
-        </div>
-      )}
-
-      {/* Mermaid code toggle */}
-      {mermaidCode && (
-        <details className="text-xs">
-          <summary className="cursor-pointer text-muted-foreground hover:text-foreground select-none">Show Mermaid code</summary>
-          <pre className="mt-2 p-3 rounded-lg bg-muted/40 overflow-x-auto font-mono text-[11px] whitespace-pre-wrap">{mermaidCode}</pre>
-        </details>
-      )}
+        )}
+      </div>
     </div>
   );
 };
-
-/** Convert legacy JSON mind map format to Mermaid mindmap syntax */
-function jsonToMermaid(topic: string, data: { branches: { title: string; children: { title: string }[] }[]; summary?: string }): string {
-  const sanitize = (s: string) => s.replace(/[()[\]{}]/g, "").slice(0, 40);
-  const lines: string[] = ["mindmap", `  root((${sanitize(topic)}))`];
-  for (const branch of data.branches.slice(0, 6)) {
-    lines.push(`    ${sanitize(branch.title)}`);
-    for (const child of (branch.children ?? []).slice(0, 4)) {
-      lines.push(`      ${sanitize(child.title)}`);
-    }
-  }
-  return lines.join("\n");
-}

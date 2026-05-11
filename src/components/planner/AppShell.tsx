@@ -76,6 +76,7 @@ const GROUPS: NavGroup[] = [
 const MOBILE_NAV: NavItem[] = [
   { to: "/", label: "Planner", icon: Calendar, accent: "school" },
   { to: "/workouts", label: "Training", icon: Dumbbell, accent: "sports" },
+  { to: "/recovery", label: "Recovery", icon: Heart, accent: "sports" },
   { to: "/tutor", label: "Academic", icon: Brain, accent: "primary" },
   { to: "/leaderboard", label: "Compete", icon: Trophy, accent: "primary" },
 ];
