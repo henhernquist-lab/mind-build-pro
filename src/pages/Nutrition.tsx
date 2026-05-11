@@ -671,7 +671,11 @@ const Nutrition = () => {
             <h1 className="text-3xl font-bold gradient-text">Fuel Hub</h1>
             {targets && (
               <p className="text-xs text-muted-foreground mt-0.5">
-                Goal: <span className="text-foreground font-medium">{goalLabel(targets.goal)}</span> · BMR {targets.bmr} · TDEE {targets.tdee}
+                {isCustomTargets ? (
+                  <>Goal: <span className="text-foreground font-medium">Custom Targets</span></>
+                ) : (
+                  <>Goal: <span className="text-foreground font-medium">{goalLabel(targets.goal)}</span> · BMR {targets.bmr} · TDEE {targets.tdee}</>
+                )}
               </p>
             )}
           </div>
@@ -687,9 +691,14 @@ const Nutrition = () => {
           <Button variant="outline" size="sm" onClick={() => setPrefsOpen(true)}>
             <Settings2 className="h-3.5 w-3.5 mr-1.5" /> Preferences
           </Button>
+          {targets && (
+            <Button variant="outline" size="sm" onClick={openEditTargets}>
+              <Settings2 className="h-3.5 w-3.5 mr-1.5" /> Edit Targets
+            </Button>
+          )}
           {hasProfile && (
             <Button variant="outline" size="sm" onClick={recalc}>
-              <Sparkles className="h-3.5 w-3.5 mr-1.5" /> Recalculate
+              <Sparkles className="h-3.5 w-3.5 mr-1.5" /> {isCustomTargets ? "Reset to AI" : "Recalculate"}
             </Button>
           )}
         </div>
