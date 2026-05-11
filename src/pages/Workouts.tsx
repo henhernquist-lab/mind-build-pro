@@ -459,4 +459,6 @@ const ProfileDialog = ({ open, onOpenChange, profile, onSave }: any) => {
   );
 };
 
+};
+
 export default Workouts;
