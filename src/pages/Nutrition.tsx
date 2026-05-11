@@ -1248,6 +1248,60 @@ const Nutrition = () => {
           </DialogFooter>
         </DialogContent>
       </Dialog>
+
+      {/* Edit Macro Targets dialog */}
+      <Dialog open={editTargetsOpen} onOpenChange={setEditTargetsOpen}>
+        <DialogContent>
+          <DialogHeader><DialogTitle>Edit Macro Targets</DialogTitle></DialogHeader>
+          <div className="space-y-3">
+            <p className="text-xs text-muted-foreground">
+              Set your own daily macro goals. These override the AI-suggested targets.
+            </p>
+            <div className="grid grid-cols-2 gap-3">
+              <div>
+                <Label className="text-xs">Calories (kcal)</Label>
+                <Input
+                  type="number" min={0} inputMode="numeric"
+                  value={targetForm.calories}
+                  onChange={(e) => setTargetForm((f) => ({ ...f, calories: Number(e.target.value) }))}
+                />
+              </div>
+              <div>
+                <Label className="text-xs">Protein (g)</Label>
+                <Input
+                  type="number" min={0} inputMode="numeric"
+                  value={targetForm.protein_g}
+                  onChange={(e) => setTargetForm((f) => ({ ...f, protein_g: Number(e.target.value) }))}
+                />
+              </div>
+              <div>
+                <Label className="text-xs">Carbs (g)</Label>
+                <Input
+                  type="number" min={0} inputMode="numeric"
+                  value={targetForm.carbs_g}
+                  onChange={(e) => setTargetForm((f) => ({ ...f, carbs_g: Number(e.target.value) }))}
+                />
+              </div>
+              <div>
+                <Label className="text-xs">Fat (g)</Label>
+                <Input
+                  type="number" min={0} inputMode="numeric"
+                  value={targetForm.fat_g}
+                  onChange={(e) => setTargetForm((f) => ({ ...f, fat_g: Number(e.target.value) }))}
+                />
+              </div>
+            </div>
+          </div>
+          <DialogFooter className="gap-2">
+            {isCustomTargets && hasProfile && (
+              <Button variant="outline" onClick={() => { setEditTargetsOpen(false); recalc(); }}>
+                Reset to AI
+              </Button>
+            )}
+            <Button onClick={saveCustomTargetsHandler}>Save Targets</Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 };
