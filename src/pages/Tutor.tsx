@@ -364,7 +364,7 @@ const SubjectChat = ({
               <div
                 className={cn(
                   "rounded-2xl px-4 py-2.5 max-w-[85%] text-sm space-y-2",
-                  m.role === "user" ? "chat-bubble-user" : "chat-bubble-ai"
+                  m.role === "user" ? "bg-primary text-primary-foreground" : "bg-muted text-foreground"
                 )}
               >
                 {m.role === "assistant" ? (
@@ -377,9 +377,9 @@ const SubjectChat = ({
                         </>
                       ) : (
                         <>
-                          <span className="typing-dot" style={{ animationDelay: "0ms" }} />
-                          <span className="typing-dot" style={{ animationDelay: "200ms" }} />
-                          <span className="typing-dot" style={{ animationDelay: "400ms" }} />
+                          <span className="h-1.5 w-1.5 rounded-full bg-foreground/60 animate-bounce" style={{ animationDelay: "0ms" }} />
+                          <span className="h-1.5 w-1.5 rounded-full bg-foreground/60 animate-bounce" style={{ animationDelay: "150ms" }} />
+                          <span className="h-1.5 w-1.5 rounded-full bg-foreground/60 animate-bounce" style={{ animationDelay: "300ms" }} />
                         </>
                       )}
                     </div>
@@ -521,7 +521,7 @@ const SvgDiagramCard = ({
     canvas.width = W; canvas.height = H;
     const ctx = canvas.getContext("2d");
     if (!ctx) return;
-    ctx.fillStyle = "#1E293B";
+    ctx.fillStyle = getComputedStyle(document.documentElement).getPropertyValue('--card') || "#1E293B";
     ctx.fillRect(0, 0, W, H);
     const img = new Image();
     const blob = new Blob([svg], { type: "image/svg+xml;charset=utf-8" });
@@ -566,7 +566,7 @@ const SvgDiagramCard = ({
       </div>
       {!hidden && (
         <div
-          className="rounded-lg bg-[#1E293B] border border-border p-3 overflow-x-auto [&_svg]:max-w-full [&_svg]:h-auto"
+          className="rounded-lg bg-card border border-border p-3 overflow-x-auto [&_svg]:max-w-full [&_svg]:h-auto"
           dangerouslySetInnerHTML={{ __html: svg }}
         />
       )}
@@ -576,7 +576,7 @@ const SvgDiagramCard = ({
           onClick={() => setFullscreen(false)}
         >
           <div
-            className="rounded-xl border border-border bg-[#1E293B] p-4 max-w-4xl w-full max-h-[90vh] overflow-auto"
+            className="rounded-xl border border-border bg-card p-4 max-w-4xl w-full max-h-[90vh] overflow-auto"
             onClick={(e) => e.stopPropagation()}
             dangerouslySetInnerHTML={{ __html: svg }}
           />

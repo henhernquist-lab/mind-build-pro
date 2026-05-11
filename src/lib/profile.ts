@@ -133,9 +133,9 @@ export const initialsFromName = (name: string): string => {
 
 // HSL color from current theme primary token (resolved at runtime)
 export const themeAccentColor = (): string => {
-  if (typeof window === "undefined") return "#3b82f6";
+  if (typeof window === "undefined") return "hsl(186 100% 50%)";
   const v = getComputedStyle(document.documentElement).getPropertyValue("--primary").trim();
-  return v ? `hsl(${v})` : "#3b82f6";
+  return v ? `hsl(${v})` : "hsl(186 100% 50%)";
 };
 
 // Public card (anyone can call)

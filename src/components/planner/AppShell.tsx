@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
 import { NavLink, Outlet, useLocation, useNavigate } from "react-router-dom";
+import { motion } from "framer-motion";
 import {
   Calendar, Dumbbell, Brain, Sparkles, LogOut, User,
   CalendarDays, BookText, NotebookPen, ChevronDown, Search, GraduationCap, Trophy, Apple, Utensils, Crown, ClipboardCheck, Heart,
@@ -85,16 +86,9 @@ const accentColor = (a: string) =>
 
 const navItemClass = ({ isActive }: { isActive: boolean }) =>
   cn(
-    "group flex items-center gap-3 rounded-lg px-3 py-2 text-sm transition-all duration-200",
-    isActive
-      ? "bg-[rgba(0,229,255,0.1)] text-[#00E5FF] border-l-[3px] border-[#00E5FF] !pl-[9px]"
-      : "text-sidebar-foreground hover:bg-[rgba(0,229,255,0.05)] hover:text-[#00E5FF] border-l-[3px] border-transparent !pl-[9px]"
+    "group relative flex items-center gap-3 rounded-lg pl-3 pr-3 py-2 text-sm transition-colors duration-300",
+    isActive ? "text-foreground" : "text-sidebar-foreground hover:text-foreground"
   );
-
-// Trigger page-load stagger animation
-if (typeof document !== 'undefined') {
-  setTimeout(() => document.body.classList.add('loaded'), 100);
-}
 
 export const AppShell = () => {
   const location = useLocation();
@@ -166,15 +160,17 @@ export const AppShell = () => {
 
       <OfflineBanner />
 
-      <aside className="hidden md:flex w-60 flex-col border-r border-sidebar-border bg-sidebar" style={{ background: 'rgba(8,12,16,0.85)', backdropFilter: 'blur(20px)', WebkitBackdropFilter: 'blur(20px)', borderRight: '1px solid rgba(255,255,255,0.06)', position: 'relative' }}>
+      <aside className="relative hidden md:flex w-60 flex-col bg-sidebar/80 backdrop-blur-xl border-r border-sidebar-border grid-overlay">
+        {/* Left accent line */}
+        <span aria-hidden className="absolute left-0 top-0 bottom-0 w-[2px] bg-gradient-to-b from-[hsl(var(--cyan))] via-[hsl(var(--neon))] to-transparent opacity-60 pointer-events-none" />
         <div className="p-5 pl-16 flex items-center gap-2 justify-between">
           <div className="flex items-center gap-2 min-w-0">
-            <div className="h-9 w-9 rounded-xl flex items-center justify-center bg-gradient-to-br from-school to-sports flex-shrink-0">
+            <div className="h-9 w-9 rounded-xl flex items-center justify-center bg-gradient-to-br from-[hsl(var(--cyan))] to-[hsl(var(--neon))] flex-shrink-0 shadow-[0_0_18px_hsl(var(--cyan)/0.45)]">
               <Sparkles className="h-5 w-5" style={{ color: "hsl(var(--background))" }} />
             </div>
             <div className="min-w-0">
-              <div className="text-sm font-semibold leading-tight">LifeStack</div>
-              <div className="text-[11px] text-muted-foreground truncate">{user?.email}</div>
+              <div className="text-[15px] font-display tracking-[0.08em] leading-none">LIFESTACK</div>
+              <div className="text-[10px] text-muted-foreground truncate mt-1">{user?.email}</div>
             </div>
           </div>
           <StreakBadge />
@@ -215,15 +211,25 @@ export const AppShell = () => {
                       <NavLink key={item.to} to={item.to} end={item.to === "/"} className={navItemClass}>
                         {({ isActive }) => (
                           <>
-                            <span
-                              className="h-2 w-2 rounded-full transition-all"
-                              style={{
-                                backgroundColor: accentColor(item.accent),
-                                boxShadow: isActive ? `0 0 12px ${accentColor(item.accent)}` : "none",
-                              }}
-                            />
-                            <item.icon className="h-4 w-4" />
-                            <span className="font-medium">{item.label}</span>
+                            {isActive && (
+                              <motion.span
+                                layoutId="sidebar-active-pill"
+                                className="absolute inset-0 sidebar-pill-bg"
+                                transition={{ type: "spring", stiffness: 380, damping: 30 }}
+                                aria-hidden
+                              />
+                            )}
+                            <span className="relative flex items-center gap-3 z-10 w-full">
+                              <span
+                                className="h-2 w-2 rounded-full transition-all"
+                                style={{
+                                  backgroundColor: accentColor(item.accent),
+                                  boxShadow: isActive ? `0 0 12px ${accentColor(item.accent)}` : "none",
+                                }}
+                              />
+                              <item.icon className={cn("h-4 w-4 transition-transform duration-200", isActive && "scale-110 drop-shadow-[0_0_6px_currentColor]")} />
+                              <span className="font-medium">{item.label}</span>
+                            </span>
                           </>
                         )}
                       </NavLink>
@@ -271,27 +277,55 @@ export const AppShell = () => {
         </div>
       </aside>
 
-      {/* Mobile bottom nav — trimmed to 5 items to include Recovery */}
-      <div className="md:hidden fixed bottom-0 inset-x-0 z-40 bg-sidebar/95 backdrop-blur border-t border-sidebar-border flex">
+      {/* Mobile bottom nav — frosted glass with sliding pill + haptic */}
+      <div className="md:hidden fixed bottom-0 inset-x-0 z-40 mobile-nav-glass flex">
         {MOBILE_NAV.map((item) => (
           <NavLink
             key={item.to}
             to={item.to}
             end={item.to === "/"}
+            onClick={() => {
+              if (typeof navigator !== "undefined" && "vibrate" in navigator) {
+                try { navigator.vibrate(20); } catch {}
+              }
+            }}
             className={({ isActive }) =>
               cn(
-                "flex-1 py-2.5 flex flex-col items-center gap-0.5 text-[10px]",
+                "relative flex-1 py-2.5 flex flex-col items-center gap-0.5 text-[10px] font-stat transition-colors duration-300",
                 isActive ? "text-foreground" : "text-muted-foreground"
               )
             }
+            data-testid={`mobile-nav-${item.label.toLowerCase()}`}
           >
             {({ isActive }) => (
               <>
+                {isActive && (
+                  <motion.span
+                    layoutId="mobile-nav-pill"
+                    className="absolute top-1 left-1/2 -translate-x-1/2 h-[3px] w-10 rounded-full"
+                    transition={{ type: "spring", stiffness: 420, damping: 30 }}
+                    style={{
+                      background: accentColor(item.accent),
+                      boxShadow: `0 0 12px ${accentColor(item.accent)}`,
+                    }}
+                    aria-hidden
+                  />
+                )}
                 <item.icon
-                  className="h-5 w-5"
+                  className={cn(
+                    "h-5 w-5 transition-transform duration-300",
+                    isActive && "scale-[1.15] drop-shadow-[0_0_8px_currentColor]"
+                  )}
                   style={{ color: isActive ? accentColor(item.accent) : undefined }}
                 />
-                <span>{item.label}</span>
+                <span
+                  className={cn(
+                    "tracking-wider transition-all duration-300",
+                    isActive ? "opacity-100 translate-y-0" : "opacity-70 translate-y-[1px]"
+                  )}
+                >
+                  {item.label}
+                </span>
               </>
             )}
           </NavLink>

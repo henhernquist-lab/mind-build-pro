@@ -1422,6 +1422,33 @@ export type Database = {
         }
         Relationships: []
       }
+      user_macro_targets: {
+        Row: {
+          calories: number
+          carbs_g: number
+          fat_g: number
+          protein_g: number
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          calories: number
+          carbs_g: number
+          fat_g: number
+          protein_g: number
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          calories?: number
+          carbs_g?: number
+          fat_g?: number
+          protein_g?: number
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       user_preferences: {
         Row: {
           accent_hue: number | null
@@ -1461,23 +1488,32 @@ export type Database = {
       user_stats: {
         Row: {
           current_month: string
+          last_water_streak_date: string | null
           period_start: string
           updated_at: string
           user_id: string
+          water_goal_ml: number | null
+          water_streak: number | null
           xp: number
         }
         Insert: {
           current_month?: string
+          last_water_streak_date?: string | null
           period_start?: string
           updated_at?: string
           user_id: string
+          water_goal_ml?: number | null
+          water_streak?: number | null
           xp?: number
         }
         Update: {
           current_month?: string
+          last_water_streak_date?: string | null
           period_start?: string
           updated_at?: string
           user_id?: string
+          water_goal_ml?: number | null
+          water_streak?: number | null
           xp?: number
         }
         Relationships: []
@@ -1527,6 +1563,48 @@ export type Database = {
           reps?: number
           user_id?: string
           word?: string
+        }
+        Relationships: []
+      }
+      water_logs: {
+        Row: {
+          amount_ml: number
+          drink_type: string | null
+          hydration_credit_ml: number
+          id: string
+          input_method: string | null
+          is_water: boolean | null
+          local_date: string
+          logged_at: string | null
+          notes: string | null
+          user_id: string | null
+          user_timezone: string | null
+        }
+        Insert: {
+          amount_ml: number
+          drink_type?: string | null
+          hydration_credit_ml: number
+          id?: string
+          input_method?: string | null
+          is_water?: boolean | null
+          local_date: string
+          logged_at?: string | null
+          notes?: string | null
+          user_id?: string | null
+          user_timezone?: string | null
+        }
+        Update: {
+          amount_ml?: number
+          drink_type?: string | null
+          hydration_credit_ml?: number
+          id?: string
+          input_method?: string | null
+          is_water?: boolean | null
+          local_date?: string
+          logged_at?: string | null
+          notes?: string | null
+          user_id?: string | null
+          user_timezone?: string | null
         }
         Relationships: []
       }

@@ -121,27 +121,57 @@ export const WaterTracker = ({
 
   // ─── Log water ──────────────────────────────────────────────────────────────
   const logWater = async (amount_ml: number, drink_type: DrinkType = "water", input_method: "manual" | "camera_scan" = "manual") => {
+    const credit = hydrationCredit(amount_ml, drink_type);
+    // Optimistic UI: add a temporary entry immediately so the UI updates instantly
+    const tempId = `temp-${Date.now()}`;
+    const optimisticLog: WaterLog = {
+      id: tempId,
+      user_id: userId,
+      local_date: date,
+      logged_at: new Date().toISOString(),
+      amount_ml,
+      drink_type,
+      is_water: drink_type === "water",
+      hydration_credit_ml: credit,
+      input_method,
+    };
+    setLogs((prev) => [...prev, optimisticLog]);
+    // Check goal before insert so we can celebrate on success
+    const willHitGoal = totalMl + credit >= goalMl && totalMl < goalMl;
     try {
-      const credit = hydrationCredit(amount_ml, drink_type);
       const newLog = await insertWaterLog(userId, {
-        log_date: date,
-        logged_at: new Date().toISOString(),
+        local_date: date,
+        logged_at: optimisticLog.logged_at,
         amount_ml,
         drink_type,
         is_water: drink_type === "water",
         hydration_credit_ml: credit,
         input_method,
+        user_timezone: Intl.DateTimeFormat().resolvedOptions().timeZone,
       });
-      setLogs((prev) => [...prev, newLog]);
-      if (totalMl + credit >= goalMl && totalMl < goalMl) {
-        toast({ title: "💧 Water goal hit!", description: "Great job staying hydrated today!" });
+      // Replace optimistic entry with the real persisted entry
+      setLogs((prev) => prev.map((l) => l.id === tempId ? newLog : l));
+      if (willHitGoal) {
+        toast({ title: "🎉 Water goal hit!", description: "Amazing — you crushed your hydration goal today!" });
       }
+      // Update streak server-side after successful log
+      const newStreak = await updateWaterStreak(userId, goalMl);
+      setStreak(newStreak);
     } catch (e: any) {
+      // Rollback optimistic entry on failure
+      setLogs((prev) => prev.filter((l) => l.id !== tempId));
       toast({ title: "Couldn't log water", description: e.message });
     }
   };
 
-  const handleQuickLog = (ml: number) => logWater(ml, "water", "manual");
+  const handleQuickLog = (ml: number) => {
+    if (quickAddDisabled) return;
+    // Debounce: disable buttons for 500ms to prevent double-tap
+    setQuickAddDisabled(true);
+    if (debounceRef.current) clearTimeout(debounceRef.current);
+    debounceRef.current = setTimeout(() => setQuickAddDisabled(false), 500);
+    logWater(ml, "water", "manual");
+  };
 
   const handleCustomLog = () => {
     const ml = parseInt(customAmountInput);
@@ -390,8 +420,8 @@ export const WaterTracker = ({
 
       {/* Camera scan button */}
       <div className="flex gap-2 flex-wrap">
-        <input ref={cameraRef} type="file" accept="image/*" capture="environment" className="hidden" onChange={(e) => handleFileSelected(e.target.files?.[0])} />
-        <input ref={uploadRef} type="file" accept="image/*" className="hidden" onChange={(e) => handleFileSelected(e.target.files?.[0])} />
+        <input ref={cameraRef} type="file" accept="image/*" capture="environment" style={{ opacity: 0, position: "absolute", width: 1, height: 1, overflow: "hidden" }} onChange={(e) => handleFileSelected(e.target.files?.[0])} />
+        <input ref={uploadRef} type="file" accept="image/*" style={{ opacity: 0, position: "absolute", width: 1, height: 1, overflow: "hidden" }} onChange={(e) => handleFileSelected(e.target.files?.[0])} />
         <Button variant="outline" size="sm" className="h-8 text-xs gap-1.5" onClick={() => { const el = document.getElementById(cameraInputId) as HTMLInputElement | null; el?.click(); }}>
           <Camera className="h-3.5 w-3.5" /> Take Photo
         </Button>

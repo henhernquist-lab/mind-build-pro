@@ -178,6 +178,48 @@ export const savePrefs = async (userId: string, p: NutritionPrefs) => {
   if (error) throw error;
 };
 
+// ---------- Custom macro target overrides ----------
+
+const dbAny = supabase as any;
+
+export type CustomMacroTargets = {
+  calories: number;
+  protein_g: number;
+  carbs_g: number;
+  fat_g: number;
+};
+
+export const fetchCustomTargets = async (
+  userId: string,
+): Promise<CustomMacroTargets | null> => {
+  const { data, error } = await dbAny
+    .from("user_macro_targets")
+    .select("calories, protein_g, carbs_g, fat_g")
+    .eq("user_id", userId)
+    .maybeSingle();
+  if (error || !data) return null;
+  return data as CustomMacroTargets;
+};
+
+export const saveCustomTargets = async (
+  userId: string,
+  t: CustomMacroTargets,
+) => {
+  const { error } = await dbAny.from("user_macro_targets").upsert(
+    { user_id: userId, ...t, updated_at: new Date().toISOString() },
+    { onConflict: "user_id" },
+  );
+  if (error) throw error;
+};
+
+export const clearCustomTargets = async (userId: string) => {
+  const { error } = await dbAny
+    .from("user_macro_targets")
+    .delete()
+    .eq("user_id", userId);
+  if (error) throw error;
+};
+
 export const sumDay = (meals: MealLog[]) =>
   meals.reduce(
     (acc, m) => ({
