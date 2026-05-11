@@ -455,9 +455,49 @@ const Nutrition = () => {
     if (!user) return;
     const ath = await fetchAthletic(user.id);
     if (!ath) return toast.error("No athletic profile yet");
+    try {
+      await clearCustomTargets(user.id);
+    } catch {}
     setTargets(calculateTargets(ath));
+    setIsCustomTargets(false);
     setHasProfile(true);
-    toast.success("Targets recalculated from your profile");
+    toast.success("Targets reset to AI suggestion");
+  };
+
+  const openEditTargets = () => {
+    if (!targets) return;
+    setTargetForm({
+      calories: targets.calories,
+      protein_g: targets.protein_g,
+      carbs_g: targets.carbs_g,
+      fat_g: targets.fat_g,
+    });
+    setEditTargetsOpen(true);
+  };
+
+  const saveCustomTargetsHandler = async () => {
+    if (!user) return;
+    const t = {
+      calories: Math.max(0, Math.round(Number(targetForm.calories) || 0)),
+      protein_g: Math.max(0, Math.round(Number(targetForm.protein_g) || 0)),
+      carbs_g: Math.max(0, Math.round(Number(targetForm.carbs_g) || 0)),
+      fat_g: Math.max(0, Math.round(Number(targetForm.fat_g) || 0)),
+    };
+    if (t.calories === 0) {
+      toast.error("Calories must be greater than 0");
+      return;
+    }
+    try {
+      await saveCustomTargets(user.id, t);
+      setTargets((prev) => prev
+        ? { ...prev, ...t }
+        : { ...t, bmr: 0, tdee: 0, goal: "custom" });
+      setIsCustomTargets(true);
+      setEditTargetsOpen(false);
+      toast.success("Custom macro targets saved");
+    } catch (e: any) {
+      toast.error("Couldn't save targets", { description: e.message });
+    }
   };
 
   const logMeal = async () => {
