@@ -19,6 +19,7 @@ import { supabase } from "@/integrations/supabase/client";
 import {
   MEAL_TYPES, MealType, MealLog, MacroTargets, calculateTargets, fetchMeals, fetchMealsRange,
   insertMeal, deleteMeal, sumDay, remaining, todayISO, fetchPrefs, savePrefs, NutritionPrefs, goalLabel, computeStreak,
+  fetchCustomTargets, saveCustomTargets, clearCustomTargets,
 } from "@/lib/nutrition";
 import { motion, AnimatePresence } from "framer-motion";
 import { BarChart, Bar, XAxis, YAxis, ResponsiveContainer, Tooltip, ReferenceLine, CartesianGrid, Cell } from "recharts";
@@ -229,6 +230,11 @@ const Nutrition = () => {
   const [prefsOpen, setPrefsOpen] = useState(false);
   const [prefs, setPrefs] = useState<NutritionPrefs>({ preferences: "", allergies: "" });
 
+  // Custom macro target overrides
+  const [isCustomTargets, setIsCustomTargets] = useState(false);
+  const [editTargetsOpen, setEditTargetsOpen] = useState(false);
+  const [targetForm, setTargetForm] = useState({ calories: 0, protein_g: 0, carbs_g: 0, fat_g: 0 });
+
   // Suggestions
   const [suggestions, setSuggestions] = useState<any[] | null>(null);
   const [gameDayPlan, setGameDayPlan] = useState<any[] | null>(null);
@@ -255,10 +261,26 @@ const Nutrition = () => {
       setAthletic(ath);
       if (!ath || ath.weight_lbs <= 0 || ath.age <= 0) {
         setHasProfile(false);
-        setTargets(null);
+        // Even without an athletic profile, allow custom targets if saved
+        const custom = await fetchCustomTargets(user.id);
+        if (custom) {
+          setTargets({ ...custom, bmr: 0, tdee: 0, goal: "custom" });
+          setIsCustomTargets(true);
+        } else {
+          setTargets(null);
+          setIsCustomTargets(false);
+        }
       } else {
         setHasProfile(true);
-        setTargets(calculateTargets(ath));
+        const custom = await fetchCustomTargets(user.id);
+        if (custom) {
+          const base = calculateTargets(ath);
+          setTargets({ ...base, ...custom });
+          setIsCustomTargets(true);
+        } else {
+          setTargets(calculateTargets(ath));
+          setIsCustomTargets(false);
+        }
       }
       const today = await fetchMeals(user.id, activeDate);
       setMeals(today);
@@ -433,9 +455,49 @@ const Nutrition = () => {
     if (!user) return;
     const ath = await fetchAthletic(user.id);
     if (!ath) return toast.error("No athletic profile yet");
+    try {
+      await clearCustomTargets(user.id);
+    } catch {}
     setTargets(calculateTargets(ath));
+    setIsCustomTargets(false);
     setHasProfile(true);
-    toast.success("Targets recalculated from your profile");
+    toast.success("Targets reset to AI suggestion");
+  };
+
+  const openEditTargets = () => {
+    if (!targets) return;
+    setTargetForm({
+      calories: targets.calories,
+      protein_g: targets.protein_g,
+      carbs_g: targets.carbs_g,
+      fat_g: targets.fat_g,
+    });
+    setEditTargetsOpen(true);
+  };
+
+  const saveCustomTargetsHandler = async () => {
+    if (!user) return;
+    const t = {
+      calories: Math.max(0, Math.round(Number(targetForm.calories) || 0)),
+      protein_g: Math.max(0, Math.round(Number(targetForm.protein_g) || 0)),
+      carbs_g: Math.max(0, Math.round(Number(targetForm.carbs_g) || 0)),
+      fat_g: Math.max(0, Math.round(Number(targetForm.fat_g) || 0)),
+    };
+    if (t.calories === 0) {
+      toast.error("Calories must be greater than 0");
+      return;
+    }
+    try {
+      await saveCustomTargets(user.id, t);
+      setTargets((prev) => prev
+        ? { ...prev, ...t }
+        : { ...t, bmr: 0, tdee: 0, goal: "custom" });
+      setIsCustomTargets(true);
+      setEditTargetsOpen(false);
+      toast.success("Custom macro targets saved");
+    } catch (e: any) {
+      toast.error("Couldn't save targets", { description: e.message });
+    }
   };
 
   const logMeal = async () => {
@@ -609,7 +671,11 @@ const Nutrition = () => {
             <h1 className="text-3xl font-bold gradient-text">Fuel Hub</h1>
             {targets && (
               <p className="text-xs text-muted-foreground mt-0.5">
-                Goal: <span className="text-foreground font-medium">{goalLabel(targets.goal)}</span> · BMR {targets.bmr} · TDEE {targets.tdee}
+                {isCustomTargets ? (
+                  <>Goal: <span className="text-foreground font-medium">Custom Targets</span></>
+                ) : (
+                  <>Goal: <span className="text-foreground font-medium">{goalLabel(targets.goal)}</span> · BMR {targets.bmr} · TDEE {targets.tdee}</>
+                )}
               </p>
             )}
           </div>
@@ -625,9 +691,14 @@ const Nutrition = () => {
           <Button variant="outline" size="sm" onClick={() => setPrefsOpen(true)}>
             <Settings2 className="h-3.5 w-3.5 mr-1.5" /> Preferences
           </Button>
+          {targets && (
+            <Button variant="outline" size="sm" onClick={openEditTargets}>
+              <Settings2 className="h-3.5 w-3.5 mr-1.5" /> Edit Targets
+            </Button>
+          )}
           {hasProfile && (
             <Button variant="outline" size="sm" onClick={recalc}>
-              <Sparkles className="h-3.5 w-3.5 mr-1.5" /> Recalculate
+              <Sparkles className="h-3.5 w-3.5 mr-1.5" /> {isCustomTargets ? "Reset to AI" : "Recalculate"}
             </Button>
           )}
         </div>
@@ -1174,6 +1245,60 @@ const Nutrition = () => {
           </div>
           <DialogFooter>
             <Button onClick={savePrefsHandler}>Save</Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+
+      {/* Edit Macro Targets dialog */}
+      <Dialog open={editTargetsOpen} onOpenChange={setEditTargetsOpen}>
+        <DialogContent>
+          <DialogHeader><DialogTitle>Edit Macro Targets</DialogTitle></DialogHeader>
+          <div className="space-y-3">
+            <p className="text-xs text-muted-foreground">
+              Set your own daily macro goals. These override the AI-suggested targets.
+            </p>
+            <div className="grid grid-cols-2 gap-3">
+              <div>
+                <Label className="text-xs">Calories (kcal)</Label>
+                <Input
+                  type="number" min={0} inputMode="numeric"
+                  value={targetForm.calories}
+                  onChange={(e) => setTargetForm((f) => ({ ...f, calories: Number(e.target.value) }))}
+                />
+              </div>
+              <div>
+                <Label className="text-xs">Protein (g)</Label>
+                <Input
+                  type="number" min={0} inputMode="numeric"
+                  value={targetForm.protein_g}
+                  onChange={(e) => setTargetForm((f) => ({ ...f, protein_g: Number(e.target.value) }))}
+                />
+              </div>
+              <div>
+                <Label className="text-xs">Carbs (g)</Label>
+                <Input
+                  type="number" min={0} inputMode="numeric"
+                  value={targetForm.carbs_g}
+                  onChange={(e) => setTargetForm((f) => ({ ...f, carbs_g: Number(e.target.value) }))}
+                />
+              </div>
+              <div>
+                <Label className="text-xs">Fat (g)</Label>
+                <Input
+                  type="number" min={0} inputMode="numeric"
+                  value={targetForm.fat_g}
+                  onChange={(e) => setTargetForm((f) => ({ ...f, fat_g: Number(e.target.value) }))}
+                />
+              </div>
+            </div>
+          </div>
+          <DialogFooter className="gap-2">
+            {isCustomTargets && hasProfile && (
+              <Button variant="outline" onClick={() => { setEditTargetsOpen(false); recalc(); }}>
+                Reset to AI
+              </Button>
+            )}
+            <Button onClick={saveCustomTargetsHandler}>Save Targets</Button>
           </DialogFooter>
         </DialogContent>
       </Dialog>
