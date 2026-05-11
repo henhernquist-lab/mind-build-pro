@@ -42,7 +42,7 @@ export const VisualGallery = ({
     canvas.width = W; canvas.height = H;
     const ctx = canvas.getContext("2d");
     if (!ctx) return;
-    ctx.fillStyle = "#0f172a";
+    ctx.fillStyle = "hsl(210 33% 5%)";
     ctx.fillRect(0, 0, W, H);
     const img = new Image();
     const svgBlob = new Blob([item.svg], { type: "image/svg+xml;charset=utf-8" });

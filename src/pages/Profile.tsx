@@ -256,10 +256,10 @@ const Profile = () => {
   const initials = initialsFromName(displayName || "?");
 
   return (
-    <div className="p-6 md:p-10 max-w-4xl mx-auto pb-24">
+    <div className="p-6 md:p-10 max-w-4xl mx-auto pb-24 stagger">
       <header className="mb-6">
-        <p className="text-xs uppercase tracking-widest text-muted-foreground">Profile</p>
-        <h1 className="gradient-text text-3xl font-bold mt-1">Your Athlete Hub</h1>
+        <p className="text-xs font-stat tracking-[0.25em] text-muted-foreground">PROFILE</p>
+        <h1 className="gradient-text text-4xl md:text-5xl font-display tracking-wide mt-1">Your Athlete Hub</h1>
       </header>
 
       {/* Glowing XP bars */}
@@ -271,6 +271,7 @@ const Profile = () => {
           rankName={athleticRank.rank.name}
           rankIcon={athleticRank.rank.icon}
           rankColor={athleticRank.rank.color}
+          ranks={ATHLETIC_RANKS}
         />
         <GlowingXpBar
           label="Academic"
@@ -279,6 +280,7 @@ const Profile = () => {
           rankName={academicRank.rank.name}
           rankIcon={academicRank.rank.icon}
           rankColor={academicRank.rank.color}
+          ranks={ACADEMIC_RANKS}
         />
       </div>
 

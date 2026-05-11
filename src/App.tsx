@@ -23,6 +23,7 @@ import Recovery from "./pages/Recovery";
 import { AuthProvider } from "@/lib/auth";
 import { AuthGate } from "@/components/auth/AuthGate";
 import { FloatingXpLayer } from "@/components/fx/FloatingXp";
+import { CustomCursor } from "@/components/fx/CustomCursor";
 import { ErrorBoundary } from "@/components/ErrorBoundary";
 
 const queryClient = new QueryClient({
@@ -41,6 +42,7 @@ const App = () => (
       <Toaster />
       <Sonner />
       <FloatingXpLayer />
+      <CustomCursor />
       <BrowserRouter>
         <AuthProvider>
           <Routes>

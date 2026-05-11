@@ -23,7 +23,7 @@ export const PageTransition = ({ children }: { children: React.ReactNode }) => {
       setDisplayChildren(children);
       setPathKey(location.pathname);
       setStage("in");
-    }, 150);
+    }, 180);
     return () => window.clearTimeout(t);
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [location.pathname, children]);

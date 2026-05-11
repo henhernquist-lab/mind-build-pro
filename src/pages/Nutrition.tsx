@@ -51,25 +51,36 @@ const MacroRing = ({ pct, color, label, value, target, unit }: { pct: number; co
   const r = 32;
   const c = 2 * Math.PI * r;
   const dash = c * Math.min(1, pct / 100);
-  const status = pct > 110 ? "hsl(0 70% 55%)" : pct > 95 ? "hsl(45 90% 55%)" : color;
+  const status = pct > 110 ? "hsl(var(--pr-red))" : pct > 95 ? "hsl(var(--gold))" : color;
+  const ringId = `macro-${label.toLowerCase()}-${Math.round(pct)}`;
   return (
-    <div className="rounded-2xl glass p-4 flex items-center gap-3">
+    <div className="rounded-2xl glass p-4 flex items-center gap-3 lift" data-testid={`macro-ring-${label.toLowerCase()}`}>
       <div className="relative h-20 w-20 flex-shrink-0">
         <svg viewBox="0 0 80 80" className="h-full w-full -rotate-90">
-          <circle cx="40" cy="40" r={r} fill="none" stroke="hsl(var(--muted))" strokeWidth="6" />
+          <defs>
+            <filter id={`${ringId}-glow`} x="-30%" y="-30%" width="160%" height="160%">
+              <feGaussianBlur stdDeviation="2" result="blur" />
+              <feMerge><feMergeNode in="blur" /><feMergeNode in="SourceGraphic" /></feMerge>
+            </filter>
+          </defs>
+          <circle cx="40" cy="40" r={r} fill="none" stroke="hsl(var(--muted) / 0.6)" strokeWidth="6" />
           <circle
             cx="40" cy="40" r={r} fill="none" stroke={status} strokeWidth="6"
             strokeDasharray={`${dash} ${c}`} strokeLinecap="round"
-            style={{ transition: "stroke-dasharray 600ms ease-out" }}
+            filter={`url(#${ringId}-glow)`}
+            style={{ transition: "stroke-dasharray 800ms cubic-bezier(0.22, 1, 0.36, 1)" }}
           />
         </svg>
-        <div className="absolute inset-0 flex items-center justify-center text-[11px] font-bold">
+        <div className="absolute inset-0 flex items-center justify-center scoreboard text-[12px] font-bold" style={{ color: status }}>
           {Math.round(pct)}%
         </div>
       </div>
       <div className="min-w-0">
-        <div className="text-[10px] uppercase tracking-wider text-muted-foreground">{label}</div>
-        <div className="text-xl font-bold leading-tight">{value}<span className="text-xs font-normal text-muted-foreground">/{target}{unit}</span></div>
+        <div className="text-[10px] font-stat text-muted-foreground">{label}</div>
+        <div className="text-2xl font-display tracking-wider leading-tight" style={{ color: status }}>
+          <span className="scoreboard">{value}</span>
+          <span className="text-xs font-body font-normal text-muted-foreground ml-1">/{target}{unit}</span>
+        </div>
       </div>
     </div>
   );
@@ -658,7 +669,7 @@ const Nutrition = () => {
         <div className="grid grid-cols-2 md:grid-cols-4 gap-3 mb-6">
           <MacroRing
             pct={targets.calories ? (totals.calories / targets.calories) * 100 : 0}
-            color="hsl(21 95% 55%)"
+            color="hsl(var(--cyan))"
             label="Calories"
             value={totals.calories}
             target={targets.calories}
@@ -666,7 +677,7 @@ const Nutrition = () => {
           />
           <MacroRing
             pct={targets.protein_g ? (totals.protein_g / targets.protein_g) * 100 : 0}
-            color="hsl(0 70% 60%)"
+            color="hsl(25 95% 55%)"
             label="Protein"
             value={totals.protein_g}
             target={targets.protein_g}
@@ -674,7 +685,7 @@ const Nutrition = () => {
           />
           <MacroRing
             pct={targets.carbs_g ? (totals.carbs_g / targets.carbs_g) * 100 : 0}
-            color="hsl(40 85% 55%)"
+            color="hsl(var(--neon))"
             label="Carbs"
             value={totals.carbs_g}
             target={targets.carbs_g}
@@ -682,7 +693,7 @@ const Nutrition = () => {
           />
           <MacroRing
             pct={targets.fat_g ? (totals.fat_g / targets.fat_g) * 100 : 0}
-            color="hsl(200 70% 55%)"
+            color="hsl(var(--gold))"
             label="Fat"
             value={totals.fat_g}
             target={targets.fat_g}
