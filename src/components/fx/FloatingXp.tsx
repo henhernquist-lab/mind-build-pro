@@ -59,7 +59,7 @@ export const FloatingXpLayer = () => {
       {items.map((it) => (
         <div
           key={it.id}
-          className="absolute xp-float font-display tracking-wider"
+          className="absolute xp-float tracking-normalr"
           style={{
             left: it.x,
             top: it.y,

@@ -37,7 +37,7 @@ export const AcademicPanel = () => {
         <span className="flex items-center gap-2">
           {open ? <ChevronDown className="h-4 w-4" /> : <ChevronRight className="h-4 w-4" />}
           <span className="font-semibold">My Academic Profile</span>
-          {p?.gpa != null && (<span className="text-xs px-2 py-0.5 rounded-full bg-primary/15 text-primary font-bold">GPA {p.gpa.toFixed(2)}</span>)}
+          {p?.gpa != null && (<span className="text-xs px-2 py-0.5 rounded-full bg-primary/15 text-primary font-semibold">GPA {p.gpa.toFixed(2)}</span>)}
           {p?.grade_level && (<span className="text-[11px] text-muted-foreground">{p.grade_level}</span>)}
         </span>
         <span onClick={(e) => { e.stopPropagation(); nav("/profile"); }} className="inline-flex items-center gap-1 text-[11px] text-muted-foreground hover:text-foreground cursor-pointer">
@@ -48,7 +48,7 @@ export const AcademicPanel = () => {
         <div className="px-4 pb-3 pt-1 space-y-2">
           {classes.length > 0 && (
             <div>
-              <div className="text-[10px] uppercase tracking-widest text-muted-foreground mb-1">Classes</div>
+              <div className="text-[10px] uppercase tracking-normalst text-muted-foreground mb-1">Classes</div>
               <div className="flex flex-wrap gap-1.5">
                 {classes.map((c) => {
                   const isStrong = p?.strongest_subject === c.class_name;

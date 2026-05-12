@@ -67,15 +67,15 @@ export const SeasonCeremony = () => {
             >
               <Trophy className="h-10 w-10 text-primary" />
             </motion.div>
-            <p className="text-xs uppercase tracking-[0.3em] text-muted-foreground">Season {snap.season_number + 1} begins</p>
-            <h2 className="text-4xl font-black mt-2">SEASON {snap.season_number + 1}</h2>
+            <p className="text-xs uppercase tracking-normal text-muted-foreground">Season {snap.season_number + 1} begins</p>
+            <h2 className="text-xl font-semibold mt-2">SEASON {snap.season_number + 1}</h2>
 
             <div className="mt-6 rounded-2xl border border-border bg-muted/30 p-4 text-left">
-              <div className="text-[10px] uppercase tracking-widest text-muted-foreground">Last season recap</div>
-              <div className="mt-1 text-sm font-bold">
+              <div className="text-[10px] uppercase tracking-normalst text-muted-foreground">Last season recap</div>
+              <div className="mt-1 text-sm font-semibold">
                 {snap.peak_athletic_rank_icon} {snap.peak_athletic_rank_name} • {snap.athletic_xp} ath XP
               </div>
-              <div className="text-sm font-bold">
+              <div className="text-sm font-semibold">
                 {snap.peak_academic_rank_icon} {snap.peak_academic_rank_name} • {snap.academic_xp} acad XP
               </div>
               {snap.ai_recap && <p className="text-xs text-muted-foreground mt-2 italic">"{snap.ai_recap}"</p>}
@@ -83,7 +83,7 @@ export const SeasonCeremony = () => {
 
             {awards.length > 0 && (
               <div className="mt-4">
-                <div className="text-[10px] uppercase tracking-widest text-muted-foreground mb-2">Awards earned</div>
+                <div className="text-[10px] uppercase tracking-normalst text-muted-foreground mb-2">Awards earned</div>
                 <div className="flex flex-wrap justify-center gap-2">
                   {awards.map((a, i) => (
                     <motion.div
@@ -91,7 +91,7 @@ export const SeasonCeremony = () => {
                       initial={{ scale: 0, rotate: -180 }}
                       animate={{ scale: 1, rotate: 0 }}
                       transition={{ delay: 0.4 + i * 0.15, type: "spring" }}
-                      className="rounded-xl border border-primary/40 bg-primary/10 px-3 py-2 text-xs font-bold flex items-center gap-1.5"
+                      className="rounded-xl border border-primary/40 bg-primary/10 px-3 py-2 text-xs font-semibold flex items-center gap-1.5"
                     >
                       <span className="text-base">{a.award_icon}</span>
                       {a.award_name}

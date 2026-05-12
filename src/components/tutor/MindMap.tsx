@@ -261,7 +261,7 @@ export const MindMap = ({
         ) : (
           <div className="absolute inset-0 flex flex-col items-center justify-center text-muted-foreground opacity-30">
             <Network className="h-16 w-16 mb-4" />
-            <p className="font-bold uppercase tracking-widest">Enter a topic to visualize</p>
+            <p className="font-semibold uppercase tracking-normalst">Enter a topic to visualize</p>
           </div>
         )}
       </div>

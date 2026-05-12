@@ -252,7 +252,7 @@ export const WeatherCheckCard = ({
         </div>
         <button
           onClick={clearLocation}
-          className="text-[10px] uppercase tracking-wider text-muted-foreground hover:text-foreground"
+          className="text-[10px] uppercase tracking-normalr text-muted-foreground hover:text-foreground"
         >
           Reset location
         </button>
@@ -273,14 +273,14 @@ export const WeatherCheckCard = ({
         <div className="rounded-xl border border-border bg-background/60 p-3">
           <div className="flex items-center justify-between gap-2">
             <div>
-              <div className="text-2xl">
+              <div className="text-xl">
                 {verdict.emoji} <span className="text-sm font-medium align-middle">{verdict.conditionLabel}</span>
               </div>
               <div className="text-[11px] text-muted-foreground mt-0.5">
                 High {fF(verdict.tempMaxC)} · Low {fF(verdict.tempMinC)} · Wind {Math.round(verdict.windKmh)} km/h · Precip {verdict.precipMm.toFixed(1)} mm
               </div>
             </div>
-            <div className={`text-[11px] font-semibold uppercase tracking-wider px-2 py-1 rounded-full ${
+            <div className={`text-[11px] font-semibold uppercase tracking-normalr px-2 py-1 rounded-full ${
               verdict.isOutdoorSafe
                 ? "bg-emerald-500/10 text-emerald-500"
                 : "bg-destructive/10 text-destructive"
@@ -294,7 +294,7 @@ export const WeatherCheckCard = ({
 
       {outdoorBlocks.length > 0 ? (
         <div className="space-y-2">
-          <div className="text-[11px] uppercase tracking-wider text-muted-foreground flex items-center justify-between">
+          <div className="text-[11px] uppercase tracking-normalr text-muted-foreground flex items-center justify-between">
             <span>Outdoor practices today</span>
             {verdict && !verdict.isOutdoorSafe && (
               <button

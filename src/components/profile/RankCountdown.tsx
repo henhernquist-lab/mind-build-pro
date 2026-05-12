@@ -9,7 +9,7 @@ export const RankCountdown = ({ periodStart, label }: { periodStart: string; lab
   }, [periodStart]);
   return (
     <div
-      className="inline-flex items-center gap-2 rounded-full px-3 py-1 text-[11px] font-stat tracking-wider"
+      className="inline-flex items-center gap-2 rounded-full px-3 py-1 text-[11px] tracking-normalr"
       style={{
         background: "hsl(var(--pr-red) / 0.10)",
         border: "1px solid hsl(var(--pr-red) / 0.30)",
@@ -19,7 +19,7 @@ export const RankCountdown = ({ periodStart, label }: { periodStart: string; lab
     >
       <span className="live-dot" aria-hidden />
       <span className="text-foreground/85">{label ?? "RESETS IN"}</span>
-      <span className="scoreboard font-bold">
+      <span className="scoreboard font-semibold">
         {c.days}d {c.hours}h
       </span>
     </div>

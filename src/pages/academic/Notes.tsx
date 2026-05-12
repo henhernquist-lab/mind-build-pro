@@ -169,7 +169,7 @@ export default function Notes() {
     <div className="max-w-7xl mx-auto p-4 md:p-6">
       <header className="mb-4 flex items-center justify-between flex-wrap gap-2">
         <div>
-          <h1 className="text-3xl font-black flex items-center gap-2">
+          <h1 className="text-xl font-semibold flex items-center gap-2">
             <NotebookPen className="h-7 w-7 text-primary" /> Notes
           </h1>
           <p className="text-sm text-muted-foreground mt-1">
@@ -206,7 +206,7 @@ export default function Notes() {
                 }`}
               >
                 <div className="font-semibold text-sm truncate">{n.title || "Untitled"}</div>
-                <div className="text-[10px] uppercase tracking-wider text-muted-foreground mt-1">
+                <div className="text-[10px] uppercase tracking-normalr text-muted-foreground mt-1">
                   {n.subject} • {new Date(n.updated_at).toLocaleDateString()}
                 </div>
                 <div className="text-xs text-muted-foreground line-clamp-2 mt-1">{n.content || "(empty)"}</div>
@@ -222,7 +222,7 @@ export default function Notes() {
                 <Input
                   value={active.title}
                   onChange={(e) => updateActive({ title: e.target.value })}
-                  className="text-lg font-bold flex-1 min-w-[200px]"
+                  className="text-lg font-semibold flex-1 min-w-[200px]"
                 />
                 <Select value={active.subject} onValueChange={(v) => updateActive({ subject: v })}>
                   <SelectTrigger className="w-40"><SelectValue /></SelectTrigger>
@@ -263,7 +263,7 @@ export default function Notes() {
               {podcastUrl && (
                 <div className="p-4 rounded-lg bg-muted/40 border border-border space-y-2">
                   <div className="flex items-center justify-between gap-2">
-                    <div className="text-xs uppercase tracking-wider text-muted-foreground flex items-center gap-1">
+                    <div className="text-xs uppercase tracking-normalr text-muted-foreground flex items-center gap-1">
                       <Headphones className="h-3 w-3" /> Podcast: {podcastTitle}
                     </div>
                     <a
@@ -279,7 +279,7 @@ export default function Notes() {
               )}
               {(aiResult || active.ai_summary) && (
                 <div className="p-4 rounded-lg bg-muted/40 border border-border">
-                  <div className="text-xs uppercase tracking-wider text-muted-foreground mb-2">AI Output</div>
+                  <div className="text-xs uppercase tracking-normalr text-muted-foreground mb-2">AI Output</div>
                   <pre className="whitespace-pre-wrap font-sans text-sm">{aiResult || active.ai_summary}</pre>
                 </div>
               )}

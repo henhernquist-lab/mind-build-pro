@@ -114,8 +114,8 @@ const MacroCalculator = () => {
           <Apple className="h-6 w-6" />
         </div>
         <div>
-          <p className="text-xs uppercase tracking-widest text-muted-foreground">Athletic</p>
-          <h1 className="text-3xl font-bold">AI Macro Calculator</h1>
+          <p className="text-xs uppercase tracking-normalst text-muted-foreground">Athletic</p>
+          <h1 className="text-xl font-semibold">AI Macro Calculator</h1>
           <p className="text-sm text-muted-foreground mt-0.5">
             Personalized fuel plan for your training and goals.
           </p>
@@ -125,7 +125,7 @@ const MacroCalculator = () => {
       <div className="grid md:grid-cols-2 gap-6">
         {/* Inputs */}
         <div className="rounded-2xl border border-border bg-card p-5 space-y-4">
-          <h2 className="font-semibold text-sm uppercase tracking-wider text-muted-foreground">
+          <h2 className="font-semibold text-sm uppercase tracking-normalr text-muted-foreground">
             Your stats
           </h2>
 
@@ -219,8 +219,8 @@ const MacroCalculator = () => {
           {plan && (
             <motion.div initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }} className="space-y-4">
               <div className="text-center pb-3 border-b border-border">
-                <div className="text-xs uppercase tracking-widest text-muted-foreground">Daily target</div>
-                <div className="text-4xl font-bold mt-1 flex items-center justify-center gap-2">
+                <div className="text-xs uppercase tracking-normalst text-muted-foreground">Daily target</div>
+                <div className="text-xl font-semibold mt-1 flex items-center justify-center gap-2">
                   <Flame className="h-7 w-7 text-orange-500" />
                   {plan.calories.toLocaleString()}
                   <span className="text-base font-normal text-muted-foreground">kcal</span>
@@ -240,16 +240,16 @@ const MacroCalculator = () => {
                 <span className="text-xs text-muted-foreground flex items-center gap-1.5">
                   <Droplet className="h-3.5 w-3.5 text-blue-400" /> Water
                 </span>
-                <span className="font-bold text-sm">{plan.water_oz} oz</span>
+                <span className="font-semibold text-sm">{plan.water_oz} oz</span>
               </div>
 
               <div>
-                <div className="text-xs uppercase tracking-wider text-muted-foreground mb-1.5">Meal split</div>
+                <div className="text-xs uppercase tracking-normalr text-muted-foreground mb-1.5">Meal split</div>
                 <div className="grid grid-cols-4 gap-1.5 text-center">
                   {(["breakfast", "lunch", "dinner", "snacks"] as const).map((m) => (
                     <div key={m} className="rounded-md bg-muted/40 p-2">
-                      <div className="text-[10px] uppercase tracking-wider text-muted-foreground">{m}</div>
-                      <div className="font-bold text-sm">{plan.meal_split?.[m] ?? 0}</div>
+                      <div className="text-[10px] uppercase tracking-normalr text-muted-foreground">{m}</div>
+                      <div className="font-semibold text-sm">{plan.meal_split?.[m] ?? 0}</div>
                     </div>
                   ))}
                 </div>
@@ -261,7 +261,7 @@ const MacroCalculator = () => {
 
               {plan.tips?.length > 0 && (
                 <div>
-                  <div className="text-xs uppercase tracking-wider text-muted-foreground mb-1.5">Coach tips</div>
+                  <div className="text-xs uppercase tracking-normalr text-muted-foreground mb-1.5">Coach tips</div>
                   <ul className="space-y-1">
                     {plan.tips.map((t, i) => (
                       <li key={i} className="text-xs flex gap-2">
@@ -282,10 +282,10 @@ const MacroCalculator = () => {
 
 const MacroBox = ({ icon, label, value, color }: { icon: React.ReactNode; label: string; value: number; color: string }) => (
   <div className="rounded-lg border border-border bg-background/40 p-3 text-center" style={{ borderTopColor: color, borderTopWidth: 2 }}>
-    <div className="flex items-center justify-center gap-1 text-[10px] uppercase tracking-wider text-muted-foreground">
+    <div className="flex items-center justify-center gap-1 text-[10px] uppercase tracking-normalr text-muted-foreground">
       {icon} {label}
     </div>
-    <div className="text-lg font-bold mt-1">{value}<span className="text-xs font-normal text-muted-foreground">g</span></div>
+    <div className="text-lg font-semibold mt-1">{value}<span className="text-xs font-normal text-muted-foreground">g</span></div>
   </div>
 );
 

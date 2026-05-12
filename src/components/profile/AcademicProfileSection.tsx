@@ -211,7 +211,7 @@ export const AcademicProfileSection = ({
       <div className="mt-5">
         <div className="flex justify-between items-center mb-2">
           <Label className="text-xs">Average study hours per day</Label>
-          <span className="text-sm font-bold">{p.study_hours_per_day} h</span>
+          <span className="text-sm font-semibold">{p.study_hours_per_day} h</span>
         </div>
         <Slider min={0} max={6} step={0.5} value={[p.study_hours_per_day]} onValueChange={(v) => setP({ ...p, study_hours_per_day: v[0] })} />
       </div>

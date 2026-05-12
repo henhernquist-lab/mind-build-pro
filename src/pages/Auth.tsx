@@ -97,8 +97,8 @@ const Auth = () => {
           <div className="inline-flex h-14 w-14 rounded-2xl items-center justify-center bg-gradient-to-br from-[hsl(var(--cyan))] to-[hsl(var(--neon))] mb-3 shadow-[0_0_28px_hsl(var(--cyan)/0.55)]">
             <Sparkles className="h-7 w-7" style={{ color: "hsl(var(--background))" }} />
           </div>
-          <h1 className="text-4xl md:text-5xl font-display tracking-[0.08em] shimmer-text">LIFESTACK</h1>
-          <p className="text-xs font-stat tracking-[0.2em] text-muted-foreground mt-2">STACK THE DAYS · WIN THE YEAR</p>
+          <h1 className="text-xl md:text-xl tracking-normal">LIFESTACK</h1>
+          <p className="text-xs tracking-normal text-muted-foreground mt-2">STACK THE DAYS · WIN THE YEAR</p>
         </div>
 
         <div data-lifestack-auth className="rounded-2xl p-6 shadow-2xl">

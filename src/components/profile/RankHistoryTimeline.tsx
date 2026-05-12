@@ -61,19 +61,19 @@ export const RankHistoryTimeline = () => {
               className="flex items-center gap-3 rounded-xl border border-border bg-background/40 p-3"
               style={{ borderLeft: `4px solid ${color}` }}
             >
-              <div className="text-2xl leading-none">{r.highest_rank_icon}</div>
+              <div className="text-xl leading-none">{r.highest_rank_icon}</div>
               <div className="flex-1 min-w-0">
                 <div className="flex items-center gap-2">
                   <span className="text-sm font-semibold truncate" style={{ color }}>{r.highest_rank_name}</span>
-                  <span className="text-[10px] uppercase tracking-widest text-muted-foreground">
+                  <span className="text-[10px] uppercase tracking-normalst text-muted-foreground">
                     {r.rank_type === "athletic" ? "💪 Athletic" : "🎓 Academic"}
                   </span>
                 </div>
                 <div className="text-[11px] text-muted-foreground">{r.month_name}</div>
               </div>
               <div className="text-right">
-                <div className="text-base font-bold tabular-nums">{r.final_xp}</div>
-                <div className="text-[9px] uppercase tracking-widest text-muted-foreground">XP</div>
+                <div className="text-base font-semibold tabular-nums">{r.final_xp}</div>
+                <div className="text-[9px] uppercase tracking-normalst text-muted-foreground">XP</div>
               </div>
             </div>
           );

@@ -125,7 +125,7 @@ export const DayDetailDrawer = ({
           <ChevronLeft className="h-5 w-5" />
         </button>
         <div className="text-center">
-          <div className="text-lg font-bold">{dateLabel}</div>
+          <div className="text-lg font-semibold">{dateLabel}</div>
           {!isToday && (
             <button onClick={() => onDateChange(today)} className="text-xs text-primary hover:underline">
               ← Today
@@ -152,7 +152,7 @@ export const DayDetailDrawer = ({
             {/* Macro summary */}
             {targets && (
               <div className="rounded-xl border border-border bg-card/40 p-4 space-y-2.5">
-                <div className="text-[11px] uppercase tracking-wider text-muted-foreground font-semibold mb-1">
+                <div className="text-[11px] uppercase tracking-normalr text-muted-foreground font-semibold mb-1">
                   {isToday ? "Today's Macros" : isPast ? "Day Summary" : "Macros"}
                 </div>
                 <MacroBar label="Calories" value={totals.calories} target={targets.calories} unit="" color="hsl(21 95% 55%)" />
@@ -215,7 +215,7 @@ export const DayDetailDrawer = ({
 
             {/* Meal cards */}
             <div>
-              <div className="text-[11px] uppercase tracking-wider text-muted-foreground font-semibold mb-2">
+              <div className="text-[11px] uppercase tracking-normalr text-muted-foreground font-semibold mb-2">
                 Meals ({meals.length})
               </div>
               {meals.length === 0 ? (
@@ -243,7 +243,7 @@ export const DayDetailDrawer = ({
                           <span className="text-xl flex-shrink-0 mt-0.5">{mt?.emoji ?? "🍽️"}</span>
                           <div className="flex-1 min-w-0">
                             <div className="flex items-center gap-2 flex-wrap">
-                              <span className="text-[10px] uppercase tracking-wider font-bold px-2 py-0.5 rounded-full bg-muted text-muted-foreground">
+                              <span className="text-[10px] uppercase tracking-normalr font-semibold px-2 py-0.5 rounded-full bg-muted text-muted-foreground">
                                 {mt?.label}
                               </span>
                               {m.ai_estimated && (

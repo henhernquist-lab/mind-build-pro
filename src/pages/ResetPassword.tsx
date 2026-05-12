@@ -33,7 +33,7 @@ const ResetPassword = () => {
           <div className="inline-flex h-12 w-12 rounded-2xl items-center justify-center bg-gradient-to-br from-school to-coding mb-3">
             <Sparkles className="h-6 w-6" style={{ color: "hsl(var(--background))" }} />
           </div>
-          <h1 className="text-xl font-bold">Set a new password</h1>
+          <h1 className="text-xl font-semibold">Set a new password</h1>
         </div>
         <form onSubmit={submit} className="rounded-2xl border border-border bg-card p-6 space-y-3">
           <div>

@@ -137,7 +137,7 @@ export default function TestCalendar() {
     <div className="max-w-5xl mx-auto p-4 md:p-6 space-y-6">
       <header className="flex items-center justify-between">
         <div>
-          <h1 className="text-3xl font-black flex items-center gap-2">
+          <h1 className="text-xl font-semibold flex items-center gap-2">
             <CalendarDays className="h-7 w-7 text-primary" /> Test Calendar
           </h1>
           <p className="text-sm text-muted-foreground mt-1">
@@ -212,7 +212,7 @@ export default function TestCalendar() {
       ) : (
         <>
           <section>
-            <h2 className="text-sm uppercase tracking-wider text-muted-foreground mb-2">
+            <h2 className="text-sm uppercase tracking-normalr text-muted-foreground mb-2">
               Upcoming ({upcoming.length})
             </h2>
             {upcoming.length === 0 ? (
@@ -233,7 +233,7 @@ export default function TestCalendar() {
                           <div className="text-sm text-muted-foreground mt-1">
                             {new Date(t.test_date).toLocaleDateString(undefined, { weekday: "short", month: "short", day: "numeric" })}
                             {" • "}
-                            <span className={days <= 2 ? "font-bold text-foreground" : ""}>
+                            <span className={days <= 2 ? "font-semibold text-foreground" : ""}>
                               {days < 0 ? `${-days}d ago` : days === 0 ? "TODAY" : `in ${days}d`}
                             </span>
                           </div>
@@ -263,7 +263,7 @@ export default function TestCalendar() {
 
           {done.length > 0 && (
             <section>
-              <h2 className="text-sm uppercase tracking-wider text-muted-foreground mb-2">
+              <h2 className="text-sm uppercase tracking-normalr text-muted-foreground mb-2">
                 Completed ({done.length})
               </h2>
               <div className="space-y-2">

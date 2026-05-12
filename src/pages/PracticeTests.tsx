@@ -196,8 +196,8 @@ const PracticeTests = () => {
   return (
     <div className="p-4 md:p-8 max-w-4xl mx-auto pb-24">
       <header className="mb-6">
-        <p className="text-xs uppercase tracking-widest text-muted-foreground">AI Practice Tests</p>
-        <h1 className="text-3xl font-black mt-1 flex items-center gap-2">
+        <p className="text-xs uppercase tracking-normalst text-muted-foreground">AI Practice Tests</p>
+        <h1 className="text-xl font-semibold mt-1 flex items-center gap-2">
           <Brain className="h-7 w-7 text-primary" />
           Practice Tests
         </h1>
@@ -317,7 +317,7 @@ const WeaknessBanner = ({
   <div className="rounded-2xl border border-amber-500/40 bg-amber-500/10 p-4 flex items-start gap-3">
     <AlertTriangle className="h-5 w-5 text-amber-500 shrink-0 mt-0.5" />
     <div className="flex-1 min-w-0">
-      <div className="font-bold text-sm">
+      <div className="font-semibold text-sm">
         You've scored below 70% on <span className="text-amber-500">{flag.subject}</span> twice in a row
       </div>
       <div className="text-xs text-muted-foreground mt-1">
@@ -342,7 +342,7 @@ const ListView = ({
 }) => (
   <div>
     <div className="flex items-center justify-between mb-4">
-      <div className="text-sm font-bold uppercase tracking-widest text-muted-foreground">Your Tests</div>
+      <div className="text-sm font-semibold uppercase tracking-normalst text-muted-foreground">Your Tests</div>
       <Button onClick={onCreate}>
         <Sparkles className="h-4 w-4 mr-1" /> New Practice Test
       </Button>
@@ -353,7 +353,7 @@ const ListView = ({
     ) : tests.length === 0 ? (
       <div className="rounded-2xl border border-dashed border-border bg-card p-10 text-center">
         <Brain className="h-10 w-10 mx-auto text-muted-foreground mb-3" />
-        <h2 className="text-lg font-bold">No practice tests yet</h2>
+        <h2 className="text-lg font-semibold">No practice tests yet</h2>
         <p className="text-sm text-muted-foreground mt-1">Generate your first test to start drilling weak spots.</p>
         <Button onClick={onCreate} className="mt-4">
           <Plus className="h-4 w-4 mr-1" /> Create Test
@@ -365,8 +365,8 @@ const ListView = ({
           <div key={t.id} className="rounded-2xl border border-border bg-card p-4 flex flex-col">
             <div className="flex items-start justify-between gap-2">
               <div className="min-w-0">
-                <div className="text-[10px] uppercase tracking-widest text-muted-foreground">{t.difficulty} • {t.total_questions} Q</div>
-                <div className="font-bold truncate">{t.subject}</div>
+                <div className="text-[10px] uppercase tracking-normalst text-muted-foreground">{t.difficulty} • {t.total_questions} Q</div>
+                <div className="font-semibold truncate">{t.subject}</div>
                 {t.topic && <div className="text-xs text-muted-foreground truncate">{t.topic}</div>}
               </div>
               <button onClick={() => onDelete(t.id)} className="text-muted-foreground hover:text-destructive">
@@ -401,7 +401,7 @@ const HistoryView = ({ attempts, loading }: { attempts: any[]; loading: boolean 
   if (attempts.length === 0) return (
     <div className="rounded-2xl border border-dashed border-border bg-card p-10 text-center">
       <BarChart2 className="h-10 w-10 mx-auto text-muted-foreground mb-3" />
-      <h2 className="text-lg font-bold">No quiz history yet</h2>
+      <h2 className="text-lg font-semibold">No quiz history yet</h2>
       <p className="text-sm text-muted-foreground mt-1">Complete a quiz to see your progress here.</p>
     </div>
   );
@@ -422,7 +422,7 @@ const HistoryView = ({ attempts, loading }: { attempts: any[]; loading: boolean 
                 <div className="font-bold">{subject}</div>
                 <div className="text-xs text-muted-foreground">{subAttempts.length} attempt{subAttempts.length !== 1 ? "s" : ""} · avg {avg}%</div>
               </div>
-              <div className={cn("text-2xl font-black", getLetterGrade(avg).color)}>
+              <div className={cn("text-xl font-semibold", getLetterGrade(avg).color)}>
                 {getLetterGrade(avg).grade}
               </div>
             </div>
@@ -563,7 +563,7 @@ const CreateView = ({
     <div className="rounded-2xl border border-border bg-card p-6 space-y-5 max-w-2xl">
       <div className="flex items-center gap-2">
         <button onClick={onCancel} className="text-muted-foreground hover:text-foreground"><ArrowLeft className="h-4 w-4" /></button>
-        <h2 className="text-lg font-bold">New Practice Test</h2>
+        <h2 className="text-lg font-semibold">New Practice Test</h2>
       </div>
 
       {/* Input Type Tabs */}
@@ -822,7 +822,7 @@ const TakingView = ({
         <div className="flex items-center gap-3">
           {timeLeft !== null && (
             <div className={cn(
-              "flex items-center gap-1.5 px-3 py-1 rounded-full text-sm font-mono font-bold border",
+              "flex items-center gap-1.5 px-3 py-1 rounded-full text-sm font-mono font-semibold border",
               isCritical ? "border-destructive/60 bg-destructive/10 text-destructive animate-pulse" :
               isAmber ? "border-amber-500/60 bg-amber-500/10 text-amber-500" :
               "border-border bg-muted/40 text-foreground"
@@ -855,7 +855,7 @@ const TakingView = ({
         >
           <div className="flex items-start justify-between gap-2 mb-4">
             <div>
-              <div className="text-[10px] uppercase tracking-widest text-muted-foreground mb-1">
+              <div className="text-[10px] uppercase tracking-normalst text-muted-foreground mb-1">
                 {QUESTION_TYPE_ICONS[q.type as QuestionType]} {QUESTION_TYPE_LABELS[q.type as QuestionType]} · {q.topic}
               </div>
               <div className="text-lg font-semibold">{q.question}</div>
@@ -887,7 +887,7 @@ const TakingView = ({
                     )}
                   >
                     <span className={cn(
-                      "h-6 w-6 rounded-full border-2 flex items-center justify-center text-xs font-bold shrink-0",
+                      "h-6 w-6 rounded-full border-2 flex items-center justify-center text-xs font-semibold shrink-0",
                       selected ? "border-primary bg-primary text-primary-foreground" : "border-border",
                     )}>
                       {String.fromCharCode(65 + i)}
@@ -909,7 +909,7 @@ const TakingView = ({
                     key={opt}
                     onClick={() => setAnswer(qIndex, { selected_index: i })}
                     className={cn(
-                      "flex-1 rounded-xl border-2 p-4 text-sm font-bold transition-colors",
+                      "flex-1 rounded-xl border-2 p-4 text-sm font-semibold transition-colors",
                       selected
                         ? i === 0 ? "border-emerald-500 bg-emerald-500/10 text-emerald-500" : "border-destructive bg-destructive/10 text-destructive"
                         : "border-border hover:border-primary/40"
@@ -992,7 +992,7 @@ const TakingView = ({
             key={i}
             onClick={() => onJump(i)}
             className={cn(
-              "h-7 w-7 rounded-lg text-xs font-bold transition-colors",
+              "h-7 w-7 rounded-lg text-xs font-semibold transition-colors",
               qIndex === i ? "ring-2 ring-primary ring-offset-1" : "",
               getNavColor(i)
             )}
@@ -1054,11 +1054,11 @@ const ResultsView = ({
           initial={{ scale: 0 }}
           animate={{ scale: 1 }}
           transition={{ delay: 0.2, type: "spring", stiffness: 300 }}
-          className={cn("text-8xl font-black mb-2", color)}
+          className={cn("text-6xl font-semibold mb-2", color)}
         >
           {grade}
         </motion.div>
-        <div className="text-4xl font-black tabular-nums">{result.pct}%</div>
+        <div className="text-xl font-semibold tabular-nums">{result.pct}%</div>
         <div className="text-sm text-muted-foreground mt-2">
           {result.correct} / {result.total} correct · {Math.floor(result.duration / 60)}m {result.duration % 60}s
         </div>
@@ -1067,7 +1067,7 @@ const ResultsView = ({
           initial={{ opacity: 0, y: 10 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.5 }}
-          className="inline-flex items-center gap-1.5 mt-3 px-3 py-1.5 rounded-full bg-primary/15 text-primary text-sm font-bold"
+          className="inline-flex items-center gap-1.5 mt-3 px-3 py-1.5 rounded-full bg-primary/15 text-primary text-sm font-semibold"
         >
           <Zap className="h-4 w-4" />
           +{result.xpEarned} XP earned
@@ -1080,7 +1080,7 @@ const ResultsView = ({
         <div className="rounded-2xl border border-primary/40 bg-primary/5 p-4 flex items-start gap-3">
           <Lightbulb className="h-5 w-5 text-primary shrink-0 mt-0.5" />
           <div className="flex-1">
-            <div className="text-xs uppercase tracking-widest text-muted-foreground">Next step</div>
+            <div className="text-xs uppercase tracking-normalst text-muted-foreground">Next step</div>
             <div className="text-sm font-semibold mt-0.5">{result.recommendation}</div>
             {result.weakTopics.length > 0 && (
               <Button size="sm" className="mt-3" onClick={onTutor}>
@@ -1096,7 +1096,7 @@ const ResultsView = ({
         <div className="rounded-2xl border border-amber-500/30 bg-amber-500/5 p-4">
           <div className="flex items-center gap-2 mb-2">
             <Target className="h-4 w-4 text-amber-500" />
-            <div className="text-xs font-bold uppercase tracking-widest text-amber-500">Concept Weakness Report</div>
+            <div className="text-xs font-semibold uppercase tracking-normalst text-amber-500">Concept Weakness Report</div>
           </div>
           <div className="flex flex-wrap gap-2">
             {result.weakTopics.map((t: string) => (
@@ -1113,7 +1113,7 @@ const ResultsView = ({
         <div className="rounded-2xl border border-amber-500/40 bg-amber-500/10 p-4 flex items-start gap-3">
           <AlertTriangle className="h-5 w-5 text-amber-500 shrink-0 mt-0.5" />
           <div className="flex-1">
-            <div className="font-bold text-sm">
+            <div className="font-semibold text-sm">
               You've scored below 70% on {result.subject} twice in a row
             </div>
             <div className="text-xs text-muted-foreground mt-1">
@@ -1126,7 +1126,7 @@ const ResultsView = ({
 
       {/* Per-question breakdown */}
       <section>
-        <div className="text-xs font-bold uppercase tracking-widest text-muted-foreground mb-2">Question Review</div>
+        <div className="text-xs font-semibold uppercase tracking-normalst text-muted-foreground mb-2">Question Review</div>
         <div className="space-y-2">
           {test.questions.map((q, i) => {
             const ans = result.answers[i];

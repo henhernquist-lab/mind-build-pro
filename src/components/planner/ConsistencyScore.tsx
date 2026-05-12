@@ -275,7 +275,7 @@ Be encouraging, direct, and personal. Use their first name: ${firstName}.`;
     const color = scoreColor(current.total_score);
     return (
       <div className="rounded-xl border border-border bg-card/60 px-4 py-2.5 flex items-center gap-3 mb-4">
-        <div className="text-xl font-bold" style={{ color }}>{current.total_score}</div>
+        <div className="text-xl font-semibold" style={{ color }}>{current.total_score}</div>
         <div>
           <div className="text-xs font-semibold">Consistency Score</div>
           <div className="text-[10px] text-muted-foreground">Grade {scoreGrade(current.total_score)} this week</div>
@@ -301,7 +301,7 @@ Be encouraging, direct, and personal. Use their first name: ${firstName}.`;
   return (
     <div className="rounded-2xl border border-border bg-card p-5 mb-6">
       <div className="flex items-center justify-between mb-4 flex-wrap gap-2">
-        <h3 className="text-sm font-semibold uppercase tracking-wider text-muted-foreground">📊 Consistency Score</h3>
+        <h3 className="text-sm font-semibold uppercase tracking-normalr text-muted-foreground">📊 Consistency Score</h3>
         <Button size="sm" variant="outline" onClick={calculateScore} disabled={calculating}>
           {calculating ? <Loader2 className="h-3.5 w-3.5 mr-1.5 animate-spin" /> : null}
           {calculating ? "Calculating…" : "Calculate This Week"}

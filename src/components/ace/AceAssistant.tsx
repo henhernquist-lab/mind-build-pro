@@ -177,7 +177,7 @@ export const AceAssistant = () => {
                     <Sparkles className="h-4 w-4 text-primary-foreground" />
                   </div>
                   <div>
-                    <div className="font-bold text-sm leading-tight">Ace</div>
+                    <div className="font-semibold text-sm leading-tight">Ace</div>
                     <div className="text-[10px] text-muted-foreground leading-tight">your personal coach + tutor</div>
                   </div>
                 </div>

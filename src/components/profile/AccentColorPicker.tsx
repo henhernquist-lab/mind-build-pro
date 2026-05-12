@@ -68,7 +68,7 @@ export const AccentColorPicker = () => {
 
       {/* Hue slider — full spectrum gradient */}
       <div className="space-y-2">
-        <div className="flex items-center justify-between text-[11px] uppercase tracking-widest text-muted-foreground">
+        <div className="flex items-center justify-between text-[11px] uppercase tracking-normalst text-muted-foreground">
           <span>Hue</span>
           <span className="tabular-nums">{Math.round(current)}°</span>
         </div>
@@ -89,7 +89,7 @@ export const AccentColorPicker = () => {
 
       {/* Preset swatches */}
       <div className="mt-4">
-        <p className="text-[11px] uppercase tracking-widest text-muted-foreground mb-2">Presets</p>
+        <p className="text-[11px] uppercase tracking-normalst text-muted-foreground mb-2">Presets</p>
         <div className="grid grid-cols-4 sm:grid-cols-8 gap-2">
           {PRESETS.map((p) => (
             <button

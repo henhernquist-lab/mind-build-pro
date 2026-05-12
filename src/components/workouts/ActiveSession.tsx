@@ -222,29 +222,29 @@ export const ActiveSession = ({
           <Input
             value={name}
             onChange={e => setName(e.target.value)}
-            className="text-2xl font-black bg-transparent border-none p-0 h-auto focus-visible:ring-0 w-2/3 uppercase italic tracking-tighter"
+            className="text-xl font-semibold bg-transparent border-none p-0 h-auto focus-visible:ring-0 w-2/3 uppercase italic tracking-tighter"
           />
           <Button
             onClick={() => onFinish({ name, exercises, duration: seconds, isRecovery })}
-            className="bg-red-600 hover:bg-red-700 text-white font-black px-6 rounded-xl animate-pulse shadow-lg shadow-red-600/20"
+            className="bg-red-600 hover:bg-red-700 text-white font-semibold px-6 rounded-xl animate-pulse shadow-lg shadow-red-600/20"
           >
             FINISH
           </Button>
         </div>
         <div className="flex items-center gap-8">
           <div>
-            <div className="text-[10px] uppercase tracking-widest text-muted-foreground font-black">Session Timer</div>
-            <div className="text-3xl font-mono font-black tabular-nums">{formatTime(seconds)}</div>
+            <div className="text-[10px] uppercase tracking-normalst text-muted-foreground font-semibold">Session Timer</div>
+            <div className="text-xl font-mono font-semibold tabular-nums">{formatTime(seconds)}</div>
           </div>
           <div>
-            <div className="text-[10px] uppercase tracking-widest text-muted-foreground font-black">Total Volume</div>
-            <div className="text-3xl font-mono font-black text-[#00E5FF] tabular-nums">{totalVolume.toLocaleString()} <span className="text-sm font-bold">lbs</span></div>
+            <div className="text-[10px] uppercase tracking-normalst text-muted-foreground font-semibold">Total Volume</div>
+            <div className="text-xl font-mono font-semibold text-[#00E5FF] tabular-nums">{totalVolume.toLocaleString()} <span className="text-sm font-semibold">lbs</span></div>
           </div>
         </div>
       </div>
 
       {!profile && (
-        <div className="mx-4 mt-4 p-3 rounded-xl bg-[#00E5FF]/10 border border-[#00E5FF]/30 text-[#00E5FF] text-xs font-bold text-center">
+        <div className="mx-4 mt-4 p-3 rounded-xl bg-[#00E5FF]/10 border border-[#00E5FF]/30 text-[#00E5FF] text-xs font-semibold text-center">
           Complete your Athletic Profile for accurate grades
         </div>
       )}
@@ -268,7 +268,7 @@ export const ActiveSession = ({
                       <div className="h-10 w-10 rounded-xl bg-primary/20 flex items-center justify-center border border-primary/30">
                         {isCardio ? <Activity className="h-5 w-5 text-primary" /> : <Dumbbell className="h-5 w-5 text-primary" />}
                       </div>
-                      <h3 className="font-black text-xl tracking-tight uppercase italic">{ex.name}</h3>
+                      <h3 className="font-semibold text-xl tracking-tight uppercase italic">{ex.name}</h3>
                     </div>
                     <Button variant="ghost" size="icon" onClick={() => addSet(ex.id)} className="h-10 w-10 bg-accent/40 rounded-xl border border-border/50">
                       <Plus className="h-5 w-5" />
@@ -276,14 +276,14 @@ export const ActiveSession = ({
                   </div>
 
                   {hasRisk && (
-                    <div className="px-4 py-2 bg-amber-500/10 text-amber-500 text-[10px] font-black uppercase flex items-center gap-2 border-b border-amber-500/20">
+                    <div className="px-4 py-2 bg-amber-500/10 text-amber-500 text-[10px] font-semibold uppercase flex items-center gap-2 border-b border-amber-500/20">
                       <AlertTriangle className="h-3 w-3" />
                       ⚠️ THIS EXERCISE MAY AFFECT YOUR {activeInjury.body_part} INJURY
                     </div>
                   )}
 
                   <div className="p-4">
-                    <div className="grid grid-cols-[60px_40px_1fr_80px_80px_40px] gap-2 mb-3 text-[10px] uppercase font-black text-muted-foreground/60 px-1 tracking-widest">
+                    <div className="grid grid-cols-[60px_40px_1fr_80px_80px_40px] gap-2 mb-3 text-[10px] uppercase font-semibold text-muted-foreground/60 px-1 tracking-normalst">
                       <div>Type</div>
                       <div className="text-center">Set</div>
                       <div>Previous</div>
@@ -304,7 +304,7 @@ export const ActiveSession = ({
                             <button
                               onClick={() => cycleSetType(ex.id, set.id)}
                               className={cn(
-                                "h-8 rounded-lg text-[10px] font-black transition-all border",
+                                "h-8 rounded-lg text-[10px] font-semibold transition-all border",
                                 set.type === 'warmup' ? "bg-slate-500/20 text-slate-400 border-slate-500/30" :
                                 set.type === 'normal' ? "bg-[#00E5FF]/20 text-[#00E5FF] border-[#00E5FF]/30" :
                                 "bg-amber-400/20 text-amber-400 border-amber-400/30 animate-pulse"
@@ -313,9 +313,9 @@ export const ActiveSession = ({
                               {set.type === 'warmup' ? '🔥WU' : set.type === 'normal' ? '💪NR' : '⚡MAX'}
                             </button>
 
-                            <div className="text-center font-black text-sm tabular-nums opacity-60">{sIdx + 1}</div>
+                            <div className="text-center font-semibold text-sm tabular-nums opacity-60">{sIdx + 1}</div>
 
-                            <div className="text-xs text-muted-foreground font-bold truncate opacity-60">{ex.previous || "—"}</div>
+                            <div className="text-xs text-muted-foreground font-semibold truncate opacity-60">{ex.previous || "—"}</div>
 
                             <Input
                               type="number"
@@ -323,7 +323,7 @@ export const ActiveSession = ({
                               value={set.weight}
                               onChange={e => updateSet(ex.id, set.id, 'weight', e.target.value)}
                               placeholder="0"
-                              className="h-9 text-center bg-accent/40 border-none font-black text-base rounded-lg focus:ring-1 focus:ring-primary/50"
+                              className="h-9 text-center bg-accent/40 border-none font-semibold text-base rounded-lg focus:ring-1 focus:ring-primary/50"
                             />
 
                             <Input
@@ -332,7 +332,7 @@ export const ActiveSession = ({
                               value={set.reps}
                               onChange={e => updateSet(ex.id, set.id, 'reps', e.target.value)}
                               placeholder={isCardio ? "MM:SS" : "0"}
-                              className="h-9 text-center bg-accent/40 border-none font-black text-base rounded-lg focus:ring-1 focus:ring-primary/50"
+                              className="h-9 text-center bg-accent/40 border-none font-semibold text-base rounded-lg focus:ring-1 focus:ring-primary/50"
                             />
 
                             <button
@@ -358,7 +358,7 @@ export const ActiveSession = ({
                                   <div className="flex items-center gap-3">
                                     <div
                                       className={cn(
-                                        "h-8 min-w-[36px] px-2 rounded-lg flex items-center justify-center font-black text-base shadow-lg transition-all",
+                                        "h-8 min-w-[36px] px-2 rounded-lg flex items-center justify-center font-semibold text-base shadow-lg transition-all",
                                         set.type === 'max' ? 'scale-125 mx-2 ring-2 ring-amber-400 ring-offset-2 ring-offset-background glow-gold' : ''
                                       )}
                                       style={{
@@ -371,9 +371,9 @@ export const ActiveSession = ({
                                     </div>
                                     <div className="flex flex-col">
                                       <div className="flex items-center gap-1.5">
-                                        <span className="text-[10px] font-black text-foreground uppercase tracking-wider">{set.gradeLabel}</span>
+                                        <span className="text-[10px] font-semibold text-foreground uppercase tracking-normalr">{set.gradeLabel}</span>
                                         <span className="text-muted-foreground/50">|</span>
-                                        <span className="text-[8px] font-bold text-muted-foreground uppercase">Top {100 - (set.gradePercentile || 0)}% for your age</span>
+                                        <span className="text-[8px] font-semibold text-muted-foreground uppercase">Top {100 - (set.gradePercentile || 0)}% for your age</span>
                                       </div>
                                       {set.type !== 'warmup' && (
                                         <div className="text-[8px] font-medium text-muted-foreground/60 uppercase">
@@ -385,7 +385,7 @@ export const ActiveSession = ({
                                   {set.isPR && (
                                     <div className="flex items-center gap-1 bg-amber-400/20 text-amber-400 px-2 py-1 rounded-md animate-bounce border border-amber-400/30 shadow-[0_0_10px_rgba(251,191,36,0.2)]">
                                       <Trophy className="h-3 w-3" />
-                                      <span className="text-[10px] font-black uppercase">New PR</span>
+                                      <span className="text-[10px] font-semibold uppercase">New PR</span>
                                     </div>
                                   )}
                                 </div>
@@ -397,7 +397,7 @@ export const ActiveSession = ({
                              <div className="px-12 pb-2">
                                <div className="bg-amber-400/10 border border-amber-400/20 rounded-lg px-3 py-1.5 flex items-center gap-2 shadow-[0_0_15px_rgba(251,191,36,0.1)]">
                                  <Zap className="h-3 w-3 text-amber-400" />
-                                 <span className="text-[9px] font-black text-amber-400 uppercase tracking-widest animate-pulse">Max Attempt Detected — Let's go!</span>
+                                 <span className="text-[9px] font-semibold text-amber-400 uppercase tracking-normalst animate-pulse">Max Attempt Detected — Let's go!</span>
                                </div>
                              </div>
                           )}
@@ -409,7 +409,7 @@ export const ActiveSession = ({
                       <Button
                         variant="outline"
                         size="sm"
-                        className="flex-1 bg-accent/20 border-dashed border-primary/30 h-10 font-black uppercase text-[10px] tracking-widest hover:bg-primary/10 transition-colors"
+                        className="flex-1 bg-accent/20 border-dashed border-primary/30 h-10 font-semibold uppercase text-[10px] tracking-normalst hover:bg-primary/10 transition-colors"
                         onClick={() => addSet(ex.id)}
                       >
                         <Plus className="h-4 w-4 mr-2" /> Add Set
@@ -417,7 +417,7 @@ export const ActiveSession = ({
                     </div>
 
                     {ex.sets.some(s => s.completed) && (
-                      <div className="mt-4 pt-3 border-t border-border/30 flex justify-between items-center text-[10px] font-black text-muted-foreground uppercase tracking-widest">
+                      <div className="mt-4 pt-3 border-t border-border/30 flex justify-between items-center text-[10px] font-semibold text-muted-foreground uppercase tracking-normalst">
                          <span>Best this session:</span>
                          <span className="text-foreground">
                            {ex.sets.filter(s => s.completed).sort((a, b) => parseFloat(b.weight) - parseFloat(a.weight))[0]?.weight} lbs × {ex.sets.filter(s => s.completed).sort((a, b) => parseFloat(b.weight) - parseFloat(a.weight))[0]?.reps} reps
@@ -433,7 +433,7 @@ export const ActiveSession = ({
 
         <Button
           variant="outline"
-          className="w-full h-20 border-2 border-dashed border-[#00E5FF]/30 text-[#00E5FF] font-black uppercase tracking-widest rounded-3xl hover:bg-[#00E5FF]/5 transition-all shadow-inner"
+          className="w-full h-20 border-2 border-dashed border-[#00E5FF]/30 text-[#00E5FF] font-semibold uppercase tracking-normalst rounded-3xl hover:bg-[#00E5FF]/5 transition-all shadow-inner"
           onClick={onAddExercise}
         >
           <Plus className="h-6 w-6 mr-3" /> Add Exercise

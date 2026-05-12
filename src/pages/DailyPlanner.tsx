@@ -199,11 +199,11 @@ const DailyPlanner = () => {
           initial={{ opacity: 0, y: -4 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.25 }}
-          className="text-4xl md:text-5xl font-display tracking-wide"
+          className="text-xl md:text-xl tracking-normal"
         >
           <span className="gradient-text">Hello, {firstName || "friend"}!</span> <span className="inline-block">👋</span>
         </motion.h1>
-        <p className="text-sm md:text-base font-stat text-muted-foreground tracking-wider mt-2">
+        <p className="text-sm md:text-base text-muted-foreground tracking-normalr mt-2">
           {isToday ? `TODAY · ${dateLabel.toUpperCase()}` : dateLabel.toUpperCase()}
         </p>
 
@@ -243,11 +243,11 @@ const DailyPlanner = () => {
             }}
             data-testid={`summary-${k}`}
           >
-            <div className="text-[10px] font-stat tracking-wider text-muted-foreground flex items-center gap-1.5">
+            <div className="text-[10px] tracking-normalr text-muted-foreground flex items-center gap-1.5">
               <span className="h-2 w-2 rounded-full" style={{ background: CAT_META[k].color, boxShadow: `0 0 8px ${CAT_META[k].color}` }} />
               <span>{CAT_META[k].label}</span>
             </div>
-            <div className="text-3xl font-display tracking-wide mt-1 scoreboard" style={{ color: CAT_META[k].color }}>
+            <div className="text-xl tracking-normal mt-1 scoreboard" style={{ color: CAT_META[k].color }}>
               {totals[k].toFixed(1)}<span className="text-sm font-body font-normal">h</span>
             </div>
           </motion.div>
@@ -306,7 +306,7 @@ const DailyPlanner = () => {
               data-testid="schedule-block"
             >
               <div className="w-24 flex-shrink-0 pt-0.5">
-                <div className="text-xs font-stat tracking-wider scoreboard">{fmt12(b.startTime)}</div>
+                <div className="text-xs tracking-normalr scoreboard">{fmt12(b.startTime)}</div>
                 <div className="text-[10px] text-muted-foreground scoreboard">→ {fmt12(b.endTime)}</div>
               </div>
               <div
@@ -318,7 +318,7 @@ const DailyPlanner = () => {
                 }}
               >
                 {b.recurringId && <Repeat className="h-3 w-3 flex-shrink-0" style={{ color: meta.color }} />}
-                <span className="font-stat tracking-wider truncate flex-1" style={{ color: meta.color }}>
+                <span className="tracking-tight truncate flex-1" style={{ color: meta.color }}>
                   {(b.label || meta.label).toUpperCase()}
                 </span>
                 <span className="text-[10px] scoreboard text-muted-foreground">{durationLabel(mins)}</span>
@@ -797,7 +797,7 @@ const ManagePlannerDialog = ({
 
         <div className="space-y-4">
           <div>
-            <div className="text-xs font-semibold uppercase tracking-wider text-muted-foreground mb-2">
+            <div className="text-xs font-semibold uppercase tracking-normalr text-muted-foreground mb-2">
               Add a subject / activity
             </div>
             <div className="flex gap-2">
@@ -819,7 +819,7 @@ const ManagePlannerDialog = ({
           </div>
 
           <div>
-            <div className="text-xs font-semibold uppercase tracking-wider text-muted-foreground mb-2">
+            <div className="text-xs font-semibold uppercase tracking-normalr text-muted-foreground mb-2">
               Your labels
             </div>
             {labels.length === 0 ? (
@@ -881,7 +881,7 @@ const ManagePlannerDialog = ({
           </div>
 
           <div>
-            <div className="text-xs font-semibold uppercase tracking-wider text-muted-foreground mb-2">
+            <div className="text-xs font-semibold uppercase tracking-normalr text-muted-foreground mb-2">
               Recurring events ({recurring.length})
             </div>
             {recurring.length === 0 ? (

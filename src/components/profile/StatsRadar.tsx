@@ -38,7 +38,7 @@ export const StatsRadar = () => {
 
   return (
     <div className="rounded-2xl glass p-5">
-      <div className="text-[10px] uppercase tracking-widest text-muted-foreground">Performance Radar</div>
+      <div className="text-[10px] uppercase tracking-normalst text-muted-foreground">Performance Radar</div>
       <div className="text-sm font-semibold mt-0.5 mb-3">Your balance across 6 dimensions</div>
       <div className="h-64">
         {data && (

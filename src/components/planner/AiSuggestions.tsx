@@ -105,7 +105,7 @@ export const AiSuggestions = ({ dateKey, busyTimes, onAdded }: Props) => {
             <Sparkles className="h-4 w-4 text-primary" />
           </div>
           <div>
-            <div className="font-bold text-sm">AI Planner</div>
+            <div className="font-semibold text-sm">AI Planner</div>
             <div className="text-xs text-muted-foreground">Smart block suggestions for this day</div>
           </div>
         </div>
@@ -128,7 +128,7 @@ export const AiSuggestions = ({ dateKey, busyTimes, onAdded }: Props) => {
                 {s.start_time}<br />{s.end_time}
               </div>
               <div className="min-w-0 flex-1">
-                <div className="font-bold text-sm">{s.label}</div>
+                <div className="font-semibold text-sm">{s.label}</div>
                 <div className="text-xs text-muted-foreground mt-0.5">{s.reason}</div>
               </div>
               <Button size="sm" variant="ghost" onClick={() => accept(i)} disabled={adding === i} className="press">

@@ -31,7 +31,7 @@ const PublicAthlete = () => {
   if (!data) {
     return (
       <div className="min-h-screen flex flex-col items-center justify-center bg-background p-6 text-center">
-        <h1 className="text-2xl font-bold">Athlete not found</h1>
+        <h1 className="text-xl font-semibold">Athlete not found</h1>
         <p className="text-sm text-muted-foreground mt-2">
           No athlete with the username "{username}" exists.
         </p>

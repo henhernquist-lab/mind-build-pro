@@ -77,13 +77,13 @@ export const GlowingXpBar = ({ xp, nextXp, rankName, rankIcon, rankColor, label,
             </span>
             <div className="min-w-0">
               {label && (
-                <div className="text-[10px] font-stat text-muted-foreground leading-none mb-1 inline-flex items-center gap-1.5">
+                <div className="text-[10px] text-muted-foreground leading-none mb-1 inline-flex items-center gap-1.5">
                   <span className="live-dot" aria-hidden />
                   {label}
                 </div>
               )}
               <div
-                className="font-display text-[40px] leading-none shimmer-text truncate"
+                className="text-[40px] leading-none truncate"
                 style={{ ["--rank-color" as any]: accent }}
               >
                 {rankName.toUpperCase()}
@@ -92,17 +92,17 @@ export const GlowingXpBar = ({ xp, nextXp, rankName, rankIcon, rankColor, label,
           </div>
 
           <div className="text-right flex-shrink-0">
-            <div className="scoreboard text-2xl font-bold" key={`xp-${animatedXp}`}>
+            <div className="scoreboard text-xl font-semibold" key={`xp-${animatedXp}`}>
               <span style={{ color: accent }}>{animatedXp}</span>
               {nextXp != null && (
                 <span className="text-muted-foreground font-normal text-sm">
                   {" / "}{nextXp}
                 </span>
               )}
-              <span className="text-muted-foreground font-normal text-[10px] ml-1 font-stat">XP</span>
+              <span className="text-muted-foreground font-normal text-[10px] ml-1">XP</span>
             </div>
             {nextXp != null && (
-              <div className="text-[10px] font-stat text-muted-foreground mt-0.5">
+              <div className="text-[10px] text-muted-foreground mt-0.5">
                 {Math.max(0, nextXp - xp)} to next
               </div>
             )}
@@ -156,7 +156,7 @@ export const GlowingXpBar = ({ xp, nextXp, rankName, rankIcon, rankColor, label,
                       {r.icon}
                     </span>
                     <span
-                      className="text-[9px] font-stat tracking-wider"
+                      className="text-[9px] tracking-normalr"
                       style={{
                         color: reached ? r.color : "hsl(var(--muted-foreground))",
                         opacity: reached ? 1 : 0.55,

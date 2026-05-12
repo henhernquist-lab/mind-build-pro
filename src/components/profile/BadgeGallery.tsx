@@ -57,14 +57,14 @@ export const BadgeGallery = () => {
             >
               <div
                 className={cn(
-                  "mx-auto mb-1.5 h-12 w-12 rounded-xl bg-gradient-to-br shadow-md flex items-center justify-center text-2xl",
+                  "mx-auto mb-1.5 h-12 w-12 rounded-xl bg-gradient-to-br shadow-md flex items-center justify-center text-xl",
                   has ? rarityClasses(b.rarity) : "from-muted to-muted text-muted-foreground/40 shadow-none",
                 )}
               >
                 {has ? b.emoji : <Lock className="h-4 w-4" />}
               </div>
-              <div className="text-[11px] font-bold leading-tight line-clamp-2">{b.name}</div>
-              <div className="text-[9px] uppercase tracking-widest mt-0.5 text-muted-foreground">
+              <div className="text-[11px] font-semibold leading-tight line-clamp-2">{b.name}</div>
+              <div className="text-[9px] uppercase tracking-normalst mt-0.5 text-muted-foreground">
                 {b.rarity}
               </div>
             </motion.div>
