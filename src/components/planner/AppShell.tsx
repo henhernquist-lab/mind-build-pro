@@ -141,7 +141,7 @@ export const AppShell = () => {
       {/* Top-left floating profile button */}
       <button
         onClick={() => navigate("/profile")}
-        className="fixed top-3 left-3 z-40 h-10 w-10 rounded-full border-2 border-border bg-card shadow-lg hover:border-primary transition-colors flex items-center justify-center text-xs font-bold"
+        className="fixed top-[calc(env(safe-area-inset-top)+0.75rem)] left-3 z-40 h-10 w-10 rounded-full border-2 border-border bg-card shadow-lg hover:border-primary transition-colors flex items-center justify-center text-xs font-bold md:top-3"
         title="Open profile"
         aria-label="Open profile"
       >
@@ -154,7 +154,7 @@ export const AppShell = () => {
       </button>
 
       {/* Top-left floating notification bell */}
-      <div className="fixed top-3 left-16 z-40">
+      <div className="fixed top-[calc(env(safe-area-inset-top)+0.75rem)] left-16 z-40 md:top-3">
         <NotificationBell />
       </div>
 
@@ -278,7 +278,7 @@ export const AppShell = () => {
       </aside>
 
       {/* Mobile bottom nav — frosted glass with sliding pill + haptic */}
-      <div className="md:hidden fixed bottom-0 inset-x-0 z-40 mobile-nav-glass flex">
+      <div className="md:hidden fixed bottom-0 inset-x-0 z-40 mobile-nav-glass flex pb-[env(safe-area-inset-bottom)]">
         {MOBILE_NAV.map((item) => (
           <NavLink
             key={item.to}
@@ -332,18 +332,10 @@ export const AppShell = () => {
         ))}
       </div>
 
-      <main className="flex-1 min-w-0 pb-20 md:pb-0">
-        <div className="fixed top-3 right-3 z-40 flex gap-2 items-center">
+      <main className="flex-1 min-w-0 pt-[calc(env(safe-area-inset-top)+3.75rem)] pb-[calc(env(safe-area-inset-bottom)+5.25rem)] md:pt-0 md:pb-0">
+        <div className="fixed top-[calc(env(safe-area-inset-top)+0.75rem)] right-3 z-40 flex gap-2 items-center md:top-3">
           <ThemeSwitcher />
           <FocusToggle />
-          <button
-            onClick={signOut}
-            className="md:hidden h-9 w-9 rounded-full bg-card border border-border flex items-center justify-center text-xs font-bold"
-            aria-label="Sign out"
-            title={displayName}
-          >
-            {avatarUrl ? <img src={avatarUrl} alt="" className="h-9 w-9 rounded-full" /> : initials}
-          </button>
         </div>
         <Breadcrumbs />
         <SwipeNav>
