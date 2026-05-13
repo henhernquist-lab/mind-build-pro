@@ -128,7 +128,7 @@ export const AceAssistant = () => {
             transition={{ type: "spring", stiffness: 260, damping: 20 }}
             onClick={openDrawer}
             className={cn(
-              "fixed bottom-20 md:bottom-6 right-4 z-50 h-14 w-14 rounded-full text-[hsl(var(--background))] shadow-2xl flex items-center justify-center transition-transform press slow-spin",
+              "fixed bottom-[calc(env(safe-area-inset-bottom)+5.75rem)] md:bottom-6 right-20 md:right-4 z-50 h-12 w-12 md:h-14 md:w-14 rounded-full text-[hsl(var(--background))] shadow-2xl flex items-center justify-center transition-transform press slow-spin",
               "bg-gradient-to-br from-[hsl(var(--cyan))] to-[hsl(var(--neon))]",
               hasUnreadSuggestion && "ripple-ring"
             )}
@@ -136,7 +136,7 @@ export const AceAssistant = () => {
             aria-label="Open Ace assistant"
             data-testid="ace-fab"
           >
-            <Sparkles className="h-6 w-6 relative z-10 drop-shadow-[0_0_6px_hsl(var(--background)/0.6)]" />
+            <Sparkles className="h-5 w-5 md:h-6 md:w-6 relative z-10 drop-shadow-[0_0_6px_hsl(var(--background)/0.6)]" />
             {hasUnreadSuggestion && (
               <span className="absolute -top-1 -right-1 h-4 w-4 rounded-full bg-[hsl(var(--pr-red))] ring-2 ring-background z-20 flex items-center justify-center">
                 <span className="h-1.5 w-1.5 rounded-full bg-white" />
