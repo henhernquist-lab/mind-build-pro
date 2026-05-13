@@ -193,13 +193,13 @@ const DailyPlanner = () => {
   });
 
   return (
-    <div className="p-6 md:p-10 max-w-5xl mx-auto stagger">
+    <div className="px-4 py-5 md:p-10 max-w-5xl mx-auto stagger">
       <header className="mb-6">
         <motion.h1
           initial={{ opacity: 0, y: -4 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.25 }}
-          className="text-4xl md:text-5xl font-display tracking-wide"
+          className="text-[clamp(2.25rem,14vw,3.5rem)] md:text-5xl font-display tracking-wide leading-none pr-24 sm:pr-0"
         >
           <span className="gradient-text">Hello, {firstName || "friend"}!</span> <span className="inline-block">👋</span>
         </motion.h1>
@@ -207,11 +207,11 @@ const DailyPlanner = () => {
           {isToday ? `TODAY · ${dateLabel.toUpperCase()}` : dateLabel.toUpperCase()}
         </p>
 
-        <div className="mt-4 flex items-center gap-2 flex-wrap">
+        <div className="mt-4 grid grid-cols-[auto_minmax(0,1fr)_auto] gap-2 sm:flex sm:items-center sm:flex-wrap">
           <Button variant="outline" size="icon" onClick={() => setDateKey((k) => shiftKey(k, -1))} aria-label="Previous day">
             <ChevronLeft className="h-4 w-4" />
           </Button>
-          <div className="rounded-lg border border-border bg-card px-4 py-2 flex-1 min-w-[180px]">
+          <div className="rounded-lg border border-border bg-card px-4 py-2 min-w-0 sm:flex-1 sm:min-w-[180px]">
             <div className="text-sm font-semibold">{dateLabel}</div>
             <div className="text-[11px] text-muted-foreground">{date.getFullYear()}</div>
           </div>
@@ -223,19 +223,19 @@ const DailyPlanner = () => {
               <CalendarDays className="h-3.5 w-3.5 mr-1.5" /> Today
             </Button>
           )}
-          <Button variant="outline" size="sm" onClick={() => setManageOpen(true)}>
+          <Button variant="outline" size="sm" onClick={() => setManageOpen(true)} className="col-span-3 justify-self-start sm:col-span-1">
             <Settings className="h-4 w-4 mr-1.5" /> Manage Planner
           </Button>
         </div>
       </header>
 
       {/* Summary */}
-      <div className="grid grid-cols-3 gap-3 mb-6">
+      <div className="grid grid-cols-3 gap-2 md:gap-3 mb-6">
         {CATEGORIES.map((k) => (
           <motion.div
             key={k}
             whileHover={{ y: -4 }}
-            className="rounded-xl glass p-4 lift relative overflow-hidden"
+            className="rounded-xl glass p-3 md:p-4 lift relative overflow-hidden min-w-0"
             style={{
               ["--block-accent" as any]: CAT_META[k].color,
               borderTop: `2px solid ${CAT_META[k].color}`,
@@ -243,11 +243,11 @@ const DailyPlanner = () => {
             }}
             data-testid={`summary-${k}`}
           >
-            <div className="text-[10px] font-stat tracking-wider text-muted-foreground flex items-center gap-1.5">
-              <span className="h-2 w-2 rounded-full" style={{ background: CAT_META[k].color, boxShadow: `0 0 8px ${CAT_META[k].color}` }} />
-              <span>{CAT_META[k].label}</span>
+            <div className="text-[9px] md:text-[10px] font-stat tracking-wider text-muted-foreground flex items-center gap-1.5 min-w-0">
+              <span className="h-2 w-2 rounded-full flex-shrink-0" style={{ background: CAT_META[k].color, boxShadow: `0 0 8px ${CAT_META[k].color}` }} />
+              <span className="truncate">{CAT_META[k].label}</span>
             </div>
-            <div className="text-3xl font-display tracking-wide mt-1 scoreboard" style={{ color: CAT_META[k].color }}>
+            <div className="text-3xl font-display tracking-wide mt-1 scoreboard whitespace-nowrap" style={{ color: CAT_META[k].color }}>
               {totals[k].toFixed(1)}<span className="text-sm font-body font-normal">h</span>
             </div>
           </motion.div>
