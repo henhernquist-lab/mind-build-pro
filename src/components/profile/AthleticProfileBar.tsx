@@ -39,7 +39,7 @@ export const AthleticProfileBar = () => {
 
   return (
     <div className="rounded-xl border border-border bg-card p-3 mb-4 flex items-center gap-3">
-      <div className="h-10 w-10 rounded-full overflow-hidden flex items-center justify-center text-xs font-semibold flex-shrink-0 border border-border" style={{ background: profile?.avatar_url ? "transparent" : "hsl(var(--primary))", color: "hsl(var(--primary-foreground))" }}>
+      <div className="h-10 w-10 rounded-full overflow-hidden flex items-center justify-center text-xs font-bold flex-shrink-0 border border-border" style={{ background: profile?.avatar_url ? "transparent" : "hsl(var(--primary))", color: "hsl(var(--primary-foreground))" }}>
         {profile?.avatar_url
           ? <img src={profile.avatar_url} alt="" className="h-full w-full object-cover" />
           : initialsFromName(name)}

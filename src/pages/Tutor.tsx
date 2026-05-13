@@ -328,7 +328,7 @@ const SubjectChat = ({
         {messages.length === 0 && (
           <div className="h-full flex flex-col items-center justify-center text-center px-6">
             <div
-              className="h-14 w-14 rounded-2xl flex items-center justify-center mb-4 text-xl"
+              className="h-14 w-14 rounded-2xl flex items-center justify-center mb-4 text-3xl"
               style={{ background: `${accentVar(subject.color)}22`, border: `1px solid ${accentVar(subject.color)}44` }}
             >
               {subject.emoji}
@@ -441,7 +441,7 @@ const SubjectChat = ({
                             rel="noopener noreferrer"
                             className="inline-flex items-center gap-1 text-[10px] bg-background/70 border border-border rounded-full px-2 py-0.5 hover:border-primary"
                           >
-                            <span className="font-semibold text-primary">[{s.n}]</span>
+                            <span className="font-bold text-primary">[{s.n}]</span>
                             <span className="truncate max-w-[140px]">{new URL(s.url).hostname.replace(/^www\./, "")}</span>
                             <ExternalLink className="h-2.5 w-2.5" />
                           </a>
@@ -623,7 +623,7 @@ const SavedChatsDrawer = ({
                   <span className="text-lg">{c.subject_emoji}</span>
                   <span className="text-xs text-muted-foreground">{c.subject_label}</span>
                   {!currentLabels.has(c.subject_label.toLowerCase()) && (
-                    <span className="text-[9px] uppercase tracking-normalr bg-muted text-muted-foreground rounded-full px-1.5 py-0.5">removed</span>
+                    <span className="text-[9px] uppercase tracking-wider bg-muted text-muted-foreground rounded-full px-1.5 py-0.5">removed</span>
                   )}
                 </div>
                 <div className="text-sm font-medium line-clamp-2">{c.title}</div>
@@ -925,8 +925,8 @@ const Tutor = () => {
       />
       <header className="mb-6 flex items-start justify-between gap-4 flex-wrap">
         <div>
-          <p className="text-xs uppercase tracking-normalst text-muted-foreground">Powered by AI</p>
-          <h1 className="text-xl font-semibold mt-1">AI Tutor</h1>
+          <p className="text-xs uppercase tracking-widest text-muted-foreground">Powered by AI</p>
+          <h1 className="text-3xl font-bold mt-1">AI Tutor</h1>
         </div>
         <div className="flex items-center gap-2 flex-wrap">
           <div className={cn(
@@ -1000,7 +1000,7 @@ const Tutor = () => {
         />
       ) : subjects.length === 0 ? (
         <div className="rounded-2xl border border-dashed border-border bg-card p-10 md:p-14 text-center">
-          <div className="mx-auto h-16 w-16 rounded-2xl bg-primary/15 text-primary flex items-center justify-center mb-4 text-xl">
+          <div className="mx-auto h-16 w-16 rounded-2xl bg-primary/15 text-primary flex items-center justify-center mb-4 text-3xl">
             🎓
           </div>
           <h2 className="text-lg font-semibold mb-1">No subjects yet</h2>

@@ -110,7 +110,7 @@ export const HallOfFame = () => {
   return (
     <div className="space-y-5">
       <div className="flex items-center justify-between">
-        <h2 className="text-xl font-semibold flex items-center gap-2">
+        <h2 className="text-xl font-black flex items-center gap-2">
           <Trophy className="h-5 w-5 text-primary" />
           Hall of Fame
         </h2>
@@ -124,8 +124,8 @@ export const HallOfFame = () => {
         <>
           <div className="rounded-2xl border border-border bg-card p-4 flex items-center justify-between">
             <div>
-              <div className="text-xs uppercase tracking-normalst text-muted-foreground">Lifetime awards</div>
-              <div className="text-xl font-semibold">{awards.length}</div>
+              <div className="text-xs uppercase tracking-widest text-muted-foreground">Lifetime awards</div>
+              <div className="text-2xl font-black">{awards.length}</div>
               <div className="text-xs text-muted-foreground">across {snaps.length} season{snaps.length === 1 ? "" : "s"}</div>
             </div>
             {snaps.length > 0 && (
@@ -159,29 +159,29 @@ export const HallOfFame = () => {
                     )}
                   >
                     {s.is_best_season && (
-                      <div className="absolute top-0 right-0 bg-gradient-to-l from-amber-400 to-amber-500 text-amber-950 text-[10px] font-semibold tracking-normalst px-3 py-1 rounded-bl-xl flex items-center gap-1">
+                      <div className="absolute top-0 right-0 bg-gradient-to-l from-amber-400 to-amber-500 text-amber-950 text-[10px] font-black tracking-widest px-3 py-1 rounded-bl-xl flex items-center gap-1">
                         <Star className="h-3 w-3 fill-current" /> BEST SEASON
                       </div>
                     )}
                     <div className="flex items-baseline justify-between">
                       <div>
-                        <div className="text-[10px] uppercase tracking-normalst text-muted-foreground">Season {s.season_number}</div>
+                        <div className="text-[10px] uppercase tracking-widest text-muted-foreground">Season {s.season_number}</div>
                         <div className="text-xs text-muted-foreground">{new Date(s.start_date).toLocaleDateString()} → {new Date(s.end_date).toLocaleDateString()}</div>
                       </div>
                     </div>
 
                     <div className="grid grid-cols-2 gap-3 mt-3">
                       <div className="rounded-xl border border-border p-3">
-                        <div className="text-[10px] uppercase tracking-normalst text-muted-foreground">Athletic peak</div>
-                        <div className="font-semibold text-sm">{s.peak_athletic_rank_icon} {s.peak_athletic_rank_name ?? "—"}</div>
+                        <div className="text-[10px] uppercase tracking-widest text-muted-foreground">Athletic peak</div>
+                        <div className="font-bold text-sm">{s.peak_athletic_rank_icon} {s.peak_athletic_rank_name ?? "—"}</div>
                         <div className="text-xs text-muted-foreground flex items-center gap-1.5">
                           <span>{s.athletic_xp} XP</span>
                           <Delta current={s.athletic_xp} prior={prev?.athletic_xp} />
                         </div>
                       </div>
                       <div className="rounded-xl border border-border p-3">
-                        <div className="text-[10px] uppercase tracking-normalst text-muted-foreground">Academic peak</div>
-                        <div className="font-semibold text-sm">{s.peak_academic_rank_icon} {s.peak_academic_rank_name ?? "—"}</div>
+                        <div className="text-[10px] uppercase tracking-widest text-muted-foreground">Academic peak</div>
+                        <div className="font-bold text-sm">{s.peak_academic_rank_icon} {s.peak_academic_rank_name ?? "—"}</div>
                         <div className="text-xs text-muted-foreground flex items-center gap-1.5">
                           <span>{s.academic_xp} XP</span>
                           <Delta current={s.academic_xp} prior={prev?.academic_xp} />
@@ -198,7 +198,7 @@ export const HallOfFame = () => {
                     {a.length > 0 && (
                       <div className="flex flex-wrap gap-1.5 mt-3">
                         {a.map((aw) => (
-                          <span key={aw.id} title={aw.description ?? ""} className="rounded-full bg-primary/10 border border-primary/30 px-2 py-0.5 text-[11px] font-semibold">
+                          <span key={aw.id} title={aw.description ?? ""} className="rounded-full bg-primary/10 border border-primary/30 px-2 py-0.5 text-[11px] font-bold">
                             {aw.award_icon} {aw.award_name}
                           </span>
                         ))}
@@ -245,19 +245,19 @@ export const HallOfFame = () => {
                 const isMe = r.user_id === user?.id;
                 return (
                   <div key={r.user_id} className={cn("flex items-center gap-3 px-4 py-3 border-b border-border last:border-0", isMe && "bg-primary/10")}>
-                    <div className={cn("w-7 text-center font-semibold", i === 0 ? "text-amber-400" : i < 3 ? "text-foreground" : "text-muted-foreground")}>
+                    <div className={cn("w-7 text-center font-black", i === 0 ? "text-amber-400" : i < 3 ? "text-foreground" : "text-muted-foreground")}>
                       {i === 0 ? <Crown className="h-5 w-5 mx-auto" /> : `#${i + 1}`}
                     </div>
-                    <div className="h-9 w-9 rounded-full overflow-hidden bg-muted shrink-0 flex items-center justify-center text-sm font-semibold">
+                    <div className="h-9 w-9 rounded-full overflow-hidden bg-muted shrink-0 flex items-center justify-center text-sm font-bold">
                       {r.avatar_url ? <img src={r.avatar_url} alt="" className="h-full w-full object-cover" /> : (r.display_name?.[0] ?? "?").toUpperCase()}
                     </div>
                     <div className="flex-1 min-w-0">
-                      <div className="text-sm font-semibold truncate">{r.display_name ?? r.username ?? "Anonymous"}{isMe && <span className="ml-2 text-[10px] uppercase tracking-normalst text-primary">you</span>}</div>
+                      <div className="text-sm font-semibold truncate">{r.display_name ?? r.username ?? "Anonymous"}{isMe && <span className="ml-2 text-[10px] uppercase tracking-widest text-primary">you</span>}</div>
                       <div className="text-[11px] text-muted-foreground">{r.athletic_rank_icon} {r.athletic_xp} • {r.academic_rank_icon} {r.academic_xp}</div>
                     </div>
                     <div className="text-right">
-                      <div className="font-semibold tabular-nums">{r.total_xp}</div>
-                      <div className="text-[10px] uppercase tracking-normalst text-muted-foreground">XP</div>
+                      <div className="font-black tabular-nums">{r.total_xp}</div>
+                      <div className="text-[10px] uppercase tracking-widest text-muted-foreground">XP</div>
                     </div>
                   </div>
                 );
@@ -272,11 +272,11 @@ export const HallOfFame = () => {
 
 const Stat = ({ label, value, prior }: { label: string; value: number; prior?: number }) => (
   <div className="rounded-lg bg-muted/30 py-2">
-    <div className="text-lg font-semibold tabular-nums flex items-center justify-center gap-1">
+    <div className="text-lg font-black tabular-nums flex items-center justify-center gap-1">
       <span>{value}</span>
       <Delta current={value} prior={prior} compact />
     </div>
-    <div className="text-[10px] uppercase tracking-normalst text-muted-foreground">{label}</div>
+    <div className="text-[10px] uppercase tracking-widest text-muted-foreground">{label}</div>
   </div>
 );
 
@@ -289,7 +289,7 @@ const Delta = ({ current, prior, compact }: { current: number; prior?: number; c
   const up = diff > 0;
   const pct = prior > 0 ? Math.round((diff / prior) * 100) : null;
   return (
-    <span className={cn("inline-flex items-center text-[10px] font-semibold", up ? "text-emerald-500" : "text-rose-500")}>
+    <span className={cn("inline-flex items-center text-[10px] font-bold", up ? "text-emerald-500" : "text-rose-500")}>
       {up ? <ArrowUp className="h-3 w-3" /> : <ArrowDown className="h-3 w-3" />}
       {!compact && (pct !== null ? `${Math.abs(pct)}%` : Math.abs(diff))}
     </span>

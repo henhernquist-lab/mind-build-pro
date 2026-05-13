@@ -53,7 +53,7 @@ export const DailyChallenges = () => {
           <h2 className="text-lg font-semibold">Daily Challenges</h2>
         </div>
         {completedAll && (
-          <span className="text-xs font-semibold text-emerald-400 inline-flex items-center gap-1">
+          <span className="text-xs font-bold text-emerald-400 inline-flex items-center gap-1">
             <CheckCircle2 className="h-3 w-3" /> All done!
           </span>
         )}
@@ -89,15 +89,15 @@ export const DailyChallenges = () => {
                     <div className="min-w-0 flex-1">
                       <div className="flex items-center gap-2">
                         <span className="text-lg">{categoryIcon(c.category)}</span>
-                        <span className="font-semibold text-sm truncate">{c.title}</span>
+                        <span className="font-bold text-sm truncate">{c.title}</span>
                       </div>
                       <p className="text-xs text-muted-foreground mt-0.5">{c.description}</p>
                     </div>
                     <div className="text-right shrink-0">
-                      <div className="text-[10px] uppercase tracking-normalst text-muted-foreground">
+                      <div className="text-[10px] uppercase tracking-widest text-muted-foreground">
                         Reward
                       </div>
-                      <div className="text-sm font-semibold text-primary tabular-nums">
+                      <div className="text-sm font-bold text-primary tabular-nums">
                         +{c.xp_reward} XP
                       </div>
                     </div>
@@ -117,7 +117,7 @@ export const DailyChallenges = () => {
                       <Button
                         size="sm"
                         variant="premium"
-                        className="h-7 px-2 text-xs font-semibold"
+                        className="h-7 px-2 text-xs font-bold"
                         disabled={claiming === c.id}
                         onClick={() => onClaim(c)}
                       >

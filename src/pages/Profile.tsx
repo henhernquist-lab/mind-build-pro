@@ -258,8 +258,8 @@ const Profile = () => {
   return (
     <div className="p-6 md:p-10 max-w-4xl mx-auto pb-24 stagger">
       <header className="mb-6">
-        <p className="text-xs tracking-normal text-muted-foreground">PROFILE</p>
-        <h1 className="text-xl md:text-xl tracking-normal mt-1">Your Athlete Hub</h1>
+        <p className="text-xs font-stat tracking-[0.25em] text-muted-foreground">PROFILE</p>
+        <h1 className="gradient-text text-4xl md:text-5xl font-display tracking-wide mt-1">Your Athlete Hub</h1>
       </header>
 
       {/* Glowing XP bars */}
@@ -353,7 +353,7 @@ const Profile = () => {
         <div className="flex items-center gap-4 mb-5">
           <div className="relative">
             <div
-              className="h-20 w-20 rounded-full overflow-hidden flex items-center justify-center text-xl font-semibold border-2 border-border"
+              className="h-20 w-20 rounded-full overflow-hidden flex items-center justify-center text-xl font-bold border-2 border-border"
               style={{ background: avatarUrl ? "transparent" : "hsl(var(--primary))", color: "hsl(var(--primary-foreground))" }}
             >
               {avatarUrl
@@ -603,7 +603,7 @@ const Profile = () => {
         <div className="mt-5">
           <div className="flex justify-between items-center mb-2">
             <Label className="text-xs">Training days per week</Label>
-            <span className="text-sm font-semibold">{athletic.training_days_per_week}</span>
+            <span className="text-sm font-bold">{athletic.training_days_per_week}</span>
           </div>
           <Slider
             min={1} max={7} step={1}

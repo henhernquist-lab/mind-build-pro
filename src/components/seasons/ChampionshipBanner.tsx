@@ -26,12 +26,12 @@ export const ChampionshipBanner = () => {
           <Trophy className="h-5 w-5" style={{ color }} />
         </div>
         <div className="min-w-0 flex-1">
-          <div className="text-[10px] uppercase tracking-normalst text-muted-foreground">Active Championship</div>
-          <div className="text-sm font-semibold truncate">{season.name}</div>
+          <div className="text-[10px] uppercase tracking-widest text-muted-foreground">Active Championship</div>
+          <div className="text-sm font-bold truncate">{season.name}</div>
         </div>
         <div className="text-right shrink-0">
-          <div className="text-lg font-semibold tabular-nums">{days}</div>
-          <div className="text-[10px] uppercase tracking-normalst text-muted-foreground">days left</div>
+          <div className="text-lg font-black tabular-nums">{days}</div>
+          <div className="text-[10px] uppercase tracking-widest text-muted-foreground">days left</div>
         </div>
       </div>
     </Link>

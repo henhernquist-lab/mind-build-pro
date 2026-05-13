@@ -64,7 +64,7 @@ export const BodySilhouette = ({
         ))}
       </svg>
       <div className="absolute bottom-4 left-0 right-0 text-center">
-        <span className="text-[10px] uppercase tracking-normalst font-semibold text-muted-foreground">
+        <span className="text-[10px] uppercase tracking-widest font-black text-muted-foreground">
           {selected || "Select Area"}
         </span>
       </div>

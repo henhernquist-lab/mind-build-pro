@@ -21,7 +21,7 @@ const Toaster = ({ ...props }: ToasterProps) => {
         classNames: {
           toast:
             "group toast bubble-pop-right group-[.toaster]:rounded-2xl group-[.toaster]:border-[hsl(var(--foreground)/0.06)]",
-          title: "group-[.toast]:group-[.toast]:tracking-wide",
+          title: "group-[.toast]:font-display group-[.toast]:tracking-wide",
           description: "group-[.toast]:text-muted-foreground",
           actionButton:
             "group-[.toast]:btn-shimmer group-[.toast]:text-[hsl(var(--background))] group-[.toast]:rounded-md group-[.toast]:px-3 group-[.toast]:py-1.5 group-[.toast]:text-xs group-[.toast]:font-semibold",

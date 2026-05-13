@@ -273,7 +273,7 @@ Return as JSON only (no markdown, no extra text):
                 animate={{ opacity: 1, y: 0 }}
                 className="rounded-xl border border-border bg-card/60 p-4 space-y-3"
               >
-                <div className="text-xs text-muted-foreground uppercase tracking-normalr">Subject</div>
+                <div className="text-xs text-muted-foreground uppercase tracking-wider">Subject</div>
                 <div className="font-semibold text-sm">{draft.subject_line}</div>
                 <div className="border-t border-border pt-3">
                   {editing ? (

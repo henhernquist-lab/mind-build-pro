@@ -4,7 +4,7 @@
    Pure visual/animation upgrade. Functionality untouched.
    ========================================================================== */
 
-@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500;700&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Barlow+Condensed:wght@500;600;700;800&family=Barlow:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500;700&display=swap');
 @import "katex/dist/katex.min.css";
 
 @tailwind base;
@@ -75,9 +75,9 @@
     --gradient-hero: linear-gradient(135deg, hsl(186 100% 50% / 0.18), hsl(152 100% 50% / 0.10));
     --shadow-glow: 0 0 40px -10px hsl(186 100% 50% / 0.55);
 
-    --font-display: 'Inter', system-ui, sans-serif;
-    --font-stat:    'Inter', system-ui, sans-serif;
-    --font-body:    'Inter', system-ui, sans-serif;
+    --font-display: 'Bebas Neue', 'Barlow Condensed', system-ui, sans-serif;
+    --font-stat:    'Barlow Condensed', system-ui, sans-serif;
+    --font-body:    'Barlow', system-ui, sans-serif;
     --font-mono:    'JetBrains Mono', ui-monospace, monospace;
   }
 
@@ -121,9 +121,9 @@
     --sidebar-accent-foreground: 180 100% 70%;
     --sidebar-border: 300 50% 18%;
     --sidebar-ring: 300 100% 50%;
-    --font-display: 'Inter', system-ui, sans-serif;
-    --font-stat:    'Inter', system-ui, sans-serif;
-    --font-body:    'Inter', system-ui, sans-serif;
+    --font-display: 'Bebas Neue', system-ui, sans-serif;
+    --font-stat:    'Barlow Condensed', system-ui, sans-serif;
+    --font-body:    'Barlow', system-ui, sans-serif;
     --font-mono:    'JetBrains Mono', ui-monospace, monospace;
   }
 
@@ -163,9 +163,9 @@
     --sidebar-accent-foreground: 100 30% 96%;
     --sidebar-border: 120 25% 13%;
     --sidebar-ring: 142 70% 55%;
-    --font-display: 'Inter', system-ui, sans-serif;
-    --font-stat:    'Inter', system-ui, sans-serif;
-    --font-body:    'Inter', system-ui, sans-serif;
+    --font-display: 'Bebas Neue', system-ui, sans-serif;
+    --font-stat:    'Barlow Condensed', system-ui, sans-serif;
+    --font-body:    'Barlow', system-ui, sans-serif;
     --font-mono:    'JetBrains Mono', ui-monospace, monospace;
     --radius: 1rem;
   }
@@ -206,9 +206,9 @@
     --sidebar-accent-foreground: 45 95% 70%;
     --sidebar-border: 20 50% 14%;
     --sidebar-ring: 21 95% 55%;
-    --font-display: 'Inter', system-ui, sans-serif;
-    --font-stat:    'Inter', system-ui, sans-serif;
-    --font-body:    'Inter', system-ui, sans-serif;
+    --font-display: 'Bebas Neue', system-ui, sans-serif;
+    --font-stat:    'Barlow Condensed', system-ui, sans-serif;
+    --font-body:    'Barlow', system-ui, sans-serif;
     --font-mono:    'JetBrains Mono', ui-monospace, monospace;
   }
 
@@ -248,9 +248,9 @@
     --sidebar-accent-foreground: 220 30% 15%;
     --sidebar-border: 210 25% 90%;
     --sidebar-ring: 199 90% 48%;
-    --font-display: 'Inter', system-ui, sans-serif;
-    --font-stat:    'Inter', system-ui, sans-serif;
-    --font-body:    'Inter', system-ui, sans-serif;
+    --font-display: 'Bebas Neue', system-ui, sans-serif;
+    --font-stat:    'Barlow Condensed', system-ui, sans-serif;
+    --font-body:    'Barlow', system-ui, sans-serif;
     --font-mono:    'JetBrains Mono', ui-monospace, monospace;
   }
 }
@@ -263,18 +263,15 @@
     background-color: hsl(var(--background));
     color: hsl(var(--foreground));
     font-family: var(--font-body);
-    font-size: 15px;
-    line-height: 1.5;
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
-    font-feature-settings: "cv11";
+    font-feature-settings: "ss01", "cv11";
   }
 
-  /* Headings: Inter semibold, normal tracking */
+  /* Display family for headings, subtle wide tracking */
   h1, h2, h3, h4, h5 {
-    font-family: var(--font-body);
-    font-weight: 600;
-    letter-spacing: -0.01em;
+    font-family: var(--font-display);
+    letter-spacing: 0.02em;
   }
 
   /* Tabular numbers everywhere by default — scoreboard feel */
@@ -345,11 +342,11 @@
 @layer utilities {
 
   /* ---------- Typography helpers ---------- */
-  .font-display { font-family: var(--font-display); letter-spacing: -0.01em; }
-  .font-stat    { font-family: var(--font-stat); letter-spacing: -0.01em; text-transform: uppercase; }
+  .font-display { font-family: var(--font-display); letter-spacing: 0.04em; }
+  .font-stat    { font-family: var(--font-stat); letter-spacing: 0.04em; text-transform: uppercase; }
   .font-body    { font-family: var(--font-body); }
   .font-mono    { font-family: var(--font-mono); }
-  .scoreboard   { font-family: var(--font-mono); font-variant-numeric: tabular-nums; letter-spacing: -0.01em; }
+  .scoreboard   { font-family: var(--font-mono); font-variant-numeric: tabular-nums; letter-spacing: 0.02em; }
 
   /* ---------- Glassmorphism surfaces ---------- */
   .glass {
@@ -479,8 +476,21 @@
 
   /* ---------- Shimmer sweep (rank text + buttons) ---------- */
   .shimmer-text {
-    /* Neutralized for minimalistic typography */
-    color: inherit;
+    position: relative;
+    background: linear-gradient(
+      90deg,
+      hsl(var(--foreground)) 0%,
+      hsl(var(--cyan)) 35%,
+      hsl(var(--gold)) 50%,
+      hsl(var(--neon)) 65%,
+      hsl(var(--foreground)) 100%
+    );
+    background-size: 250% 100%;
+    -webkit-background-clip: text;
+            background-clip: text;
+    color: transparent;
+    -webkit-text-fill-color: transparent;
+    animation: shimmerSweep 4s ease-in-out infinite;
   }
   @keyframes shimmerSweep {
     0%, 100% { background-position: 100% 0; }
@@ -671,8 +681,13 @@
 
   /* ---------- Animated gradient text (general) ---------- */
   .gradient-text {
-    /* Neutralized for minimalistic typography */
-    color: inherit;
+    background: linear-gradient(90deg, hsl(var(--cyan)), hsl(var(--neon)), hsl(var(--cyan)));
+    background-size: 200% auto;
+    -webkit-background-clip: text;
+            background-clip: text;
+    color: transparent;
+    -webkit-text-fill-color: transparent;
+    animation: gradientShift 6s linear infinite;
   }
   @keyframes gradientShift { from { background-position: 0% 50%; } to { background-position: 200% 50%; } }
 
@@ -838,7 +853,10 @@
     font-family: var(--font-display);
     font-variant-numeric: tabular-nums;
     color: hsl(var(--cyan));
-    letter-spacing: -0.01em;
+    text-shadow:
+      0 0 12px hsl(var(--cyan) / 0.55),
+      0 0 28px hsl(var(--cyan) / 0.30);
+    letter-spacing: 0.06em;
   }
 
   /* ---------- Sliding indicator pill (mobile/tabs) ---------- */

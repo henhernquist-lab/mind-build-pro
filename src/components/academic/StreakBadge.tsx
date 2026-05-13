@@ -15,12 +15,12 @@ export const StreakBadge = ({ compact = false }: { compact?: boolean }) => {
 
   return (
     <div
-      className={`inline-flex items-center gap-1.5 rounded-full border px-2.5 py-1 text-xs font-semibold transition-all ${style}`}
+      className={`inline-flex items-center gap-1.5 rounded-full border px-2.5 py-1 text-xs font-bold transition-all ${style}`}
       title={`Current streak: ${streak} days${multiplierActive ? " • XP x1.5 active" : ""}`}
     >
       <Flame className={`h-3.5 w-3.5 ${streak > 0 ? "text-orange-400" : ""}`} />
       <span>{streak}</span>
-      {multiplierActive && <span className="text-[9px] uppercase tracking-normalr">x1.5</span>}
+      {multiplierActive && <span className="text-[9px] uppercase tracking-wider">x1.5</span>}
     </div>
   );
 };

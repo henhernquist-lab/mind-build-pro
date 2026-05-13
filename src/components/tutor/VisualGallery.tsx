@@ -62,7 +62,7 @@ export const VisualGallery = ({
     return (
       <div className="rounded-2xl border border-dashed border-border bg-card p-12 text-center">
         <ImageOff className="h-10 w-10 mx-auto text-muted-foreground mb-3" />
-        <h2 className="text-lg font-semibold">No saved mind maps yet</h2>
+        <h2 className="text-lg font-bold">No saved mind maps yet</h2>
         <p className="text-sm text-muted-foreground mt-1 max-w-sm mx-auto">
           Generate a mind map in the Mind Map tab, then click{" "}
           <span className="font-medium text-foreground">Notes</span> to save it here.
@@ -75,7 +75,7 @@ export const VisualGallery = ({
     <div>
       <div className="flex items-center justify-between mb-4">
         <div>
-          <h2 className="text-lg font-semibold flex items-center gap-2">
+          <h2 className="text-lg font-bold flex items-center gap-2">
             <BookOpen className="h-5 w-5 text-primary" /> Visual Gallery
           </h2>
           <p className="text-xs text-muted-foreground mt-0.5">{maps.length} saved mind map{maps.length !== 1 ? "s" : ""}</p>

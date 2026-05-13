@@ -48,7 +48,7 @@ export const NutritionTodayCard = () => {
             <Apple className="h-4 w-4" />
           </div>
           <div>
-            <div className="text-[10px] uppercase tracking-normalst text-muted-foreground leading-none">Fuel today</div>
+            <div className="text-[10px] uppercase tracking-widest text-muted-foreground leading-none">Fuel today</div>
             <div className="text-sm font-semibold mt-0.5">
               {totals.calories} / {targets.calories} kcal
               <span className="text-xs text-muted-foreground font-normal ml-1.5">

@@ -47,7 +47,7 @@ const CompletionRing = ({ done, total }: { done: number; total: number }) => {
         strokeLinecap="round"
         transform="rotate(-90 22 22)"
       />
-      <text x="22" y="26" textAnchor="middle" fontSize="10" fill="currentColor" className="text-foreground font-semibold">
+      <text x="22" y="26" textAnchor="middle" fontSize="10" fill="currentColor" className="text-foreground font-bold">
         {done}/{total}
       </text>
     </svg>
@@ -247,10 +247,10 @@ Return ONLY valid JSON:
     <div className="max-w-2xl mx-auto px-4 py-6">
       <div className="flex items-center justify-between mb-8">
         <div>
-          <h1 className="text-xl font-semibold flex items-center gap-2">🏥 RECOVERY</h1>
+          <h1 className="text-3xl font-black flex items-center gap-2">🏥 RECOVERY</h1>
           <p className="text-sm text-muted-foreground mt-1">AI-powered injury rehabilitation protocols</p>
         </div>
-        <Button onClick={() => setLogOpen(true)} className="rounded-full bg-[#00E5FF] hover:bg-[#00E5FF]/90 text-black font-semibold">
+        <Button onClick={() => setLogOpen(true)} className="rounded-full bg-[#00E5FF] hover:bg-[#00E5FF]/90 text-black font-black">
           <Plus className="h-4 w-4 mr-1.5" /> LOG INJURY
         </Button>
       </div>
@@ -264,7 +264,7 @@ Return ONLY valid JSON:
           {activeInjuries.length === 0 && (
             <div className="rounded-3xl border-2 border-dashed border-border bg-card/40 p-12 text-center">
               <Heart className="h-12 w-12 mx-auto text-muted-foreground mb-4 opacity-20" />
-              <div className="font-semibold text-xl text-muted-foreground">NO ACTIVE INJURIES</div>
+              <div className="font-black text-xl text-muted-foreground">NO ACTIVE INJURIES</div>
               <p className="text-sm text-muted-foreground mt-2">You're cleared for full activity. Stay safe!</p>
             </div>
           )}
@@ -282,8 +282,8 @@ Return ONLY valid JSON:
                   <div className="flex items-start justify-between">
                     <div>
                       <div className="flex items-center gap-2 mb-1">
-                        <span className="text-xl font-semibold uppercase tracking-tight">{inj.body_part}</span>
-                        <span className={cn("text-[10px] px-2 py-0.5 rounded-full font-semibold uppercase border",
+                        <span className="text-xl font-black uppercase tracking-tight">{inj.body_part}</span>
+                        <span className={cn("text-[10px] px-2 py-0.5 rounded-full font-black uppercase border",
                           inj.severity === "mild" ? "bg-amber-500/10 text-amber-400 border-amber-500/30"
                           : inj.severity === "moderate" ? "bg-orange-500/10 text-orange-400 border-orange-500/30"
                           : "bg-red-500/10 text-red-400 border-red-500/30"
@@ -295,7 +295,7 @@ Return ONLY valid JSON:
                         <Calendar className="h-3 w-3" /> Injured {new Date(inj.date_of_injury).toLocaleDateString()}
                       </div>
                     </div>
-                    <Button size="sm" variant="outline" onClick={() => setCheckInOpen(inj.id)} className="rounded-full font-semibold">
+                    <Button size="sm" variant="outline" onClick={() => setCheckInOpen(inj.id)} className="rounded-full font-bold">
                       <Activity className="h-3.5 w-3.5 mr-1.5" /> Check In
                     </Button>
                   </div>
@@ -303,12 +303,12 @@ Return ONLY valid JSON:
                   {/* Return Countdown */}
                   <div className="bg-[#00E5FF]/10 rounded-2xl p-4 flex items-center justify-between border border-[#00E5FF]/20">
                     <div>
-                      <div className="text-[10px] font-semibold uppercase text-[#00E5FF] tracking-normalst">Projected Return</div>
-                      <div className="text-lg font-semibold">{new Date(inj.estimated_return_date).toLocaleDateString()}</div>
+                      <div className="text-[10px] font-black uppercase text-[#00E5FF] tracking-widest">Projected Return</div>
+                      <div className="text-lg font-black">{new Date(inj.estimated_return_date).toLocaleDateString()}</div>
                     </div>
                     <div className="text-right">
-                      <div className="text-xl font-semibold text-[#00E5FF]">{daysLeft}</div>
-                      <div className="text-[10px] font-semibold uppercase text-muted-foreground">Days Remaining</div>
+                      <div className="text-3xl font-black text-[#00E5FF]">{daysLeft}</div>
+                      <div className="text-[10px] font-black uppercase text-muted-foreground">Days Remaining</div>
                     </div>
                   </div>
 
@@ -324,14 +324,14 @@ Return ONLY valid JSON:
                             <button
                               onClick={() => setExpandedPhase(prev => ({ ...prev, [inj.id]: idx }))}
                               className={cn(
-                                "h-6 w-6 rounded-full z-10 flex items-center justify-center text-[10px] font-semibold transition-all",
+                                "h-6 w-6 rounded-full z-10 flex items-center justify-center text-[10px] font-black transition-all",
                                 idx === activePhaseIdx ? "bg-[#00E5FF] text-black scale-125" :
                                 idx < activePhaseIdx ? "bg-[#00E5FF] text-black" : "bg-muted text-muted-foreground"
                               )}
                             >
                               {idx < activePhaseIdx ? <CheckCircle2 className="h-3.5 w-3.5" /> : idx + 1}
                             </button>
-                            <span className={cn("text-[8px] font-semibold uppercase text-center", idx === activePhaseIdx ? "text-foreground" : "text-muted-foreground")}>
+                            <span className={cn("text-[8px] font-black uppercase text-center", idx === activePhaseIdx ? "text-foreground" : "text-muted-foreground")}>
                               Phase {idx + 1}
                             </span>
                           </div>
@@ -347,7 +347,7 @@ Return ONLY valid JSON:
                           exit={{ opacity: 0, x: -20 }}
                           className="space-y-3"
                         >
-                          <div className="font-semibold text-sm uppercase text-muted-foreground flex justify-between">
+                          <div className="font-black text-sm uppercase text-muted-foreground flex justify-between">
                             <span>{protocol.phases[activePhaseIdx].phase_name}</span>
                             <span className="text-[#00E5FF]">{protocol.phases[activePhaseIdx].duration_days} Days</span>
                           </div>
@@ -362,7 +362,7 @@ Return ONLY valid JSON:
                                 <div className="flex items-center gap-3 mb-3">
                                   <CompletionRing done={done} total={day.activities.length} />
                                   <div>
-                                    <div className="font-semibold text-sm uppercase">Day {day.day}</div>
+                                    <div className="font-black text-sm uppercase">Day {day.day}</div>
                                     <div className="text-xs text-muted-foreground">{day.goal}</div>
                                   </div>
                                 </div>
@@ -375,7 +375,7 @@ Return ONLY valid JSON:
                                         disabled={!isToday}
                                         onClick={() => currentCI && toggleActivity(inj.id, currentCI.id, act)}
                                         className={cn(
-                                          "w-full text-left p-3 rounded-xl text-xs font-semibold transition-all flex items-center gap-3",
+                                          "w-full text-left p-3 rounded-xl text-xs font-bold transition-all flex items-center gap-3",
                                           checked ? "bg-green-500/20 text-green-400" : "bg-background/50 hover:bg-background"
                                         )}
                                       >
@@ -388,7 +388,7 @@ Return ONLY valid JSON:
                                   })}
                                 </div>
                                 {day.avoid.length > 0 && (
-                                  <div className="mt-3 p-2 rounded-lg bg-red-500/10 border border-red-500/20 text-[10px] text-red-400 font-semibold flex items-center gap-2">
+                                  <div className="mt-3 p-2 rounded-lg bg-red-500/10 border border-red-500/20 text-[10px] text-red-400 font-bold flex items-center gap-2">
                                     <AlertTriangle className="h-3 w-3" />
                                     AVOID: {day.avoid.join(", ")}
                                   </div>
@@ -411,11 +411,11 @@ Return ONLY valid JSON:
       <Dialog open={logOpen} onOpenChange={setLogOpen}>
         <DialogContent className="max-w-lg p-0 overflow-hidden rounded-3xl">
           <div className="p-6 bg-accent/20 border-b">
-            <h2 className="text-xl font-semibold italic">MEDICAL INCIDENT REPORT</h2>
+            <h2 className="text-2xl font-black italic">MEDICAL INCIDENT REPORT</h2>
           </div>
           <div className="p-6 space-y-6 max-h-[70vh] overflow-y-auto">
             <div className="space-y-4">
-              <Label className="text-xs font-semibold uppercase text-muted-foreground">Where does it hurt?</Label>
+              <Label className="text-xs font-black uppercase text-muted-foreground">Where does it hurt?</Label>
               <BodySilhouette
                 selected={form.body_part}
                 onSelect={(id) => setForm(f => ({ ...f, body_part: id }))}
@@ -424,20 +424,20 @@ Return ONLY valid JSON:
 
             <div className="grid grid-cols-2 gap-4">
               <div className="space-y-2">
-                <Label className="text-xs font-semibold uppercase text-muted-foreground">Injury Type</Label>
+                <Label className="text-xs font-black uppercase text-muted-foreground">Injury Type</Label>
                 <Select value={form.injury_type} onValueChange={(v) => setForm(f => ({ ...f, injury_type: v }))}>
                   <SelectTrigger className="rounded-xl"><SelectValue /></SelectTrigger>
                   <SelectContent>{INJURY_TYPES.map(t => <SelectItem key={t} value={t}>{t}</SelectItem>)}</SelectContent>
                 </Select>
               </div>
               <div className="space-y-2">
-                <Label className="text-xs font-semibold uppercase text-muted-foreground">Date Occurred</Label>
+                <Label className="text-xs font-black uppercase text-muted-foreground">Date Occurred</Label>
                 <Input type="date" value={form.date_of_injury} onChange={e => setForm(f => ({ ...f, date_of_injury: e.target.value }))} className="rounded-xl" />
               </div>
             </div>
 
             <div className="space-y-2">
-              <Label className="text-xs font-semibold uppercase text-muted-foreground">Severity Level</Label>
+              <Label className="text-xs font-black uppercase text-muted-foreground">Severity Level</Label>
               <div className="grid grid-cols-3 gap-2">
                 {SEVERITIES.map(s => (
                   <button
@@ -448,7 +448,7 @@ Return ONLY valid JSON:
                       form.severity === s.id ? "border-[#00E5FF] bg-[#00E5FF]/10" : "border-border hover:bg-accent/30"
                     )}
                   >
-                    <div className={cn("font-semibold text-sm", s.color)}>{s.label}</div>
+                    <div className={cn("font-black text-sm", s.color)}>{s.label}</div>
                     <div className="text-[10px] text-muted-foreground leading-tight">{s.sub}</div>
                   </button>
                 ))}
@@ -456,7 +456,7 @@ Return ONLY valid JSON:
             </div>
 
             <div className="space-y-2">
-              <Label className="text-xs font-semibold uppercase text-muted-foreground">Description</Label>
+              <Label className="text-xs font-black uppercase text-muted-foreground">Description</Label>
               <Textarea
                 value={form.description}
                 onChange={e => setForm(f => ({ ...f, description: e.target.value }))}
@@ -473,11 +473,11 @@ Return ONLY valid JSON:
                 onChange={e => setForm(f => ({ ...f, cleared_by_doctor: e.target.checked }))}
                 className="h-5 w-5 rounded border-2 border-[#00E5FF] text-[#00E5FF] focus:ring-0"
               />
-              <Label htmlFor="cleared" className="text-xs font-semibold cursor-pointer">Cleared by medical professional</Label>
+              <Label htmlFor="cleared" className="text-xs font-bold cursor-pointer">Cleared by medical professional</Label>
             </div>
 
             {!form.cleared_by_doctor && (
-              <div className="p-3 rounded-xl bg-amber-500/10 border border-amber-500/20 text-[10px] text-amber-400 font-semibold flex items-center gap-2">
+              <div className="p-3 rounded-xl bg-amber-500/10 border border-amber-500/20 text-[10px] text-amber-400 font-bold flex items-center gap-2">
                 <AlertTriangle className="h-4 w-4 shrink-0" />
                 Always consult a doctor before following any return-to-play protocol.
               </div>
@@ -485,7 +485,7 @@ Return ONLY valid JSON:
           </div>
           <DialogFooter className="p-6 bg-accent/10 border-t">
             <Button variant="ghost" onClick={() => setLogOpen(false)}>Cancel</Button>
-            <Button onClick={generateProtocol} disabled={generating || !form.body_part} className="bg-[#00E5FF] hover:bg-[#00E5FF]/90 text-black font-semibold px-8">
+            <Button onClick={generateProtocol} disabled={generating || !form.body_part} className="bg-[#00E5FF] hover:bg-[#00E5FF]/90 text-black font-black px-8">
               {generating ? <Loader2 className="h-4 w-4 animate-spin mr-2" /> : null}
               GENERATE RECOVERY PLAN
             </Button>
@@ -497,11 +497,11 @@ Return ONLY valid JSON:
       <Dialog open={!!checkInOpen} onOpenChange={v => !v && setCheckInOpen(null)}>
         <DialogContent className="rounded-3xl">
           <DialogHeader>
-            <DialogTitle className="text-xl font-semibold italic">DAILY PAIN CHECK-IN</DialogTitle>
+            <DialogTitle className="text-xl font-black italic">DAILY PAIN CHECK-IN</DialogTitle>
           </DialogHeader>
           <div className="space-y-6 py-4">
             <div className="space-y-4">
-              <Label className="text-sm font-semibold">Pain level on a scale of 0-10</Label>
+              <Label className="text-sm font-bold">Pain level on a scale of 0-10</Label>
               <Slider
                 min={0}
                 max={10}
@@ -510,9 +510,9 @@ Return ONLY valid JSON:
                 onValueChange={([v]) => setPainLevel(v)}
                 className="py-4"
               />
-              <div className="flex justify-between text-xs font-semibold">
+              <div className="flex justify-between text-xs font-black">
                 <span className="text-green-500 uppercase">No Pain</span>
-                <span className="text-xl text-[#00E5FF] font-mono">{painLevel}</span>
+                <span className="text-4xl text-[#00E5FF] font-mono">{painLevel}</span>
                 <span className="text-red-500 uppercase">Severe</span>
               </div>
             </div>
@@ -524,7 +524,7 @@ Return ONLY valid JSON:
               "border-red-500/50 bg-red-500/10"
             )}>
               <Activity className={cn("h-5 w-5 shrink-0", painLevel <= 2 ? "text-green-500" : painLevel <= 5 ? "text-amber-500" : "text-red-500")} />
-              <div className="text-xs font-semibold leading-relaxed">
+              <div className="text-xs font-bold leading-relaxed">
                 {painLevel <= 2 ? "Great progress — consider advancing to next phase activities" :
                  painLevel <= 5 ? "Stay at current phase — don't rush recovery" :
                  "Pull back to previous phase. If pain persists please see a medical professional"}
@@ -532,7 +532,7 @@ Return ONLY valid JSON:
             </div>
           </div>
           <DialogFooter>
-            <Button onClick={() => checkInOpen && submitCheckIn(checkInOpen)} className="w-full h-12 bg-[#00E5FF] hover:bg-[#00E5FF]/90 text-black font-semibold">
+            <Button onClick={() => checkInOpen && submitCheckIn(checkInOpen)} className="w-full h-12 bg-[#00E5FF] hover:bg-[#00E5FF]/90 text-black font-black">
               SUBMIT CHECK-IN
             </Button>
           </DialogFooter>

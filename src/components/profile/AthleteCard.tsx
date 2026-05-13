@@ -65,7 +65,7 @@ export const AthleteCard = forwardRef<HTMLDivElement, { data: AthleteCardData; c
         <div className="relative flex items-start gap-4 md:gap-5">
           {/* Avatar */}
           <div
-            className="h-20 w-20 md:h-24 md:w-24 rounded-2xl flex items-center justify-center text-xl md:text-xl font-semibold flex-shrink-0 overflow-hidden border-2"
+            className="h-20 w-20 md:h-24 md:w-24 rounded-2xl flex items-center justify-center text-2xl md:text-3xl font-bold flex-shrink-0 overflow-hidden border-2"
             style={{
               background: data.avatarUrl ? "transparent" : "hsl(var(--primary))",
               color: "hsl(var(--primary-foreground))",
@@ -83,8 +83,8 @@ export const AthleteCard = forwardRef<HTMLDivElement, { data: AthleteCardData; c
           <div className="flex-1 min-w-0">
             <div className="flex items-start justify-between gap-2">
               <div className="min-w-0">
-                <div className="text-[10px] uppercase tracking-normal text-muted-foreground">Athlete</div>
-                <h2 className="text-xl md:text-xl font-semibold leading-tight truncate">
+                <div className="text-[10px] uppercase tracking-[0.2em] text-muted-foreground">Athlete</div>
+                <h2 className="text-2xl md:text-3xl font-bold leading-tight truncate">
                   {data.displayName || "Anonymous"}
                 </h2>
                 {data.username && (
@@ -97,7 +97,7 @@ export const AthleteCard = forwardRef<HTMLDivElement, { data: AthleteCardData; c
               >
                 <div className="text-xl leading-none">{rank.icon}</div>
                 <div
-                  className="text-[10px] font-semibold mt-0.5 uppercase tracking-normal"
+                  className="text-[10px] font-semibold mt-0.5 uppercase tracking-wide"
                   style={{ color: rank.color }}
                 >
                   {rank.name}
@@ -136,7 +136,7 @@ export const AthleteCard = forwardRef<HTMLDivElement, { data: AthleteCardData; c
         {/* Sport / position */}
         {(sports.length > 0 || data.positionEvent) && (
           <div className="relative mt-4">
-            <div className="text-[10px] uppercase tracking-normalst text-muted-foreground mb-1.5">Sport</div>
+            <div className="text-[10px] uppercase tracking-widest text-muted-foreground mb-1.5">Sport</div>
             <div className="flex flex-wrap gap-1.5">
               {sports.map((s) => (
                 <span
@@ -175,7 +175,7 @@ export const AthleteCard = forwardRef<HTMLDivElement, { data: AthleteCardData; c
         {/* Goals */}
         {data.fitnessGoals && data.fitnessGoals.length > 0 && (
           <div className="relative mt-4">
-            <div className="text-[10px] uppercase tracking-normalst text-muted-foreground mb-1.5">Goals</div>
+            <div className="text-[10px] uppercase tracking-widest text-muted-foreground mb-1.5">Goals</div>
             <div className="flex flex-wrap gap-1.5">
               {data.fitnessGoals.map((g) => (
                 <span
@@ -203,7 +203,7 @@ AthleteCard.displayName = "AthleteCard";
 
 const Stat = ({ label, value }: { label: string; value: string }) => (
   <div className="rounded-xl border border-border bg-card/60 py-2">
-    <div className="text-base md:text-lg font-semibold tabular-nums">{value}</div>
-    <div className="text-[9px] uppercase tracking-normalst text-muted-foreground">{label}</div>
+    <div className="text-base md:text-lg font-bold tabular-nums">{value}</div>
+    <div className="text-[9px] uppercase tracking-widest text-muted-foreground">{label}</div>
   </div>
 );

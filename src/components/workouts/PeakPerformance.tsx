@@ -196,11 +196,11 @@ export const PeakPerformance = ({
     const pct = Math.min(100, (totalLogs / MIN_LOGS) * 100);
     return (
       <div className="rounded-2xl glass p-5">
-        <h3 className="text-sm font-semibold uppercase tracking-normalr text-muted-foreground mb-3 flex items-center gap-2">
+        <h3 className="text-sm font-semibold uppercase tracking-wider text-muted-foreground mb-3 flex items-center gap-2">
           <Star className="h-4 w-4 text-amber-400" /> Peak Performance
         </h3>
         <div className="text-sm text-muted-foreground mb-3">
-          Log <span className="font-semibold text-foreground">{remaining}</span> more workouts across different times to unlock your Peak Performance analysis.
+          Log <span className="font-bold text-foreground">{remaining}</span> more workouts across different times to unlock your Peak Performance analysis.
         </div>
         <div className="h-2 rounded-full bg-muted overflow-hidden">
           <div className="h-full rounded-full bg-amber-400 transition-all duration-500" style={{ width: `${pct}%` }} />
@@ -212,7 +212,7 @@ export const PeakPerformance = ({
 
   return (
     <div className="rounded-2xl glass p-5">
-      <h3 className="text-sm font-semibold uppercase tracking-normalr text-muted-foreground mb-4 flex items-center gap-2">
+      <h3 className="text-sm font-semibold uppercase tracking-wider text-muted-foreground mb-4 flex items-center gap-2">
         <Star className="h-4 w-4 text-amber-400" /> Peak Performance
       </h3>
 
@@ -221,10 +221,10 @@ export const PeakPerformance = ({
         <div className="rounded-xl bg-amber-500/10 border border-amber-500/30 p-4 mb-5 flex items-center gap-4">
           <Star className="h-8 w-8 text-amber-400 flex-shrink-0" />
           <div>
-            <div className="text-[10px] uppercase tracking-normalr text-muted-foreground">Your Peak Training Window</div>
-            <div className="text-lg font-semibold">{overallPeak.slot}</div>
+            <div className="text-[10px] uppercase tracking-wider text-muted-foreground">Your Peak Training Window</div>
+            <div className="text-lg font-bold">{overallPeak.slot}</div>
             <div className="text-xs text-muted-foreground">
-              You perform <span className="font-semibold text-amber-400">{overallPeak.pctBetter}% better</span> during this window across all logged exercises
+              You perform <span className="font-bold text-amber-400">{overallPeak.pctBetter}% better</span> during this window across all logged exercises
             </div>
           </div>
         </div>
@@ -259,7 +259,7 @@ export const PeakPerformance = ({
                           style={{ background: isBest ? "hsl(45 90% 55%)" : TIME_SLOT_COLORS[slot] }}
                         />
                       </div>
-                      <div className={cn("text-[10px] w-16 text-right font-mono flex-shrink-0", isBest && "text-amber-400 font-semibold")}>
+                      <div className={cn("text-[10px] w-16 text-right font-mono flex-shrink-0", isBest && "text-amber-400 font-bold")}>
                         {avg.toFixed(1)}{ex.unit} {isBest && "⭐"}
                       </div>
                     </div>

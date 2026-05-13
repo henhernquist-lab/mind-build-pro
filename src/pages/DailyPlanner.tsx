@@ -193,25 +193,25 @@ const DailyPlanner = () => {
   });
 
   return (
-    <div className="p-6 md:p-10 max-w-5xl mx-auto stagger">
+    <div className="px-4 py-5 md:p-10 max-w-5xl mx-auto stagger">
       <header className="mb-6">
         <motion.h1
           initial={{ opacity: 0, y: -4 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.25 }}
-          className="text-xl md:text-xl tracking-normal"
+          className="text-[clamp(2.25rem,14vw,3.5rem)] md:text-5xl font-display tracking-wide leading-none pr-24 sm:pr-0"
         >
           <span className="gradient-text">Hello, {firstName || "friend"}!</span> <span className="inline-block">👋</span>
         </motion.h1>
-        <p className="text-sm md:text-base text-muted-foreground tracking-normalr mt-2">
+        <p className="text-sm md:text-base font-stat text-muted-foreground tracking-wider mt-2">
           {isToday ? `TODAY · ${dateLabel.toUpperCase()}` : dateLabel.toUpperCase()}
         </p>
 
-        <div className="mt-4 flex items-center gap-2 flex-wrap">
+        <div className="mt-4 grid grid-cols-[auto_minmax(0,1fr)_auto] gap-2 sm:flex sm:items-center sm:flex-wrap">
           <Button variant="outline" size="icon" onClick={() => setDateKey((k) => shiftKey(k, -1))} aria-label="Previous day">
             <ChevronLeft className="h-4 w-4" />
           </Button>
-          <div className="rounded-lg border border-border bg-card px-4 py-2 flex-1 min-w-[180px]">
+          <div className="rounded-lg border border-border bg-card px-4 py-2 min-w-0 sm:flex-1 sm:min-w-[180px]">
             <div className="text-sm font-semibold">{dateLabel}</div>
             <div className="text-[11px] text-muted-foreground">{date.getFullYear()}</div>
           </div>
@@ -223,19 +223,19 @@ const DailyPlanner = () => {
               <CalendarDays className="h-3.5 w-3.5 mr-1.5" /> Today
             </Button>
           )}
-          <Button variant="outline" size="sm" onClick={() => setManageOpen(true)}>
+          <Button variant="outline" size="sm" onClick={() => setManageOpen(true)} className="col-span-3 justify-self-start sm:col-span-1">
             <Settings className="h-4 w-4 mr-1.5" /> Manage Planner
           </Button>
         </div>
       </header>
 
       {/* Summary */}
-      <div className="grid grid-cols-3 gap-3 mb-6">
+      <div className="grid grid-cols-3 gap-2 md:gap-3 mb-6">
         {CATEGORIES.map((k) => (
           <motion.div
             key={k}
             whileHover={{ y: -4 }}
-            className="rounded-xl glass p-4 lift relative overflow-hidden"
+            className="rounded-xl glass p-3 md:p-4 lift relative overflow-hidden min-w-0"
             style={{
               ["--block-accent" as any]: CAT_META[k].color,
               borderTop: `2px solid ${CAT_META[k].color}`,
@@ -243,11 +243,11 @@ const DailyPlanner = () => {
             }}
             data-testid={`summary-${k}`}
           >
-            <div className="text-[10px] tracking-normalr text-muted-foreground flex items-center gap-1.5">
-              <span className="h-2 w-2 rounded-full" style={{ background: CAT_META[k].color, boxShadow: `0 0 8px ${CAT_META[k].color}` }} />
-              <span>{CAT_META[k].label}</span>
+            <div className="text-[9px] md:text-[10px] font-stat tracking-wider text-muted-foreground flex items-center gap-1.5 min-w-0">
+              <span className="h-2 w-2 rounded-full flex-shrink-0" style={{ background: CAT_META[k].color, boxShadow: `0 0 8px ${CAT_META[k].color}` }} />
+              <span className="truncate">{CAT_META[k].label}</span>
             </div>
-            <div className="text-xl tracking-normal mt-1 scoreboard" style={{ color: CAT_META[k].color }}>
+            <div className="text-3xl font-display tracking-wide mt-1 scoreboard whitespace-nowrap" style={{ color: CAT_META[k].color }}>
               {totals[k].toFixed(1)}<span className="text-sm font-body font-normal">h</span>
             </div>
           </motion.div>
@@ -306,7 +306,7 @@ const DailyPlanner = () => {
               data-testid="schedule-block"
             >
               <div className="w-24 flex-shrink-0 pt-0.5">
-                <div className="text-xs tracking-normalr scoreboard">{fmt12(b.startTime)}</div>
+                <div className="text-xs font-stat tracking-wider scoreboard">{fmt12(b.startTime)}</div>
                 <div className="text-[10px] text-muted-foreground scoreboard">→ {fmt12(b.endTime)}</div>
               </div>
               <div
@@ -318,7 +318,7 @@ const DailyPlanner = () => {
                 }}
               >
                 {b.recurringId && <Repeat className="h-3 w-3 flex-shrink-0" style={{ color: meta.color }} />}
-                <span className="tracking-tight truncate flex-1" style={{ color: meta.color }}>
+                <span className="font-stat tracking-wider truncate flex-1" style={{ color: meta.color }}>
                   {(b.label || meta.label).toUpperCase()}
                 </span>
                 <span className="text-[10px] scoreboard text-muted-foreground">{durationLabel(mins)}</span>
@@ -797,7 +797,7 @@ const ManagePlannerDialog = ({
 
         <div className="space-y-4">
           <div>
-            <div className="text-xs font-semibold uppercase tracking-normalr text-muted-foreground mb-2">
+            <div className="text-xs font-semibold uppercase tracking-wider text-muted-foreground mb-2">
               Add a subject / activity
             </div>
             <div className="flex gap-2">
@@ -819,7 +819,7 @@ const ManagePlannerDialog = ({
           </div>
 
           <div>
-            <div className="text-xs font-semibold uppercase tracking-normalr text-muted-foreground mb-2">
+            <div className="text-xs font-semibold uppercase tracking-wider text-muted-foreground mb-2">
               Your labels
             </div>
             {labels.length === 0 ? (
@@ -881,7 +881,7 @@ const ManagePlannerDialog = ({
           </div>
 
           <div>
-            <div className="text-xs font-semibold uppercase tracking-normalr text-muted-foreground mb-2">
+            <div className="text-xs font-semibold uppercase tracking-wider text-muted-foreground mb-2">
               Recurring events ({recurring.length})
             </div>
             {recurring.length === 0 ? (

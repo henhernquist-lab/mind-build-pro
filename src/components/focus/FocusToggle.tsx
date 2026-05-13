@@ -53,7 +53,7 @@ export const FocusToggle = () => {
     <>
       <button
         onClick={() => { setOpen(true); sfx.click(); }}
-        className="h-9 px-3 rounded-full bg-card border border-border flex items-center gap-1.5 text-xs font-semibold hover:border-primary transition-colors"
+        className="h-9 px-3 rounded-full bg-card border border-border flex items-center gap-1.5 text-xs font-bold hover:border-primary transition-colors"
         title="Enter Focus Mode"
       >
         <Brain className="h-3.5 w-3.5 text-primary" />
@@ -68,7 +68,7 @@ export const FocusToggle = () => {
             <span>Study block: <span className="font-bold">{activeBlock.label}</span></span>
             <button
               onClick={() => { setOpen(true); setAutoSuggested(false); }}
-              className="text-xs uppercase tracking-normalr font-semibold text-primary hover:underline"
+              className="text-xs uppercase tracking-wider font-bold text-primary hover:underline"
             >
               Enter Focus
             </button>

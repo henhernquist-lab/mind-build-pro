@@ -65,7 +65,7 @@ export const WorkoutHeatmap = () => {
     <div className="rounded-2xl glass p-5">
       <div className="flex items-center justify-between mb-3 gap-2 flex-wrap">
         <div>
-          <div className="text-[10px] uppercase tracking-normalst text-muted-foreground">12-Week Workout Heatmap</div>
+          <div className="text-[10px] uppercase tracking-widest text-muted-foreground">12-Week Workout Heatmap</div>
           <div className="text-sm font-semibold mt-0.5">
             {totalWorkouts} workouts · {activeDays} active days
           </div>

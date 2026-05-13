@@ -149,10 +149,10 @@ const Workouts = () => {
           <motion.div key="home" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} className="p-6 md:p-10">
             <header className="flex items-start justify-between gap-4 mb-8 flex-wrap">
               <div>
-                <p className="text-xs uppercase tracking-normalst text-muted-foreground font-semibold">LifeStack Training</p>
-                <h1 className="text-xl font-semibold mt-1 italic tracking-tighter">WORKOUTS</h1>
+                <p className="text-xs uppercase tracking-widest text-muted-foreground font-black">LifeStack Training</p>
+                <h1 className="text-5xl font-black mt-1 italic tracking-tighter">WORKOUTS</h1>
               </div>
-              <Button variant="outline" size="sm" onClick={() => setProfileOpen(true)} className="rounded-full border-primary/30 bg-primary/5 font-semibold">
+              <Button variant="outline" size="sm" onClick={() => setProfileOpen(true)} className="rounded-full border-primary/30 bg-primary/5 font-bold">
                 <User className="h-4 w-4 mr-1.5" />
                 {profile ? `${profile.weightLbs} lb` : "Setup Profile"}
               </Button>
@@ -221,20 +221,20 @@ const ProfileDialog = ({ open, onOpenChange, profile, onSave }: any) => {
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="rounded-3xl">
-        <DialogHeader><DialogTitle className="font-semibold italic text-xl uppercase tracking-tight">Athletic Profile</DialogTitle></DialogHeader>
+        <DialogHeader><DialogTitle className="font-black italic text-2xl uppercase tracking-tight">Athletic Profile</DialogTitle></DialogHeader>
         <div className="space-y-4 py-4">
           <div className="space-y-2">
-            <Label className="text-xs font-semibold uppercase text-muted-foreground">Age</Label>
-            <Input type="number" value={age} onChange={(e) => setAge(e.target.value)} className="rounded-xl font-semibold h-12" />
+            <Label className="text-xs font-black uppercase text-muted-foreground">Age</Label>
+            <Input type="number" value={age} onChange={(e) => setAge(e.target.value)} className="rounded-xl font-bold h-12" />
           </div>
           <div className="space-y-2">
-            <Label className="text-xs font-semibold uppercase text-muted-foreground">Weight (lbs)</Label>
-            <Input type="number" value={w} onChange={(e) => setW(e.target.value)} className="rounded-xl font-semibold h-12" />
+            <Label className="text-xs font-black uppercase text-muted-foreground">Weight (lbs)</Label>
+            <Input type="number" value={w} onChange={(e) => setW(e.target.value)} className="rounded-xl font-bold h-12" />
           </div>
           <div className="space-y-2">
-            <Label className="text-xs font-semibold uppercase text-muted-foreground">Gender</Label>
+            <Label className="text-xs font-black uppercase text-muted-foreground">Gender</Label>
             <Select value={g} onValueChange={(v) => setG(v as Gender)}>
-              <SelectTrigger className="rounded-xl font-semibold h-12"><SelectValue /></SelectTrigger>
+              <SelectTrigger className="rounded-xl font-bold h-12"><SelectValue /></SelectTrigger>
               <SelectContent>
                 <SelectItem value="male">Male</SelectItem>
                 <SelectItem value="female">Female</SelectItem>
@@ -243,7 +243,7 @@ const ProfileDialog = ({ open, onOpenChange, profile, onSave }: any) => {
           </div>
         </div>
         <DialogFooter>
-          <Button onClick={() => onSave({ age: parseInt(age), weightLbs: parseInt(w), gender: g, heightFt: 5, heightIn: 10 })} className="w-full h-14 bg-primary text-primary-foreground font-semibold uppercase tracking-normalst rounded-2xl">Save Profile</Button>
+          <Button onClick={() => onSave({ age: parseInt(age), weightLbs: parseInt(w), gender: g, heightFt: 5, heightIn: 10 })} className="w-full h-14 bg-primary text-primary-foreground font-black uppercase tracking-widest rounded-2xl">Save Profile</Button>
         </DialogFooter>
       </DialogContent>
     </Dialog>

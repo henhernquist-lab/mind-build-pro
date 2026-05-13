@@ -241,7 +241,7 @@ export const MaxLifts = ({ weightUnit, setWeightUnit }: { weightUnit: WeightUnit
       {/* Calculator card */}
       <div className="rounded-2xl glass p-5">
         <div className="flex items-center justify-between mb-4 gap-2 flex-wrap">
-          <h3 className="text-sm font-semibold uppercase tracking-normalr text-muted-foreground flex items-center gap-2">
+          <h3 className="text-sm font-semibold uppercase tracking-wider text-muted-foreground flex items-center gap-2">
             <Calculator className="h-4 w-4" /> 1 Rep Max Calculator
           </h3>
           <div className="inline-flex rounded-full border border-border p-0.5 text-[10px] font-semibold">
@@ -289,8 +289,8 @@ export const MaxLifts = ({ weightUnit, setWeightUnit }: { weightUnit: WeightUnit
           <motion.div initial={{ opacity: 0, y: 6 }} animate={{ opacity: 1, y: 0 }} className="space-y-4">
             {/* Hero result */}
             <div className="rounded-xl bg-gradient-to-br from-sports/15 to-primary/15 p-5 text-center border border-sports/30">
-              <div className="text-[10px] uppercase tracking-normalst text-muted-foreground">Estimated 1RM</div>
-              <div className="text-xl font-semibold mt-1">{displayOneRm.toFixed(1)}</div>
+              <div className="text-[10px] uppercase tracking-widest text-muted-foreground">Estimated 1RM</div>
+              <div className="text-5xl font-bold mt-1 gradient-text">{displayOneRm.toFixed(1)}</div>
               <div className="text-xs font-semibold text-muted-foreground mt-1">{unitLabel.toUpperCase()} · {altDisplay}</div>
               <div className="text-[10px] text-muted-foreground mt-2">{finalEx} · {weight || 0}{unitLabel} × {repsNum} reps</div>
             </div>
@@ -306,8 +306,8 @@ export const MaxLifts = ({ weightUnit, setWeightUnit }: { weightUnit: WeightUnit
                 const v = weightUnit === "kg" ? lbsToKg(f.val) : f.val;
                 return (
                   <div key={f.label} className="rounded-lg border border-border bg-card/40 p-2.5 text-center">
-                    <div className="text-[10px] uppercase tracking-normalr text-muted-foreground">{f.label}</div>
-                    <div className="font-semibold text-base mt-0.5">{v.toFixed(1)}</div>
+                    <div className="text-[10px] uppercase tracking-wider text-muted-foreground">{f.label}</div>
+                    <div className="font-bold text-base mt-0.5">{v.toFixed(1)}</div>
                   </div>
                 );
               })}
@@ -325,9 +325,9 @@ export const MaxLifts = ({ weightUnit, setWeightUnit }: { weightUnit: WeightUnit
       {grading && oneRmLbs > 0 && (
         <div className="rounded-2xl glass p-5">
           <div className="flex items-center justify-between mb-4 flex-wrap gap-2">
-            <h3 className="text-sm font-semibold uppercase tracking-normalr text-muted-foreground">Strength Grade</h3>
+            <h3 className="text-sm font-semibold uppercase tracking-wider text-muted-foreground">Strength Grade</h3>
             <span
-              className="text-sm px-3 py-1 rounded-full font-semibold uppercase tracking-normalr"
+              className="text-sm px-3 py-1 rounded-full font-bold uppercase tracking-wider"
               style={gradeBadgeStyle(grading.grade)}
             >
               {grading.grade}
@@ -335,7 +335,7 @@ export const MaxLifts = ({ weightUnit, setWeightUnit }: { weightUnit: WeightUnit
           </div>
 
           {/* Level label */}
-          <div className="text-base font-semibold mb-1">{grading.level}</div>
+          <div className="text-base font-bold mb-1">{grading.level}</div>
 
           {/* Percentile bar */}
           <div className="mb-3">
@@ -356,7 +356,7 @@ export const MaxLifts = ({ weightUnit, setWeightUnit }: { weightUnit: WeightUnit
           </div>
 
           {/* Grade spectrum labels */}
-          <div className="grid grid-cols-8 text-[9px] uppercase tracking-normalr text-muted-foreground mb-3">
+          <div className="grid grid-cols-8 text-[9px] uppercase tracking-wider text-muted-foreground mb-3">
             {STRENGTH_GRADES.map((g) => (
               <span key={g} className={cn("text-center", g === grading.grade && "font-bold")} style={g === grading.grade ? { color: gradeColor(g) } : {}}>
                 {g}
@@ -367,7 +367,7 @@ export const MaxLifts = ({ weightUnit, setWeightUnit }: { weightUnit: WeightUnit
           {/* Ratio display */}
           {grading.exerciseType === "weighted" && bodyweight > 0 && (
             <div className="text-xs text-muted-foreground mb-2">
-              You lifted <span className="font-semibold text-foreground">{grading.ratio}×</span> your bodyweight
+              You lifted <span className="font-bold text-foreground">{grading.ratio}×</span> your bodyweight
               {grading.ratio !== grading.adjustedRatio && (
                 <span> · adjusted ratio: <span className="font-mono text-foreground">{grading.adjustedRatio}×</span></span>
               )}
@@ -382,16 +382,16 @@ export const MaxLifts = ({ weightUnit, setWeightUnit }: { weightUnit: WeightUnit
               <span className="font-bold" style={{ color: gradeColor(grading.nextGrade) }}>{grading.nextGrade}</span>
               {grading.exerciseType === "weighted" ? (
                 <span className="text-muted-foreground">
-                  {" "}— lift <span className="font-semibold text-foreground">{grading.nextGradeTarget} lbs</span>
+                  {" "}— lift <span className="font-bold text-foreground">{grading.nextGradeTarget} lbs</span>
                   {bodyweight > 0 && <> ({(grading.nextGradeTarget / bodyweight).toFixed(2)}× bodyweight)</>}
                 </span>
               ) : grading.exerciseType === "reps" ? (
                 <span className="text-muted-foreground">
-                  {" "}— do <span className="font-semibold text-foreground">{grading.nextGradeTarget} reps</span>
+                  {" "}— do <span className="font-bold text-foreground">{grading.nextGradeTarget} reps</span>
                 </span>
               ) : (
                 <span className="text-muted-foreground">
-                  {" "}— hit <span className="font-semibold text-foreground">{grading.nextGradeTarget}s</span>
+                  {" "}— hit <span className="font-bold text-foreground">{grading.nextGradeTarget}s</span>
                 </span>
               )}
             </div>
@@ -424,12 +424,12 @@ export const MaxLifts = ({ weightUnit, setWeightUnit }: { weightUnit: WeightUnit
       {/* Percentage table */}
       {pctTable.length > 0 && (
         <div className="rounded-2xl glass p-5">
-          <h3 className="text-sm font-semibold uppercase tracking-normalr text-muted-foreground mb-3">
+          <h3 className="text-sm font-semibold uppercase tracking-wider text-muted-foreground mb-3">
             Lift Percentage Table
           </h3>
           <div className="overflow-hidden rounded-lg border border-border">
             <table className="w-full text-sm">
-              <thead className="bg-muted/50 text-xs uppercase tracking-normalr text-muted-foreground">
+              <thead className="bg-muted/50 text-xs uppercase tracking-wider text-muted-foreground">
                 <tr>
                   <th className="text-left px-3 py-2">% of 1RM</th>
                   <th className="text-left px-3 py-2">Weight</th>
@@ -449,7 +449,7 @@ export const MaxLifts = ({ weightUnit, setWeightUnit }: { weightUnit: WeightUnit
                       )}
                     >
                       <td className="px-3 py-2 font-mono font-semibold">{row.pct}%</td>
-                      <td className="px-3 py-2 font-semibold">{row.weight} {unitLabel}</td>
+                      <td className="px-3 py-2 font-bold">{row.weight} {unitLabel}</td>
                       <td className="px-3 py-2 text-muted-foreground">{row.label}</td>
                     </tr>
                   );
@@ -464,7 +464,7 @@ export const MaxLifts = ({ weightUnit, setWeightUnit }: { weightUnit: WeightUnit
       {exHistory.length > 0 && (
         <div className="rounded-2xl glass p-5">
           <div className="flex items-center justify-between mb-3 flex-wrap gap-2">
-            <h3 className="text-sm font-semibold uppercase tracking-normalr text-muted-foreground flex items-center gap-2">
+            <h3 className="text-sm font-semibold uppercase tracking-wider text-muted-foreground flex items-center gap-2">
               <HistoryIcon className="h-4 w-4" /> {finalEx} progression
             </h3>
             <div className="flex items-center gap-2 flex-wrap">

@@ -41,8 +41,8 @@ const Leaderboard = () => {
   return (
     <div className="p-4 md:p-8 max-w-3xl mx-auto pb-24">
       <header className="mb-6">
-        <p className="text-xs uppercase tracking-normalst text-muted-foreground">Leaderboard</p>
-        <h1 className="text-xl font-semibold mt-1">🏆 Top Climbers</h1>
+        <p className="text-xs uppercase tracking-widest text-muted-foreground">Leaderboard</p>
+        <h1 className="text-3xl font-black mt-1">🏆 Top Climbers</h1>
         <p className="text-sm text-muted-foreground mt-1">
           Current period XP rankings — resets every two weeks alongside ranks.
         </p>
@@ -55,7 +55,7 @@ const Leaderboard = () => {
             key={m}
             onClick={() => setMode(m)}
             className={cn(
-              "px-4 py-1.5 text-xs font-semibold rounded-full transition-colors capitalize",
+              "px-4 py-1.5 text-xs font-bold rounded-full transition-colors capitalize",
               mode === m ? "bg-primary text-primary-foreground" : "text-muted-foreground hover:text-foreground",
             )}
           >
@@ -93,14 +93,14 @@ const Leaderboard = () => {
                   isMe && "bg-primary/10",
                 )}
               >
-                <div className={cn("w-8 text-center font-semibold tabular-nums text-lg", podium ? podiumColor : "text-muted-foreground")}>
+                <div className={cn("w-8 text-center font-black tabular-nums text-lg", podium ? podiumColor : "text-muted-foreground")}>
                   {podium ? (
                     i === 0 ? <Crown className="h-5 w-5 mx-auto" /> : <Medal className="h-5 w-5 mx-auto" />
                   ) : (
                     `#${i + 1}`
                   )}
                 </div>
-                <div className="h-10 w-10 rounded-full overflow-hidden bg-muted shrink-0 flex items-center justify-center text-sm font-semibold">
+                <div className="h-10 w-10 rounded-full overflow-hidden bg-muted shrink-0 flex items-center justify-center text-sm font-bold">
                   {r.avatar_url ? (
                     <img src={r.avatar_url} className="h-full w-full object-cover" alt="" />
                   ) : (
@@ -116,15 +116,15 @@ const Leaderboard = () => {
                     ) : (
                       <span className="truncate">{r.display_name ?? "Anonymous"}</span>
                     )}
-                    {isMe && <span className="text-[10px] uppercase tracking-normalst text-primary">you</span>}
+                    {isMe && <span className="text-[10px] uppercase tracking-widest text-primary">you</span>}
                   </div>
                   <div className="text-[11px] text-muted-foreground">
                     {rank.icon} {rank.name}
                   </div>
                 </div>
                 <div className="text-right shrink-0">
-                  <div className="font-semibold text-lg tabular-nums">{r.xp}</div>
-                  <div className="text-[10px] uppercase tracking-normalst text-muted-foreground">XP</div>
+                  <div className="font-black text-lg tabular-nums">{r.xp}</div>
+                  <div className="text-[10px] uppercase tracking-widest text-muted-foreground">XP</div>
                 </div>
               </motion.div>
             );

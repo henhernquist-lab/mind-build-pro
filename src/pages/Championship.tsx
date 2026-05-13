@@ -68,11 +68,11 @@ const Championship = () => {
       <div className="p-4 md:p-8 max-w-3xl mx-auto pb-24">
         <div className="rounded-2xl border border-dashed border-border bg-card p-10 text-center">
           <Trophy className="h-10 w-10 mx-auto text-muted-foreground mb-3" />
-          <h2 className="text-lg font-semibold">No active championship</h2>
+          <h2 className="text-lg font-bold">No active championship</h2>
           <p className="text-sm text-muted-foreground mt-1">Check back soon — a new season is on the horizon.</p>
           {myResults.length > 0 && (
             <div className="mt-6 text-left">
-              <h3 className="text-xs uppercase tracking-normalst text-muted-foreground mb-2">Past results</h3>
+              <h3 className="text-xs uppercase tracking-widest text-muted-foreground mb-2">Past results</h3>
               <UnclaimedRewards results={myResults} onClaim={onClaim} />
             </div>
           )}
@@ -89,8 +89,8 @@ const Championship = () => {
   return (
     <div className="p-4 md:p-8 max-w-3xl mx-auto pb-24 space-y-6">
       <header>
-        <p className="text-xs uppercase tracking-normalst text-muted-foreground">Seasonal Championship</p>
-        <h1 className="text-xl font-semibold mt-1 flex items-center gap-2">
+        <p className="text-xs uppercase tracking-widest text-muted-foreground">Seasonal Championship</p>
+        <h1 className="text-3xl font-black mt-1 flex items-center gap-2">
           <Trophy className="h-7 w-7" style={{ color }} />
           {season.name}
         </h1>
@@ -110,9 +110,9 @@ const Championship = () => {
       {/* My standing */}
       {user && (
         <div className="rounded-2xl border border-border bg-card p-4">
-          <div className="text-xs uppercase tracking-normalst text-muted-foreground">Your standing</div>
+          <div className="text-xs uppercase tracking-widest text-muted-foreground">Your standing</div>
           <div className="flex items-baseline gap-3 mt-1">
-            <div className="text-xl font-semibold tabular-nums">
+            <div className="text-3xl font-black tabular-nums">
               {myIdx >= 0 ? `#${myIdx + 1}` : "—"}
             </div>
             <div className="text-sm text-muted-foreground">
@@ -125,14 +125,14 @@ const Championship = () => {
       {/* Rewards */}
       {rewards.length > 0 && (
         <section>
-          <h2 className="text-sm font-semibold uppercase tracking-normalst text-muted-foreground mb-2">Podium Rewards</h2>
+          <h2 className="text-sm font-bold uppercase tracking-widest text-muted-foreground mb-2">Podium Rewards</h2>
           <div className="grid grid-cols-3 gap-3">
             {rewards.map((r) => (
               <div key={r.id} className="rounded-2xl border border-border bg-card p-4 text-center">
-                <div className="text-xl">{r.badge_icon}</div>
-                <div className="text-xs font-semibold mt-1">#{r.placement}</div>
+                <div className="text-3xl">{r.badge_icon}</div>
+                <div className="text-xs font-bold mt-1">#{r.placement}</div>
                 <div className="text-[11px] text-muted-foreground mt-1">{r.badge_name}</div>
-                <div className="text-xs font-semibold mt-2 text-primary">+{r.bonus_xp} XP</div>
+                <div className="text-xs font-black mt-2 text-primary">+{r.bonus_xp} XP</div>
               </div>
             ))}
           </div>
@@ -144,7 +144,7 @@ const Championship = () => {
 
       {/* Leaderboard */}
       <section>
-        <h2 className="text-sm font-semibold uppercase tracking-normalst text-muted-foreground mb-2">Live Standings</h2>
+        <h2 className="text-sm font-bold uppercase tracking-widest text-muted-foreground mb-2">Live Standings</h2>
         {rows.length === 0 ? (
           <div className="rounded-2xl border border-dashed border-border bg-card p-8 text-center text-sm text-muted-foreground">
             Be the first to log XP this season!
@@ -166,10 +166,10 @@ const Championship = () => {
                     isMe && "bg-primary/10",
                   )}
                 >
-                  <div className={cn("w-8 text-center font-semibold tabular-nums text-lg", podium ? podiumColor : "text-muted-foreground")}>
+                  <div className={cn("w-8 text-center font-black tabular-nums text-lg", podium ? podiumColor : "text-muted-foreground")}>
                     {podium ? (i === 0 ? <Crown className="h-5 w-5 mx-auto" /> : <Medal className="h-5 w-5 mx-auto" />) : `#${i + 1}`}
                   </div>
-                  <div className="h-10 w-10 rounded-full overflow-hidden bg-muted shrink-0 flex items-center justify-center text-sm font-semibold">
+                  <div className="h-10 w-10 rounded-full overflow-hidden bg-muted shrink-0 flex items-center justify-center text-sm font-bold">
                     {r.avatar_url ? <img src={r.avatar_url} className="h-full w-full object-cover" alt="" /> : (r.display_name?.[0] ?? "?").toUpperCase()}
                   </div>
                   <div className="min-w-0 flex-1">
@@ -181,12 +181,12 @@ const Championship = () => {
                       ) : (
                         <span className="truncate">{r.display_name ?? "Anonymous"}</span>
                       )}
-                      {isMe && <span className="text-[10px] uppercase tracking-normalst text-primary">you</span>}
+                      {isMe && <span className="text-[10px] uppercase tracking-widest text-primary">you</span>}
                     </div>
                   </div>
                   <div className="text-right shrink-0">
-                    <div className="font-semibold text-lg tabular-nums">{r.xp}</div>
-                    <div className="text-[10px] uppercase tracking-normalst text-muted-foreground">XP</div>
+                    <div className="font-black text-lg tabular-nums">{r.xp}</div>
+                    <div className="text-[10px] uppercase tracking-widest text-muted-foreground">XP</div>
                   </div>
                 </motion.div>
               );
@@ -209,16 +209,16 @@ const UnclaimedRewards = ({
   if (unclaimed.length === 0) return null;
   return (
     <section>
-      <h2 className="text-sm font-semibold uppercase tracking-normalst text-muted-foreground mb-2 flex items-center gap-2">
+      <h2 className="text-sm font-bold uppercase tracking-widest text-muted-foreground mb-2 flex items-center gap-2">
         <Gift className="h-4 w-4" />
         Unclaimed Rewards
       </h2>
       <div className="space-y-2">
         {unclaimed.map((r) => (
           <div key={r.id} className="rounded-2xl border border-primary/40 bg-primary/5 p-4 flex items-center gap-3">
-            <div className="text-xl">{r.badge_earned ? "🏆" : "🎖️"}</div>
+            <div className="text-2xl">{r.badge_earned ? "🏆" : "🎖️"}</div>
             <div className="flex-1 min-w-0">
-              <div className="text-sm font-semibold">#{r.placement} • +{r.bonus_xp_awarded} XP</div>
+              <div className="text-sm font-bold">#{r.placement} • +{r.bonus_xp_awarded} XP</div>
               <div className="text-xs text-muted-foreground">{r.badge_earned ?? "Season reward"}</div>
             </div>
             <Button size="sm" onClick={() => onClaim(r.id)}>Claim</Button>

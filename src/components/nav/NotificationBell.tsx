@@ -26,7 +26,7 @@ export const NotificationBell = () => {
       >
         <Bell className="h-4 w-4" />
         {unread.length > 0 && (
-          <span className="absolute -top-1 -right-1 min-w-[18px] h-[18px] px-1 rounded-full bg-rose-500 text-white text-[10px] font-semibold flex items-center justify-center ring-2 ring-background">
+          <span className="absolute -top-1 -right-1 min-w-[18px] h-[18px] px-1 rounded-full bg-rose-500 text-white text-[10px] font-bold flex items-center justify-center ring-2 ring-background">
             {unread.length > 9 ? "9+" : unread.length}
           </span>
         )}
@@ -44,7 +44,7 @@ export const NotificationBell = () => {
               className="fixed left-3 top-16 z-50 w-[320px] max-w-[calc(100vw-1.5rem)] rounded-2xl border border-border bg-card shadow-2xl overflow-hidden"
             >
               <div className="flex items-center justify-between px-4 py-3 border-b border-border">
-                <div className="font-semibold text-sm">Notifications</div>
+                <div className="font-bold text-sm">Notifications</div>
                 <div className="flex items-center gap-1">
                   {unread.length > 0 && (
                     <button

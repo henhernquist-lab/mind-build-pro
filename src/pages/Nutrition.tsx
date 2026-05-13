@@ -72,13 +72,13 @@ const MacroRing = ({ pct, color, label, value, target, unit }: { pct: number; co
             style={{ transition: "stroke-dasharray 800ms cubic-bezier(0.22, 1, 0.36, 1)" }}
           />
         </svg>
-        <div className="absolute inset-0 flex items-center justify-center scoreboard text-[12px] font-semibold" style={{ color: status }}>
+        <div className="absolute inset-0 flex items-center justify-center scoreboard text-[12px] font-bold" style={{ color: status }}>
           {Math.round(pct)}%
         </div>
       </div>
       <div className="min-w-0">
-        <div className="text-[10px] text-muted-foreground">{label}</div>
-        <div className="text-xl tracking-normalr leading-tight" style={{ color: status }}>
+        <div className="text-[10px] font-stat text-muted-foreground">{label}</div>
+        <div className="text-2xl font-display tracking-wider leading-tight" style={{ color: status }}>
           <span className="scoreboard">{value}</span>
           <span className="text-xs font-body font-normal text-muted-foreground ml-1">/{target}{unit}</span>
         </div>
@@ -171,7 +171,7 @@ const WeekStrip = ({
               <span className="text-[10px] font-medium uppercase">
                 {d.toLocaleDateString(undefined, { weekday: "short" })}
               </span>
-              <span className="text-sm font-semibold">{d.getDate()}</span>
+              <span className="text-sm font-bold">{d.getDate()}</span>
               <div className={cn("h-1.5 w-1.5 rounded-full transition-colors", dotColor ?? "opacity-0", dotColor ?? "")} />
             </button>
           );
@@ -667,8 +667,8 @@ const Nutrition = () => {
             <Apple className="h-6 w-6" />
           </div>
           <div>
-            <p className="text-xs uppercase tracking-normalst text-muted-foreground">Nutrition</p>
-            <h1 className="text-xl font-semibold">Fuel Hub</h1>
+            <p className="text-xs uppercase tracking-widest text-muted-foreground">Nutrition</p>
+            <h1 className="text-3xl font-bold gradient-text">Fuel Hub</h1>
             {targets && (
               <p className="text-xs text-muted-foreground mt-0.5">
                 {isCustomTargets ? (
@@ -683,7 +683,7 @@ const Nutrition = () => {
         <div className="flex items-center gap-2">
           {/* Streak Counter */}
           {streak > 0 && (
-            <div className="flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-orange-500/15 text-orange-500 text-sm font-semibold border border-orange-500/30">
+            <div className="flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-orange-500/15 text-orange-500 text-sm font-bold border border-orange-500/30">
               <Flame className="h-4 w-4" />
               {streak} day streak
             </div>
@@ -788,7 +788,7 @@ const Nutrition = () => {
       {targets && (
         <div className="mb-6 rounded-2xl glass p-5 space-y-3">
           <div className="flex items-center justify-between mb-1">
-            <h3 className="text-sm font-semibold uppercase tracking-normalr text-muted-foreground">
+            <h3 className="text-sm font-semibold uppercase tracking-wider text-muted-foreground">
               {activeDate === todayISO() ? "Today's Progress" : `${isPastDay ? "Summary for" : "Progress for"} ${new Date(activeDate + "T12:00:00").toLocaleDateString(undefined, { month: "short", day: "numeric" })}`}
             </h3>
           </div>
@@ -822,7 +822,7 @@ const Nutrition = () => {
         <div className="rounded-2xl glass p-5 mb-6">
           {/* Scan Your Meal */}
           <div className="mb-5">
-            <h3 className="text-sm font-semibold uppercase tracking-normalr text-muted-foreground mb-3 flex items-center gap-2">
+            <h3 className="text-sm font-semibold uppercase tracking-wider text-muted-foreground mb-3 flex items-center gap-2">
               <Camera className="h-4 w-4" /> Scan Your Meal
             </h3>
 
@@ -917,7 +917,7 @@ const Nutrition = () => {
                     <div className="flex items-start justify-between gap-2 flex-wrap">
                       <div className="font-semibold text-base">{scanResult.meal_name}</div>
                       <span
-                        className={`text-[10px] uppercase tracking-normalr font-semibold px-2 py-1 rounded-full ${
+                        className={`text-[10px] uppercase tracking-wider font-bold px-2 py-1 rounded-full ${
                           scanResult.confidence === "high"
                             ? "bg-emerald-500/15 text-emerald-500"
                             : scanResult.confidence === "medium"
@@ -947,11 +947,11 @@ const Nutrition = () => {
 
                     <div className="grid grid-cols-2 gap-2">
                       <div>
-                        <Label className="text-[10px] uppercase tracking-normalr text-muted-foreground">Name</Label>
+                        <Label className="text-[10px] uppercase tracking-wider text-muted-foreground">Name</Label>
                         <Input value={scanResult.meal_name} onChange={(e) => setScanResult({ ...scanResult, meal_name: e.target.value })} />
                       </div>
                       <div>
-                        <Label className="text-[10px] uppercase tracking-normalr text-muted-foreground">Meal type</Label>
+                        <Label className="text-[10px] uppercase tracking-wider text-muted-foreground">Meal type</Label>
                         <Select value={scanMealType} onValueChange={(v) => setScanMealType(v as MealType)}>
                           <SelectTrigger><SelectValue /></SelectTrigger>
                           <SelectContent>
@@ -960,19 +960,19 @@ const Nutrition = () => {
                         </Select>
                       </div>
                       <div>
-                        <Label className="text-[10px] uppercase tracking-normalr text-muted-foreground">Calories</Label>
+                        <Label className="text-[10px] uppercase tracking-wider text-muted-foreground">Calories</Label>
                         <Input type="number" value={scanResult.calories} onChange={(e) => setScanResult({ ...scanResult, calories: Math.max(0, Number(e.target.value) || 0) })} />
                       </div>
                       <div>
-                        <Label className="text-[10px] uppercase tracking-normalr text-muted-foreground">Protein (g)</Label>
+                        <Label className="text-[10px] uppercase tracking-wider text-muted-foreground">Protein (g)</Label>
                         <Input type="number" value={scanResult.protein_g} onChange={(e) => setScanResult({ ...scanResult, protein_g: Math.max(0, Number(e.target.value) || 0) })} />
                       </div>
                       <div>
-                        <Label className="text-[10px] uppercase tracking-normalr text-muted-foreground">Carbs (g)</Label>
+                        <Label className="text-[10px] uppercase tracking-wider text-muted-foreground">Carbs (g)</Label>
                         <Input type="number" value={scanResult.carbs_g} onChange={(e) => setScanResult({ ...scanResult, carbs_g: Math.max(0, Number(e.target.value) || 0) })} />
                       </div>
                       <div>
-                        <Label className="text-[10px] uppercase tracking-normalr text-muted-foreground">Fat (g)</Label>
+                        <Label className="text-[10px] uppercase tracking-wider text-muted-foreground">Fat (g)</Label>
                         <Input type="number" value={scanResult.fat_g} onChange={(e) => setScanResult({ ...scanResult, fat_g: Math.max(0, Number(e.target.value) || 0) })} />
                       </div>
                     </div>
@@ -995,7 +995,7 @@ const Nutrition = () => {
             <div className="my-5 h-px bg-border/60" />
           </div>
 
-          <h3 className="text-sm font-semibold uppercase tracking-normalr text-muted-foreground mb-3 flex items-center gap-2">
+          <h3 className="text-sm font-semibold uppercase tracking-wider text-muted-foreground mb-3 flex items-center gap-2">
             <Plus className="h-4 w-4" /> Log a Meal
           </h3>
           <div className="grid md:grid-cols-[1fr_180px_auto] gap-2">
@@ -1020,7 +1020,7 @@ const Nutrition = () => {
 
       {/* Meals for selected day */}
       <div className="rounded-2xl glass p-5 mb-6">
-        <h3 className="text-sm font-semibold uppercase tracking-normalr text-muted-foreground mb-3">
+        <h3 className="text-sm font-semibold uppercase tracking-wider text-muted-foreground mb-3">
           {activeDate === todayISO() ? "Today's Meals" : `Meals on ${new Date(activeDate + "T12:00:00").toLocaleDateString(undefined, { weekday: "long", month: "short", day: "numeric" })}`}
         </h3>
         {meals.length === 0 ? (
@@ -1043,7 +1043,7 @@ const Nutrition = () => {
                     <span className="text-xl flex-shrink-0 mt-0.5">{mt?.emoji ?? "🍽️"}</span>
                     <div className="flex-1 min-w-0">
                       <div className="flex items-center gap-2 flex-wrap">
-                        <span className="text-[10px] uppercase tracking-normalr font-semibold px-2 py-0.5 rounded-full bg-muted text-muted-foreground">
+                        <span className="text-[10px] uppercase tracking-wider font-bold px-2 py-0.5 rounded-full bg-muted text-muted-foreground">
                           {mt?.label}
                         </span>
                         {m.ai_estimated && (
@@ -1078,7 +1078,7 @@ const Nutrition = () => {
       {targets && activeDate === todayISO() && (
         <div className="rounded-2xl glass p-5 mb-6">
           <div className="flex items-center justify-between mb-3 gap-2 flex-wrap">
-            <h3 className="text-sm font-semibold uppercase tracking-normalr text-muted-foreground flex items-center gap-2">
+            <h3 className="text-sm font-semibold uppercase tracking-wider text-muted-foreground flex items-center gap-2">
               <ChefHat className="h-4 w-4" /> AI Meal Suggestions
             </h3>
             <div className="flex gap-2">
@@ -1127,7 +1127,7 @@ const Nutrition = () => {
                 >
                   <div className="flex items-center justify-between">
                     <div className="font-semibold text-sm">{p.name}</div>
-                    <span className="text-[10px] uppercase tracking-normalr text-primary">{p.timing}</span>
+                    <span className="text-[10px] uppercase tracking-wider text-primary">{p.timing}</span>
                   </div>
                   <div className="text-xs text-muted-foreground mt-0.5">{p.description}</div>
                   <div className="flex gap-3 text-[11px] font-mono mt-1.5">
@@ -1152,7 +1152,7 @@ const Nutrition = () => {
       {/* Weekly Summary */}
       {targets && (
         <div className="rounded-2xl glass p-5">
-          <h3 className="text-sm font-semibold uppercase tracking-normalr text-muted-foreground mb-3 flex items-center gap-2">
+          <h3 className="text-sm font-semibold uppercase tracking-wider text-muted-foreground mb-3 flex items-center gap-2">
             <TrendingUp className="h-4 w-4" /> Weekly Nutrition Summary
           </h3>
           <div className="h-48 mb-4">
@@ -1308,8 +1308,8 @@ const Nutrition = () => {
 
 const Stat = ({ label, value }: { label: string; value: string }) => (
   <div className="rounded-lg bg-muted/40 p-2 text-center">
-    <div className="text-[10px] uppercase tracking-normalr text-muted-foreground">{label}</div>
-    <div className="font-semibold text-sm">{value}</div>
+    <div className="text-[10px] uppercase tracking-wider text-muted-foreground">{label}</div>
+    <div className="font-bold text-sm">{value}</div>
   </div>
 );
 

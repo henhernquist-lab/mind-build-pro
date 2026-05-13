@@ -75,9 +75,9 @@ export const RestTimerBanner = ({
             </div>
 
             <div>
-              <div className="text-[10px] font-semibold uppercase tracking-normalst text-muted-foreground">Rest Timer</div>
+              <div className="text-[10px] font-black uppercase tracking-widest text-muted-foreground">Rest Timer</div>
               <div className={cn(
-                "text-xl font-mono font-semibold tabular-nums",
+                "text-2xl font-mono font-black tabular-nums",
                 isEnding ? "text-red-500 animate-bounce" : "text-foreground"
               )}>
                 {formatTime(timeLeft)}

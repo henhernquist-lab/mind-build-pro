@@ -30,12 +30,12 @@ export const ProfileCompletionRing = ({ fields }: Props) => {
           />
         </svg>
         <div className="absolute inset-0 flex flex-col items-center justify-center">
-          <div className="text-xl font-semibold tabular-nums">{pct}%</div>
-          <div className="text-[9px] uppercase tracking-normalr text-muted-foreground">Complete</div>
+          <div className="text-xl font-bold tabular-nums">{pct}%</div>
+          <div className="text-[9px] uppercase tracking-wider text-muted-foreground">Complete</div>
         </div>
       </div>
       <div className="flex-1 min-w-0">
-        <div className="text-[10px] uppercase tracking-normalst text-muted-foreground">Profile Completion</div>
+        <div className="text-[10px] uppercase tracking-widest text-muted-foreground">Profile Completion</div>
         <div className="text-sm font-semibold mb-2">{filled} / {total} fields done</div>
         <div className="grid grid-cols-2 gap-x-3 gap-y-1">
           {fields.map((f) => (

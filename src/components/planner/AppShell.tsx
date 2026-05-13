@@ -141,7 +141,7 @@ export const AppShell = () => {
       {/* Top-left floating profile button */}
       <button
         onClick={() => navigate("/profile")}
-        className="fixed top-3 left-3 z-40 h-10 w-10 rounded-full border-2 border-border bg-card shadow-lg hover:border-primary transition-colors flex items-center justify-center text-xs font-semibold"
+        className="fixed top-[calc(env(safe-area-inset-top)+0.75rem)] left-3 z-40 h-10 w-10 rounded-full border-2 border-border bg-card shadow-lg hover:border-primary transition-colors flex items-center justify-center text-xs font-bold md:top-3"
         title="Open profile"
         aria-label="Open profile"
       >
@@ -154,7 +154,7 @@ export const AppShell = () => {
       </button>
 
       {/* Top-left floating notification bell */}
-      <div className="fixed top-3 left-16 z-40">
+      <div className="fixed top-[calc(env(safe-area-inset-top)+0.75rem)] left-16 z-40 md:top-3">
         <NotificationBell />
       </div>
 
@@ -169,7 +169,7 @@ export const AppShell = () => {
               <Sparkles className="h-5 w-5" style={{ color: "hsl(var(--background))" }} />
             </div>
             <div className="min-w-0">
-              <div className="text-[15px] tracking-normal leading-none">LIFESTACK</div>
+              <div className="text-[15px] font-display tracking-[0.08em] leading-none">LIFESTACK</div>
               <div className="text-[10px] text-muted-foreground truncate mt-1">{user?.email}</div>
             </div>
           </div>
@@ -195,7 +195,7 @@ export const AppShell = () => {
                 <button
                   onClick={() => toggleGroup(g.id)}
                   className={cn(
-                    "w-full flex items-center gap-2 px-2 py-1 text-[10px] uppercase tracking-normalr transition-colors",
+                    "w-full flex items-center gap-2 px-2 py-1 text-[10px] uppercase tracking-wider transition-colors",
                     isActiveGroup ? "text-foreground" : "text-muted-foreground hover:text-foreground"
                   )}
                 >
@@ -258,7 +258,7 @@ export const AppShell = () => {
               title={`Athletic: ${athleticRank.rank.name} • ${athleticRank.xp} XP`}
             >
               <div className="text-base leading-none">{athleticRank.rank.icon}</div>
-              <div className="text-[9px] uppercase tracking-normalr text-muted-foreground mt-0.5">{athleticRank.xp} XP</div>
+              <div className="text-[9px] uppercase tracking-wider text-muted-foreground mt-0.5">{athleticRank.xp} XP</div>
             </NavLink>
             <NavLink
               to="/profile"
@@ -267,7 +267,7 @@ export const AppShell = () => {
               title={`Academic: ${academicRank.rank.name} • ${academicRank.xp} XP`}
             >
               <div className="text-base leading-none">{academicRank.rank.icon}</div>
-              <div className="text-[9px] uppercase tracking-normalr text-muted-foreground mt-0.5">{academicRank.xp} XP</div>
+              <div className="text-[9px] uppercase tracking-wider text-muted-foreground mt-0.5">{academicRank.xp} XP</div>
             </NavLink>
           </div>
           <Button variant="ghost" size="sm" onClick={signOut} className="w-full justify-start">
@@ -278,7 +278,7 @@ export const AppShell = () => {
       </aside>
 
       {/* Mobile bottom nav — frosted glass with sliding pill + haptic */}
-      <div className="md:hidden fixed bottom-0 inset-x-0 z-40 mobile-nav-glass flex">
+      <div className="md:hidden fixed bottom-0 inset-x-0 z-40 mobile-nav-glass flex pb-[env(safe-area-inset-bottom)]">
         {MOBILE_NAV.map((item) => (
           <NavLink
             key={item.to}
@@ -291,7 +291,7 @@ export const AppShell = () => {
             }}
             className={({ isActive }) =>
               cn(
-                "relative flex-1 py-2.5 flex flex-col items-center gap-0.5 text-[10px] transition-colors duration-300",
+                "relative flex-1 py-2.5 flex flex-col items-center gap-0.5 text-[10px] font-stat transition-colors duration-300",
                 isActive ? "text-foreground" : "text-muted-foreground"
               )
             }
@@ -320,7 +320,7 @@ export const AppShell = () => {
                 />
                 <span
                   className={cn(
-                    "tracking-tight transition-all duration-300",
+                    "tracking-wider transition-all duration-300",
                     isActive ? "opacity-100 translate-y-0" : "opacity-70 translate-y-[1px]"
                   )}
                 >
@@ -332,18 +332,10 @@ export const AppShell = () => {
         ))}
       </div>
 
-      <main className="flex-1 min-w-0 pb-20 md:pb-0">
-        <div className="fixed top-3 right-3 z-40 flex gap-2 items-center">
+      <main className="flex-1 min-w-0 pt-[calc(env(safe-area-inset-top)+3.75rem)] pb-[calc(env(safe-area-inset-bottom)+5.25rem)] md:pt-0 md:pb-0">
+        <div className="fixed top-[calc(env(safe-area-inset-top)+0.75rem)] right-3 z-40 flex gap-2 items-center md:top-3">
           <ThemeSwitcher />
           <FocusToggle />
-          <button
-            onClick={signOut}
-            className="md:hidden h-9 w-9 rounded-full bg-card border border-border flex items-center justify-center text-xs font-semibold"
-            aria-label="Sign out"
-            title={displayName}
-          >
-            {avatarUrl ? <img src={avatarUrl} alt="" className="h-9 w-9 rounded-full" /> : initials}
-          </button>
         </div>
         <Breadcrumbs />
         <SwipeNav>

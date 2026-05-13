@@ -146,7 +146,7 @@ export const ExercisePicker = ({ onSelect, onCancel }: { onSelect: (e: Exercise)
     <div className="flex flex-col h-full bg-background border rounded-t-3xl overflow-hidden animate-in slide-in-from-bottom duration-300">
       <div className="p-4 border-b space-y-3">
         <div className="flex items-center justify-between">
-          <h2 className="text-xl font-semibold">Add Exercise</h2>
+          <h2 className="text-xl font-bold">Add Exercise</h2>
           <Button variant="ghost" size="icon" onClick={onCancel}><X className="h-5 w-5" /></Button>
         </div>
         <div className="relative">

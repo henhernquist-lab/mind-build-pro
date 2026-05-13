@@ -347,7 +347,7 @@ export const WaterTracker = ({
 
       {/* Main display */}
       <div className="flex items-center gap-4">
-        <div className="text-xl font-semibold tabular-nums text-blue-400">
+        <div className="text-3xl font-bold tabular-nums text-blue-400">
           {(totalMl / 1000).toFixed(1)}L
         </div>
         <div className="text-sm text-muted-foreground">/ {(goalMl / 1000).toFixed(1)}L</div>
@@ -440,7 +440,7 @@ export const WaterTracker = ({
                 <img src={scanImage} alt="Drink preview" className="w-full object-contain max-h-48" />
                 {scanState === "analyzing" && (
                   <div className="absolute inset-0 bg-blue-500/20 backdrop-blur-sm flex flex-col items-center justify-center gap-2">
-                    <div className="text-xl animate-bounce">💧</div>
+                    <div className="text-2xl animate-bounce">💧</div>
                     <p className="text-sm font-medium text-blue-300">Analyzing your drink…</p>
                   </div>
                 )}
@@ -462,7 +462,7 @@ export const WaterTracker = ({
               <div className="flex items-start justify-between gap-2">
                 <div>
                   <p className="text-xs text-muted-foreground">{scanResult.container_type}</p>
-                  <p className="text-xl font-semibold text-blue-400">{scanResult.estimated_amount_ml}ml</p>
+                  <p className="text-2xl font-bold text-blue-400">{scanResult.estimated_amount_ml}ml</p>
                 </div>
                 <div className="flex gap-1.5 flex-wrap justify-end">
                   <span className={cn("text-[10px] border rounded-full px-2 py-0.5", DRINK_LABELS[sliderDrinkType]?.color)}>
@@ -493,7 +493,7 @@ export const WaterTracker = ({
               <div className="space-y-1.5">
                 <div className="flex items-center justify-between">
                   <p className="text-xs text-muted-foreground">Adjust amount</p>
-                  <span className="text-sm font-semibold text-blue-400">{sliderAmount}ml</span>
+                  <span className="text-sm font-bold text-blue-400">{sliderAmount}ml</span>
                 </div>
                 <input
                   type="range"

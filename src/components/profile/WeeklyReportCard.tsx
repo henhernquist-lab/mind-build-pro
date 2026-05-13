@@ -48,7 +48,7 @@ export const WeeklyReportCard = () => {
     <Card className="p-5 glass space-y-4">
       <div className="flex items-center justify-between gap-3">
         <div>
-          <h3 className="text-lg font-semibold flex items-center gap-2">
+          <h3 className="text-lg font-bold flex items-center gap-2">
             <FileText className="h-5 w-5 text-primary" />
             Biweekly Report Card
           </h3>
@@ -63,7 +63,7 @@ export const WeeklyReportCard = () => {
         <div className="space-y-4 animate-fade-in">
           <div className="flex items-start gap-4 p-4 rounded-xl bg-gradient-to-br from-card to-muted/40 border border-border">
             <div
-              className="h-20 w-20 rounded-2xl flex items-center justify-center text-xl font-semibold flex-shrink-0"
+              className="h-20 w-20 rounded-2xl flex items-center justify-center text-4xl font-black flex-shrink-0"
               style={{
                 background: `${gradeColor(report.grade)}20`,
                 border: `2px solid ${gradeColor(report.grade)}`,
@@ -73,7 +73,7 @@ export const WeeklyReportCard = () => {
               {report.grade}
             </div>
             <div className="flex-1 min-w-0">
-              <div className="text-lg font-semibold leading-tight">{report.headline}</div>
+              <div className="text-lg font-black gradient-text leading-tight">{report.headline}</div>
               {stats && (
                 <div className="text-xs text-muted-foreground mt-2 flex flex-wrap gap-3">
                   <span>🔥 {stats.streak}d streak</span>
@@ -87,11 +87,11 @@ export const WeeklyReportCard = () => {
 
           <div className="grid md:grid-cols-2 gap-3">
             <div className="p-3 rounded-lg bg-card/60 border border-border">
-              <div className="text-xs uppercase tracking-normalr text-muted-foreground mb-1">💪 Athletic</div>
+              <div className="text-xs uppercase tracking-wider text-muted-foreground mb-1">💪 Athletic</div>
               <div className="text-sm">{report.athletic_summary}</div>
             </div>
             <div className="p-3 rounded-lg bg-card/60 border border-border">
-              <div className="text-xs uppercase tracking-normalr text-muted-foreground mb-1">🎓 Academic</div>
+              <div className="text-xs uppercase tracking-wider text-muted-foreground mb-1">🎓 Academic</div>
               <div className="text-sm">{report.academic_summary}</div>
             </div>
           </div>
@@ -104,7 +104,7 @@ export const WeeklyReportCard = () => {
         </div>
       ) : (
         <div className="text-center py-8 text-muted-foreground text-sm">
-          Click <span className="font-semibold text-foreground">Generate</span> to see your AI report card.
+          Click <span className="font-bold text-foreground">Generate</span> to see your AI report card.
         </div>
       )}
     </Card>
@@ -115,7 +115,7 @@ const Section = ({ icon: Icon, title, items, color }: { icon: any; title: string
   <div className="p-3 rounded-lg bg-card/40 border border-border">
     <div className="flex items-center gap-1.5 mb-2">
       <Icon className="h-3.5 w-3.5" style={{ color }} />
-      <span className="text-xs uppercase tracking-normalr font-semibold" style={{ color }}>{title}</span>
+      <span className="text-xs uppercase tracking-wider font-bold" style={{ color }}>{title}</span>
     </div>
     <ul className="space-y-1.5 text-sm">
       {items?.map((it, i) => (

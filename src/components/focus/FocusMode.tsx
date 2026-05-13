@@ -121,7 +121,7 @@ export const FocusMode = ({ open, onClose }: { open: boolean; onClose: () => voi
             {mode === "focus" ? <Brain className="h-4 w-4" style={{ color: accent }} /> : <Coffee className="h-4 w-4" style={{ color: accent }} />}
           </div>
           <div>
-            <div className="text-sm font-semibold uppercase tracking-normalr">{mode === "focus" ? "Focus Session" : "Break"}</div>
+            <div className="text-sm font-bold uppercase tracking-wider">{mode === "focus" ? "Focus Session" : "Break"}</div>
             <div className="text-xs text-muted-foreground">{completed} session{completed === 1 ? "" : "s"} done today</div>
           </div>
         </div>
@@ -136,8 +136,8 @@ export const FocusMode = ({ open, onClose }: { open: boolean; onClose: () => voi
           className="rounded-2xl border-2 px-5 py-3 shadow-2xl text-right"
           style={{ borderColor: accent, background: "hsl(var(--card))" }}
         >
-          <div className="text-[10px] uppercase tracking-normalst text-muted-foreground">{mode === "focus" ? "Focus" : "Break"}</div>
-          <div className="text-xl font-semibold font-mono tabular-nums" style={{ color: accent }}>
+          <div className="text-[10px] uppercase tracking-widest text-muted-foreground">{mode === "focus" ? "Focus" : "Break"}</div>
+          <div className="text-3xl font-black font-mono tabular-nums" style={{ color: accent }}>
             {mins}:{secs}
           </div>
         </div>
@@ -148,7 +148,7 @@ export const FocusMode = ({ open, onClose }: { open: boolean; onClose: () => voi
         <div className="w-full max-w-2xl space-y-6 mt-4">
           {/* Big timer */}
           <div className="text-center space-y-3">
-            <div className="text-6xl md:text-6xl font-semibold font-mono tabular-nums">
+            <div className="text-7xl md:text-8xl font-black font-mono tabular-nums gradient-text">
               {mins}:{secs}
             </div>
             <div className="h-2 w-full bg-muted/40 rounded-full overflow-hidden">
@@ -170,7 +170,7 @@ export const FocusMode = ({ open, onClose }: { open: boolean; onClose: () => voi
           {/* Scratchpad */}
           <div className="space-y-2">
             <div className="flex items-center justify-between">
-              <label className="text-xs uppercase tracking-normalr text-muted-foreground">Scratchpad</label>
+              <label className="text-xs uppercase tracking-wider text-muted-foreground">Scratchpad</label>
               <Button size="sm" variant="ghost" onClick={saveAsNote}>
                 <Save className="h-3 w-3 mr-1" /> Save to Notes
               </Button>

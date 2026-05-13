@@ -121,7 +121,7 @@ export const OnboardingFlow = () => {
           </div>
 
           <div className="text-center">
-            <h2 className="text-xl font-semibold">{s.title}</h2>
+            <h2 className="text-2xl font-black gradient-text">{s.title}</h2>
             <p className="text-sm text-muted-foreground mt-2 leading-relaxed">{s.desc}</p>
           </div>
 

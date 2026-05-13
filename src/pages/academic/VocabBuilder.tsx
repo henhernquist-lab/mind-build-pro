@@ -163,7 +163,7 @@ export default function VocabBuilder() {
     <div className="max-w-4xl mx-auto p-4 md:p-6 space-y-6">
       <header className="flex items-center justify-between flex-wrap gap-2">
         <div>
-          <h1 className="text-xl font-semibold flex items-center gap-2">
+          <h1 className="text-3xl font-black flex items-center gap-2">
             <BookText className="h-7 w-7 text-primary" /> Vocab Builder
           </h1>
           <p className="text-sm text-muted-foreground mt-1">
@@ -195,7 +195,7 @@ export default function VocabBuilder() {
       {!showing ? (
         <Card className="p-8 text-center glass">
           <Brain className="h-12 w-12 mx-auto text-primary mb-3" />
-          <div className="text-xl font-semibold">{due.length} cards due</div>
+          <div className="text-2xl font-bold gradient-text">{due.length} cards due</div>
           <p className="text-sm text-muted-foreground mt-2 mb-4">
             Each correct answer earns +2 academic XP. Easy = +4 XP.
           </p>
@@ -206,10 +206,10 @@ export default function VocabBuilder() {
       ) : current ? (
         <Card className="p-8 glass-strong">
           <div className="text-center space-y-4">
-            <div className="text-xs uppercase tracking-normalr text-muted-foreground">
+            <div className="text-xs uppercase tracking-wider text-muted-foreground">
               Card {due.length} due • Reps: {current.reps} • Ease: {current.ease.toFixed(2)}
             </div>
-            <div className="text-xl md:text-xl font-semibold py-6">{current.word}</div>
+            <div className="text-4xl md:text-5xl font-black gradient-text py-6">{current.word}</div>
             {revealed ? (
               <div className="space-y-3 text-left max-w-xl mx-auto">
                 <div className="p-4 rounded-lg bg-muted/40">
