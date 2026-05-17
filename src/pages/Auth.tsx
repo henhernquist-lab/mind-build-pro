@@ -121,7 +121,7 @@ const Auth = () => {
                   <Button
                     type="button"
                     variant="outline"
-                    className="w-full mb-4"
+                    className="w-full mb-4 max-[700px]:mb-3 max-[700px]:h-10"
                     onClick={google}
                     disabled={loading}
                   >
@@ -133,13 +133,10 @@ const Auth = () => {
                     </svg>
                     Continue with Google
                   </Button>
-                  <div className="relative my-4 max-[700px]:my-3">
-                    <div className="absolute inset-0 flex items-center">
-                      <div className="w-full border-t border-border" />
-                    </div>
-                    <div className="relative flex justify-center text-xs">
-                      <span className="bg-card px-2 text-muted-foreground">or</span>
-                    </div>
+                  <div className="my-4 max-[700px]:my-3 flex items-center gap-3 text-xs text-muted-foreground">
+                    <div className="h-px flex-1 bg-border" />
+                    <span className="shrink-0 leading-none">or</span>
+                    <div className="h-px flex-1 bg-border" />
                   </div>
                 </>
               )}
