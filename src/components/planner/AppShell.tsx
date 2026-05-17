@@ -154,7 +154,7 @@ export const AppShell = () => {
       </button>
 
       {/* Top-left floating notification bell */}
-      <div className="fixed top-[calc(env(safe-area-inset-top)+0.75rem)] left-16 z-40 md:top-3">
+      <div className="fixed top-[calc(env(safe-area-inset-top)+0.75rem)] left-16 z-40 md:hidden">
         <NotificationBell />
       </div>
 
@@ -332,8 +332,11 @@ export const AppShell = () => {
         ))}
       </div>
 
-      <main className="flex-1 min-w-0 pt-[calc(env(safe-area-inset-top)+3.75rem)] pb-[calc(env(safe-area-inset-bottom)+5.25rem)] md:pt-0 md:pb-0">
+      <main className="flex-1 min-w-0 pt-[calc(env(safe-area-inset-top)+3.75rem)] pb-[calc(env(safe-area-inset-bottom)+5.25rem)] md:pt-16 md:pb-0">
         <div className="fixed top-[calc(env(safe-area-inset-top)+0.75rem)] right-3 z-40 flex gap-2 items-center md:top-3">
+          <div className="hidden md:block">
+            <NotificationBell />
+          </div>
           <ThemeSwitcher />
           <FocusToggle />
         </div>
