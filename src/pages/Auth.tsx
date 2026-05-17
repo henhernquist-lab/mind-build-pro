@@ -78,7 +78,7 @@ const Auth = () => {
   };
 
   return (
-    <div className="min-h-screen w-full bg-background text-foreground flex items-center justify-center p-4 relative overflow-hidden">
+    <div className="min-h-svh w-full bg-background text-foreground flex items-center justify-center p-4 py-6 max-[700px]:items-start max-[700px]:py-3 relative overflow-x-hidden overflow-y-auto">
       {/* Ambient background */}
       <div className="absolute inset-0 pointer-events-none">
         <div className="absolute top-0 left-1/4 h-96 w-96 rounded-full opacity-20 blur-3xl"
@@ -91,17 +91,17 @@ const Auth = () => {
         initial={{ opacity: 0, y: 12 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.4 }}
-        className="relative w-full max-w-md"
+        className="relative w-full max-w-md max-[700px]:max-w-sm"
       >
-        <div className="text-center mb-6">
-          <div className="inline-flex h-14 w-14 rounded-2xl items-center justify-center bg-gradient-to-br from-[hsl(var(--cyan))] to-[hsl(var(--neon))] mb-3 shadow-[0_0_28px_hsl(var(--cyan)/0.55)]">
-            <Sparkles className="h-7 w-7" style={{ color: "hsl(var(--background))" }} />
+        <div className="text-center mb-6 max-[700px]:mb-3">
+          <div className="inline-flex h-14 w-14 max-[700px]:h-12 max-[700px]:w-12 rounded-2xl items-center justify-center bg-gradient-to-br from-[hsl(var(--cyan))] to-[hsl(var(--neon))] mb-3 max-[700px]:mb-2 shadow-[0_0_28px_hsl(var(--cyan)/0.55)]">
+            <Sparkles className="h-7 w-7 max-[700px]:h-6 max-[700px]:w-6" style={{ color: "hsl(var(--background))" }} />
           </div>
-          <h1 className="text-4xl md:text-5xl font-display tracking-[0.08em] shimmer-text">LIFESTACK</h1>
-          <p className="text-xs font-stat tracking-[0.2em] text-muted-foreground mt-2">STACK THE DAYS · WIN THE YEAR</p>
+          <h1 className="text-4xl max-[700px]:text-3xl md:text-5xl font-display tracking-[0.08em] shimmer-text">LIFESTACK</h1>
+          <p className="text-xs max-[700px]:text-[10px] font-stat tracking-[0.2em] text-muted-foreground mt-2 max-[700px]:mt-1">STACK THE DAYS · WIN THE YEAR</p>
         </div>
 
-        <div data-lifestack-auth className="rounded-2xl p-6 shadow-2xl">
+        <div data-lifestack-auth className="rounded-2xl p-6 max-[700px]:p-4 shadow-2xl">
           <AnimatePresence mode="wait">
             <motion.div
               key={mode}
@@ -110,7 +110,7 @@ const Auth = () => {
               exit={{ opacity: 0, x: -8 }}
               transition={{ duration: 0.18 }}
             >
-              <h2 className="text-xl font-semibold mb-4">
+              <h2 className="text-xl max-[700px]:text-lg font-semibold mb-4 max-[700px]:mb-3">
                 {mode === "login" && "Welcome back"}
                 {mode === "signup" && "Create account"}
                 {mode === "forgot" && "Reset password"}
