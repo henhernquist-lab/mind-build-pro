@@ -107,7 +107,7 @@ export const SwipeNav = ({ children }: { children: React.ReactNode }) => {
 
       {/* Mobile dot indicators */}
       {isMobile && (
-        <div className="fixed bottom-16 left-1/2 -translate-x-1/2 z-40 flex gap-2 bg-card/80 backdrop-blur rounded-full px-3 py-1.5 border border-border">
+        <div className="fixed bottom-[calc(env(safe-area-inset-bottom)+4.5rem)] left-1/2 -translate-x-1/2 z-30 flex gap-2 bg-card/80 backdrop-blur rounded-full px-3 py-1.5 border border-border pointer-events-auto">
           {SECTIONS.map((s, i) => (
             <button
               key={s.to}
