@@ -217,28 +217,28 @@ export const ActiveSession = ({
     <div className="min-h-screen pb-32 bg-background">
       {showRestTimer && <RestTimerBanner duration={restTimerDuration} onClose={() => setShowRestTimer(false)} />}
 
-      <div className="sticky top-0 z-30 bg-background/95 backdrop-blur-md border-b p-4 shadow-xl">
-        <div className="flex items-center justify-between mb-4">
+      <div className="sticky top-[calc(env(safe-area-inset-top)+3.75rem)] md:top-16 z-30 bg-background/95 backdrop-blur-md border-b p-4 shadow-xl">
+        <div className="flex items-center justify-between gap-3 mb-4">
           <Input
             value={name}
             onChange={e => setName(e.target.value)}
-            className="text-2xl font-black bg-transparent border-none p-0 h-auto focus-visible:ring-0 w-2/3 uppercase italic tracking-tighter"
+            className="text-xl sm:text-2xl font-black bg-transparent border-none p-0 h-auto focus-visible:ring-0 min-w-0 flex-1 uppercase italic tracking-tighter"
           />
           <Button
             onClick={() => onFinish({ name, exercises, duration: seconds, isRecovery })}
-            className="bg-red-600 hover:bg-red-700 text-white font-black px-6 rounded-xl animate-pulse shadow-lg shadow-red-600/20"
+            className="shrink-0 bg-red-600 hover:bg-red-700 text-white font-black px-4 sm:px-6 rounded-xl animate-pulse shadow-lg shadow-red-600/20"
           >
             FINISH
           </Button>
         </div>
-        <div className="flex items-center gap-8">
+        <div className="grid grid-cols-2 gap-3 sm:flex sm:items-center sm:gap-8">
           <div>
             <div className="text-[10px] uppercase tracking-widest text-muted-foreground font-black">Session Timer</div>
-            <div className="text-3xl font-mono font-black tabular-nums">{formatTime(seconds)}</div>
+            <div className="text-2xl sm:text-3xl font-mono font-black tabular-nums">{formatTime(seconds)}</div>
           </div>
-          <div>
+          <div className="min-w-0">
             <div className="text-[10px] uppercase tracking-widest text-muted-foreground font-black">Total Volume</div>
-            <div className="text-3xl font-mono font-black text-[#00E5FF] tabular-nums">{totalVolume.toLocaleString()} <span className="text-sm font-bold">lbs</span></div>
+            <div className="text-2xl sm:text-3xl font-mono font-black text-[#00E5FF] tabular-nums truncate">{totalVolume.toLocaleString()} <span className="text-sm font-bold">lbs</span></div>
           </div>
         </div>
       </div>
