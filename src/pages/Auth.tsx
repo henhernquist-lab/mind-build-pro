@@ -133,7 +133,7 @@ const Auth = () => {
                     </svg>
                     Continue with Google
                   </Button>
-                  <div className="relative my-4">
+                  <div className="relative my-4 max-[700px]:my-3">
                     <div className="absolute inset-0 flex items-center">
                       <div className="w-full border-t border-border" />
                     </div>
@@ -144,7 +144,7 @@ const Auth = () => {
                 </>
               )}
 
-              <form onSubmit={submit} className="space-y-3">
+              <form onSubmit={submit} className="space-y-3 max-[700px]:space-y-2.5">
                 {mode === "signup" && (
                   <div>
                     <Label className="text-xs">Display name</Label>
@@ -165,7 +165,7 @@ const Auth = () => {
                       value={email}
                       onChange={(e) => setEmail(e.target.value)}
                       placeholder="you@email.com"
-                      className="pl-9"
+                      className="pl-9 max-[700px]:h-10"
                     />
                   </div>
                 </div>
@@ -192,12 +192,12 @@ const Auth = () => {
                         onChange={(e) => setPassword(e.target.value)}
                         placeholder="••••••••"
                         minLength={6}
-                        className="pl-9"
+                        className="pl-9 max-[700px]:h-10"
                       />
                     </div>
                   </div>
                 )}
-                <Button type="submit" className="w-full btn-primary-glow press" disabled={loading} data-testid="auth-submit">
+                <Button type="submit" className="w-full btn-primary-glow press max-[700px]:h-11" disabled={loading} data-testid="auth-submit">
                   {loading ? (
                     <Loader2 className="h-4 w-4 animate-spin" />
                   ) : (
@@ -211,7 +211,7 @@ const Auth = () => {
                 </Button>
               </form>
 
-              <div className="mt-4 text-center text-xs text-muted-foreground">
+              <div className="mt-4 max-[700px]:mt-3 text-center text-xs text-muted-foreground">
                 {mode === "login" && (
                   <>
                     No account?{" "}
