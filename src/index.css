@@ -35,17 +35,17 @@
     --secondary: 210 30% 10%;
     --secondary-foreground: 214 32% 91%;
 
-    --muted: 210 25% 12%;
+    --muted: 213 42% 9%;             /* #0D1520 */
     --muted-foreground: 215 16% 47%;   /* #64748B */
 
-    --accent: 152 100% 50%;            /* #00FF87 neon green */
+    --accent: 186 100% 50%;            /* #00E5FF cyan */
     --accent-foreground: 210 33% 5%;
 
     --destructive: 0 100% 65%;         /* #FF4D4D */
     --destructive-foreground: 210 33% 5%;
 
-    --border: 210 25% 14%;             /* base border */
-    --input: 210 25% 10%;
+    --border: 210 20% 16%;             /* faint white border equivalent */
+    --input: 213 42% 9%;
     --ring: 186 100% 50%;
 
     --radius: 1rem;                    /* 16px */
@@ -53,26 +53,26 @@
     /* Domain accents (planner / training / academic / free) */
     --school: 186 100% 50%;            /* cyan */
     --sports: 25 95% 55%;              /* warm orange — preserved for sports semantic */
-    --coding: 152 100% 50%;            /* neon green */
+    --coding: 186 100% 50%;            /* cyan */
     --free:   210 15% 35%;             /* dim slate */
 
     /* LifeStack signature accents */
     --gold:    43 96% 56%;             /* #FBBF24 */
     --pr-red:  0 100% 65%;             /* #FF4D4D */
-    --neon:    152 100% 50%;
+    --neon:    186 100% 50%;
     --cyan:    186 100% 50%;
 
     /* Sidebar */
-    --sidebar-background: 210 35% 4%;
-    --sidebar-foreground: 215 16% 65%;
+    --sidebar-background: 210 33% 5%;
+    --sidebar-foreground: 214 32% 91%;
     --sidebar-primary: 186 100% 50%;
     --sidebar-primary-foreground: 210 33% 5%;
-    --sidebar-accent: 186 80% 12%;
+    --sidebar-accent: 186 100% 50%;
     --sidebar-accent-foreground: 186 100% 70%;
-    --sidebar-border: 210 25% 12%;
+    --sidebar-border: 210 20% 16%;
     --sidebar-ring: 186 100% 50%;
 
-    --gradient-hero: linear-gradient(135deg, hsl(186 100% 50% / 0.18), hsl(152 100% 50% / 0.10));
+    --gradient-hero: linear-gradient(135deg, hsl(186 100% 50% / 0.18), hsl(186 100% 50% / 0.10));
     --shadow-glow: 0 0 40px -10px hsl(186 100% 50% / 0.55);
 
     --font-display: 'Bebas Neue', 'Barlow Condensed', system-ui, sans-serif;
