@@ -61,8 +61,8 @@ confidence must be one of: high, medium, low`;
         "anthropic-version": "2023-06-01",
       },
       body: JSON.stringify({
-        model: "claude-3-5-haiku-20241022",
-        max_tokens: 512,
+        model: "claude-3-opus-20240229",
+        max_tokens: 1024,
         messages: [
           {
             role: "user",

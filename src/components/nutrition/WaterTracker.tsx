@@ -228,7 +228,8 @@ export const WaterTracker = ({
       setSliderDrinkType((result.drink_type as DrinkType) in DRINK_LABELS ? result.drink_type as DrinkType : "other");
       setScanState("result");
     } catch (e: any) {
-      toast({ title: "Scan failed", description: e.message });
+      console.error('Water scan error:', e);
+      toast({ title: "Scan failed", description: `Analysis failed: ${e.message}` });
       setScanState("preview");
     }
   };
