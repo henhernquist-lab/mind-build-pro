@@ -81,10 +81,8 @@ const Auth = () => {
     <div className="min-h-svh w-full bg-background text-foreground flex items-center justify-center p-4 py-6 max-[700px]:items-start max-[700px]:py-3 relative overflow-x-hidden overflow-y-auto">
       {/* Ambient background */}
       <div className="absolute inset-0 pointer-events-none overflow-hidden">
-        <div className="absolute -top-32 left-1/4 h-80 w-80 rounded-full opacity-10 blur-3xl max-[700px]:hidden"
+        <div className="absolute -top-40 left-1/2 h-72 w-72 -translate-x-1/2 rounded-full opacity-[0.07] blur-3xl max-[700px]:hidden"
              style={{ background: "hsl(var(--primary))" }} />
-        <div className="absolute -bottom-36 right-1/4 h-80 w-80 rounded-full opacity-8 blur-3xl max-[700px]:hidden"
-             style={{ background: "hsl(var(--coding))" }} />
       </div>
 
       <motion.div
