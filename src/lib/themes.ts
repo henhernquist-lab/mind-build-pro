@@ -25,9 +25,9 @@ export const THEMES: Theme[] = [
   },
   {
     id: "forest",
-    name: "Forest Focus",
-    vibe: "Calm nature",
-    swatches: ["#080C10", "#0D1520", "#4ADE80"],
+    name: "Deep Focus",
+    vibe: "Blue-black focus",
+    swatches: ["#080C10", "#0D1520", "#00E5FF"],
   },
   {
     id: "solar",
@@ -74,23 +74,20 @@ const STYLE_ID = "lov-accent-override";
 const applyAccentHue = (hue: number | null) => {
   if (typeof document === "undefined") return;
   let tag = document.getElementById(STYLE_ID) as HTMLStyleElement | null;
-  if (hue == null) {
-    tag?.remove();
-    return;
-  }
   if (!tag) {
     tag = document.createElement("style");
     tag.id = STYLE_ID;
     document.head.appendChild(tag);
   }
-  // Override key tokens with the chosen hue. Saturation/lightness
-  // are tuned to read well across all 5 themes.
+  // Keep LifeStack on the approved cyan accent so stale saved hues cannot tint the app green.
   tag.textContent = `:root, [data-theme] {
-    --primary: ${hue} 85% 60% !important;
-    --ring: ${hue} 85% 60% !important;
-    --sidebar-primary: ${hue} 85% 60% !important;
-    --sidebar-ring: ${hue} 85% 60% !important;
-    --accent: ${hue} 70% 50% !important;
+    --primary: 186 100% 50% !important;
+    --ring: 186 100% 50% !important;
+    --sidebar-primary: 186 100% 50% !important;
+    --sidebar-ring: 186 100% 50% !important;
+    --accent: 186 100% 50% !important;
+    --neon: 186 100% 50% !important;
+    --cyan: 186 100% 50% !important;
   }`;
 };
 
