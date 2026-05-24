@@ -15,7 +15,7 @@ export const THEMES: Theme[] = [
     id: "midnight",
     name: "Midnight Pro",
     vibe: "Sleek dark tech",
-    swatches: ["#0A0F1C", "#3B82F6", "#22C55E"],
+    swatches: ["#080C10", "#0D1520", "#00E5FF"],
   },
   {
     id: "neon",
@@ -27,7 +27,7 @@ export const THEMES: Theme[] = [
     id: "forest",
     name: "Forest Focus",
     vibe: "Calm nature",
-    swatches: ["#0F1A0F", "#4ADE80", "#86EFAC"],
+    swatches: ["#080C10", "#0D1520", "#4ADE80"],
   },
   {
     id: "solar",
