@@ -891,7 +891,7 @@
 @layer components {
   /* Auth/login page card upgrade */
   [data-lifestack-auth] {
-    background: rgba(255,255,255,0.03);
+    background: rgba(13,21,32,0.72);
     backdrop-filter: blur(20px) saturate(140%);
     -webkit-backdrop-filter: blur(20px) saturate(140%);
     border: 1px solid rgba(255,255,255,0.06) !important;
