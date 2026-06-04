@@ -259,6 +259,14 @@
 @layer base {
   * { @apply border-border; }
 
+  #root {
+    width: 100%;
+    min-height: 100svh;
+    margin: 0;
+    padding: 0;
+    text-align: initial;
+  }
+
   html, body {
     background-color: hsl(var(--background));
     color: hsl(var(--foreground));
@@ -286,43 +294,11 @@
   /* Text input caret */
   input, textarea { caret-color: hsl(var(--primary)); }
 
-  /* Ambient breathing background — visible only on dark themes */
+  /* Keep the app background flat and exact — no tinted ambient wash. */
   body::before,
   body::after {
     content: "";
-    position: fixed;
-    z-index: -1;
-    pointer-events: none;
-    width: 44vmax;
-    height: 44vmax;
-    border-radius: 50%;
-    filter: blur(140px);
-    opacity: 0.08;
-    will-change: transform, opacity;
-  }
-  body::before {
-    top: -24vmax; left: -22vmax;
-    background: radial-gradient(closest-side, hsl(var(--cyan) / 0.28), transparent 72%);
-    animation: breathe 14s ease-in-out infinite;
-  }
-  body::after {
-    bottom: -24vmax; right: -22vmax;
-    background: radial-gradient(closest-side, hsl(var(--cyan) / 0.22), transparent 72%);
-    animation: breathe 16s ease-in-out infinite reverse;
-  }
-  [data-theme="arctic"] body::before,
-  [data-theme="arctic"] body::after { opacity: 0.10; }
-
-  @keyframes breathe {
-    0%, 100% { transform: scale(1) translate(0, 0); opacity: 0.06; }
-    50%      { transform: scale(1.08) translate(1vmax, 1vmax); opacity: 0.10; }
-  }
-
-  @media (max-width: 767px) {
-    body::before,
-    body::after {
-      display: none;
-    }
+    display: none;
   }
 }
 
