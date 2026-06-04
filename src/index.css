@@ -75,8 +75,8 @@
     --gradient-hero: linear-gradient(135deg, hsl(186 100% 50% / 0.12), hsl(215 42% 9% / 0.85));
     --shadow-glow: 0 0 40px -10px hsl(186 100% 50% / 0.55);
 
-    --font-display: 'Bebas Neue', 'Barlow Condensed', system-ui, sans-serif;
-    --font-stat:    'Barlow Condensed', system-ui, sans-serif;
+    --font-display: 'Barlow', system-ui, sans-serif;
+    --font-stat:    'Barlow', system-ui, sans-serif;
     --font-body:    'Barlow', system-ui, sans-serif;
     --font-mono:    'JetBrains Mono', ui-monospace, monospace;
   }
@@ -121,8 +121,8 @@
     --sidebar-accent-foreground: 180 100% 70%;
     --sidebar-border: 300 50% 18%;
     --sidebar-ring: 300 100% 50%;
-    --font-display: 'Bebas Neue', system-ui, sans-serif;
-    --font-stat:    'Barlow Condensed', system-ui, sans-serif;
+    --font-display: 'Barlow', system-ui, sans-serif;
+    --font-stat:    'Barlow', system-ui, sans-serif;
     --font-body:    'Barlow', system-ui, sans-serif;
     --font-mono:    'JetBrains Mono', ui-monospace, monospace;
   }
@@ -163,8 +163,8 @@
     --sidebar-accent-foreground: 214 32% 91%;
     --sidebar-border: 210 20% 16%;
     --sidebar-ring: 186 100% 50%;
-    --font-display: 'Bebas Neue', system-ui, sans-serif;
-    --font-stat:    'Barlow Condensed', system-ui, sans-serif;
+    --font-display: 'Barlow', system-ui, sans-serif;
+    --font-stat:    'Barlow', system-ui, sans-serif;
     --font-body:    'Barlow', system-ui, sans-serif;
     --font-mono:    'JetBrains Mono', ui-monospace, monospace;
     --radius: 1rem;
@@ -206,8 +206,8 @@
     --sidebar-accent-foreground: 45 95% 70%;
     --sidebar-border: 20 50% 14%;
     --sidebar-ring: 21 95% 55%;
-    --font-display: 'Bebas Neue', system-ui, sans-serif;
-    --font-stat:    'Barlow Condensed', system-ui, sans-serif;
+    --font-display: 'Barlow', system-ui, sans-serif;
+    --font-stat:    'Barlow', system-ui, sans-serif;
     --font-body:    'Barlow', system-ui, sans-serif;
     --font-mono:    'JetBrains Mono', ui-monospace, monospace;
   }
@@ -248,8 +248,8 @@
     --sidebar-accent-foreground: 220 30% 15%;
     --sidebar-border: 210 25% 90%;
     --sidebar-ring: 199 90% 48%;
-    --font-display: 'Bebas Neue', system-ui, sans-serif;
-    --font-stat:    'Barlow Condensed', system-ui, sans-serif;
+    --font-display: 'Barlow', system-ui, sans-serif;
+    --font-stat:    'Barlow', system-ui, sans-serif;
     --font-body:    'Barlow', system-ui, sans-serif;
     --font-mono:    'JetBrains Mono', ui-monospace, monospace;
   }
@@ -258,6 +258,14 @@
 /* ---------- Base layer ---------- */
 @layer base {
   * { @apply border-border; }
+
+  #root {
+    width: 100%;
+    min-height: 100svh;
+    margin: 0;
+    padding: 0;
+    text-align: initial;
+  }
 
   html, body {
     background-color: hsl(var(--background));
@@ -268,10 +276,10 @@
     font-feature-settings: "ss01", "cv11";
   }
 
-  /* Display family for headings, subtle wide tracking */
+  /* Display family for headings */
   h1, h2, h3, h4, h5 {
     font-family: var(--font-display);
-    letter-spacing: 0.02em;
+    letter-spacing: 0;
   }
 
   /* Tabular numbers everywhere by default — scoreboard feel */
@@ -286,43 +294,11 @@
   /* Text input caret */
   input, textarea { caret-color: hsl(var(--primary)); }
 
-  /* Ambient breathing background — visible only on dark themes */
+  /* Keep the app background flat and exact — no tinted ambient wash. */
   body::before,
   body::after {
     content: "";
-    position: fixed;
-    z-index: -1;
-    pointer-events: none;
-    width: 44vmax;
-    height: 44vmax;
-    border-radius: 50%;
-    filter: blur(140px);
-    opacity: 0.08;
-    will-change: transform, opacity;
-  }
-  body::before {
-    top: -24vmax; left: -22vmax;
-    background: radial-gradient(closest-side, hsl(var(--cyan) / 0.28), transparent 72%);
-    animation: breathe 14s ease-in-out infinite;
-  }
-  body::after {
-    bottom: -24vmax; right: -22vmax;
-    background: radial-gradient(closest-side, hsl(var(--cyan) / 0.22), transparent 72%);
-    animation: breathe 16s ease-in-out infinite reverse;
-  }
-  [data-theme="arctic"] body::before,
-  [data-theme="arctic"] body::after { opacity: 0.10; }
-
-  @keyframes breathe {
-    0%, 100% { transform: scale(1) translate(0, 0); opacity: 0.06; }
-    50%      { transform: scale(1.08) translate(1vmax, 1vmax); opacity: 0.10; }
-  }
-
-  @media (max-width: 767px) {
-    body::before,
-    body::after {
-      display: none;
-    }
+    display: none;
   }
 }
 
@@ -349,33 +325,26 @@
 @layer utilities {
 
   /* ---------- Typography helpers ---------- */
-  .font-display { font-family: var(--font-display); letter-spacing: 0.04em; }
-  .font-stat    { font-family: var(--font-stat); letter-spacing: 0.04em; text-transform: uppercase; }
+  .font-display { font-family: var(--font-display); letter-spacing: 0; }
+  .font-stat    { font-family: var(--font-stat); letter-spacing: 0; text-transform: uppercase; }
   .font-body    { font-family: var(--font-body); }
   .font-mono    { font-family: var(--font-mono); }
-  .scoreboard   { font-family: var(--font-mono); font-variant-numeric: tabular-nums; letter-spacing: 0.02em; }
+  .scoreboard   { font-family: var(--font-mono); font-variant-numeric: tabular-nums; letter-spacing: 0; }
 
   /* ---------- Glassmorphism surfaces ---------- */
   .glass {
-    background: rgba(13, 21, 32, 0.7);
-    backdrop-filter: blur(24px) saturate(180%);
-    -webkit-backdrop-filter: blur(24px) saturate(180%);
-    border: 1px solid rgba(255,255,255,0.07);
-    box-shadow:
-      0 8px 32px rgba(0,0,0,0.5),
-      inset 0 1px 0 rgba(255,255,255,0.08),
-      inset 0 -1px 0 rgba(0,0,0,0.20);
+    background: hsl(var(--card));
+    backdrop-filter: none;
+    -webkit-backdrop-filter: none;
+    border: 1px solid hsl(var(--border));
+    box-shadow: 0 8px 24px hsl(210 33% 3% / 0.26);
   }
   .glass-strong {
-    background: rgba(13, 21, 32, 0.78);
-    backdrop-filter: blur(28px) saturate(190%);
-    -webkit-backdrop-filter: blur(28px) saturate(190%);
-    border: 1px solid hsl(var(--primary) / 0.18);
-    box-shadow:
-      0 12px 40px rgba(0,0,0,0.55),
-      0 0 32px hsl(var(--primary) / 0.10),
-      inset 0 1px 0 rgba(255,255,255,0.10),
-      inset 0 -1px 0 rgba(0,0,0,0.20);
+    background: hsl(var(--card));
+    backdrop-filter: none;
+    -webkit-backdrop-filter: none;
+    border: 1px solid hsl(var(--border));
+    box-shadow: 0 10px 28px hsl(210 33% 3% / 0.30);
   }
   /* Light-theme variant — soft white panels */
   [data-theme="arctic"] .glass {
@@ -392,27 +361,15 @@
     will-change: transform;
   }
   .lift:hover {
-    transform: translateY(-4px);
-    border-color: hsl(var(--primary) / 0.20);
-    box-shadow:
-      0 8px 40px rgba(0,0,0,0.55),
-      0 0 24px hsl(var(--primary) / 0.10);
+    transform: translateY(-2px);
+    border-color: hsl(var(--border));
+    box-shadow: 0 10px 26px hsl(210 33% 3% / 0.28);
   }
 
   /* ---------- Subtle grid pattern overlay (3% opacity) ---------- */
   .grid-overlay { position: relative; }
   .grid-overlay::before {
-    content: "";
-    position: absolute;
-    inset: 0;
-    background-image:
-      linear-gradient(hsl(var(--foreground) / 1) 1px, transparent 1px),
-      linear-gradient(90deg, hsl(var(--foreground) / 1) 1px, transparent 1px);
-    background-size: 32px 32px;
-    opacity: 0.03;
-    pointer-events: none;
-    mask-image: linear-gradient(180deg, rgba(0,0,0,0.7), rgba(0,0,0,0.2));
-    -webkit-mask-image: linear-gradient(180deg, rgba(0,0,0,0.7), rgba(0,0,0,0.2));
+    content: none;
   }
 
   /* ---------- Holographic rotating border (rank cards) ---------- */
@@ -483,21 +440,10 @@
 
   /* ---------- Shimmer sweep (rank text + buttons) ---------- */
   .shimmer-text {
-    position: relative;
-    background: linear-gradient(
-      90deg,
-      hsl(var(--foreground)) 0%,
-      hsl(var(--cyan)) 35%,
-      hsl(var(--gold)) 50%,
-      hsl(var(--neon)) 65%,
-      hsl(var(--foreground)) 100%
-    );
-    background-size: 250% 100%;
-    -webkit-background-clip: text;
-            background-clip: text;
-    color: transparent;
-    -webkit-text-fill-color: transparent;
-    animation: shimmerSweep 4s ease-in-out infinite;
+    color: hsl(var(--primary));
+    -webkit-text-fill-color: hsl(var(--primary));
+    background: none;
+    animation: none;
   }
   @keyframes shimmerSweep {
     0%, 100% { background-position: 100% 0; }
@@ -624,34 +570,17 @@
   /* Primary gradient button (apply on top of <Button>) */
   .btn-primary-glow {
     position: relative;
-    background: linear-gradient(135deg, hsl(var(--cyan)), hsl(var(--neon)));
+    background: hsl(var(--primary));
     color: hsl(var(--background));
-    box-shadow:
-      0 8px 24px -8px hsl(var(--cyan) / 0.55),
-      inset 0 1px 0 rgba(255,255,255,0.35);
+    box-shadow: 0 8px 18px hsl(var(--cyan) / 0.20);
     overflow: hidden;
   }
   .btn-primary-glow::before {
-    content: "";
-    position: absolute;
-    inset: 0;
-    background: linear-gradient(
-      100deg,
-      transparent 0%,
-      transparent 40%,
-      hsl(0 0% 100% / 0.3) 50%,
-      transparent 60%,
-      transparent 100%
-    );
-    transform: translateX(-100%);
-    animation: shimmerSurface 5s ease-in-out infinite;
-    pointer-events: none;
+    content: none;
   }
   .btn-primary-glow:hover {
-    box-shadow:
-      0 12px 32px -6px hsl(var(--cyan) / 0.7),
-      0 0 28px hsl(var(--neon) / 0.35);
-    transform: translateY(-2px);
+    box-shadow: 0 10px 22px hsl(var(--cyan) / 0.24);
+    transform: none;
   }
   .btn-primary-glow:active { transform: translateY(0) scale(0.97); }
 
@@ -688,13 +617,10 @@
 
   /* ---------- Animated gradient text (general) ---------- */
   .gradient-text {
-    background: linear-gradient(90deg, hsl(var(--cyan)), hsl(var(--neon)), hsl(var(--cyan)));
-    background-size: 200% auto;
-    -webkit-background-clip: text;
-            background-clip: text;
-    color: transparent;
-    -webkit-text-fill-color: transparent;
-    animation: gradientShift 6s linear infinite;
+    background: none;
+    color: hsl(var(--primary));
+    -webkit-text-fill-color: hsl(var(--primary));
+    animation: none;
   }
   @keyframes gradientShift { from { background-position: 0% 50%; } to { background-position: 200% 50%; } }
 
@@ -741,9 +667,9 @@
 
   /* ---------- Mobile bottom nav helpers ---------- */
   .mobile-nav-glass {
-    background: hsl(var(--background) / 0.80);
-    backdrop-filter: blur(22px) saturate(160%);
-    -webkit-backdrop-filter: blur(22px) saturate(160%);
+    background: rgba(8,12,16,0.95);
+    backdrop-filter: none;
+    -webkit-backdrop-filter: none;
     border-top: 1px solid hsl(var(--foreground) / 0.06);
   }
 
@@ -891,11 +817,11 @@
 @layer components {
   /* Auth/login page card upgrade */
   [data-lifestack-auth] {
-    background: rgba(13,21,32,0.72);
-    backdrop-filter: blur(20px) saturate(140%);
-    -webkit-backdrop-filter: blur(20px) saturate(140%);
+    background: hsl(var(--card));
+    backdrop-filter: none;
+    -webkit-backdrop-filter: none;
     border: 1px solid rgba(255,255,255,0.06) !important;
-    box-shadow: 0 4px 24px rgba(0,0,0,0.4), inset 0 1px 0 rgba(255,255,255,0.05);
+    box-shadow: 0 8px 24px hsl(210 33% 3% / 0.28);
   }
 }
 
@@ -925,9 +851,9 @@
 
   /* Animated 4-second primary shimmer */
   .btn-shimmer {
-    background: linear-gradient(135deg, hsl(var(--cyan)) 0%, hsl(var(--neon)) 50%, hsl(var(--cyan)) 100%);
-    background-size: 200% auto;
-    animation: btnShimmer 4s linear infinite;
+    background: hsl(var(--primary));
+    background-size: auto;
+    animation: none;
     color: hsl(var(--background));
   }
   @keyframes btnShimmer {

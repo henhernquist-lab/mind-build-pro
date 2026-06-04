@@ -78,12 +78,7 @@ const Auth = () => {
   };
 
   return (
-    <div className="min-h-svh w-full bg-background text-foreground flex items-center justify-center p-4 py-6 max-[700px]:items-start max-[700px]:py-3 relative overflow-x-hidden overflow-y-auto">
-      {/* Ambient background */}
-      <div className="absolute inset-0 pointer-events-none overflow-hidden">
-        <div className="absolute -top-40 left-1/2 h-72 w-72 -translate-x-1/2 rounded-full opacity-[0.07] blur-3xl max-[700px]:hidden"
-             style={{ background: "hsl(var(--primary))" }} />
-      </div>
+    <div className="min-h-svh w-full bg-background text-foreground flex items-center justify-center px-4 py-6 max-[700px]:items-start max-[700px]:py-4 relative overflow-x-hidden overflow-y-auto">
 
       <motion.div
         initial={{ opacity: 0, y: 12 }}
@@ -91,11 +86,11 @@ const Auth = () => {
         transition={{ duration: 0.4 }}
         className="relative w-full max-w-md max-[700px]:max-w-sm"
       >
-        <div className="text-center mb-6 max-[700px]:mb-3">
-          <div className="inline-flex h-14 w-14 max-[700px]:h-12 max-[700px]:w-12 rounded-2xl items-center justify-center bg-gradient-to-br from-[hsl(var(--cyan))] to-[hsl(var(--neon))] mb-3 max-[700px]:mb-2 shadow-[0_0_28px_hsl(var(--cyan)/0.55)]">
+        <div className="text-center mb-5 max-[700px]:mb-3">
+          <div className="inline-flex h-12 w-12 rounded-2xl items-center justify-center bg-primary mb-3 max-[700px]:mb-2 shadow-[0_0_18px_hsl(var(--cyan)/0.30)]">
             <Sparkles className="h-7 w-7 max-[700px]:h-6 max-[700px]:w-6" style={{ color: "hsl(var(--background))" }} />
           </div>
-          <h1 className="text-4xl max-[700px]:text-3xl md:text-5xl font-display tracking-[0.08em] shimmer-text">LIFESTACK</h1>
+          <h1 className="text-4xl max-[700px]:text-3xl md:text-5xl font-display tracking-[0.08em] text-primary">LIFESTACK</h1>
           <p className="text-xs max-[700px]:text-[10px] font-stat tracking-[0.2em] text-muted-foreground mt-2 max-[700px]:mt-1">STACK THE DAYS · WIN THE YEAR</p>
         </div>
 
@@ -192,7 +187,7 @@ const Auth = () => {
                     </div>
                   </div>
                 )}
-                <Button type="submit" className="w-full btn-primary-glow press max-[700px]:h-11" disabled={loading} data-testid="auth-submit">
+                <Button type="submit" className="w-full press max-[700px]:h-11" disabled={loading} data-testid="auth-submit">
                   {loading ? (
                     <Loader2 className="h-4 w-4 animate-spin" />
                   ) : (
