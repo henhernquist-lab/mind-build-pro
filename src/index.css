@@ -75,8 +75,8 @@
     --gradient-hero: linear-gradient(135deg, hsl(186 100% 50% / 0.12), hsl(215 42% 9% / 0.85));
     --shadow-glow: 0 0 40px -10px hsl(186 100% 50% / 0.55);
 
-    --font-display: 'Bebas Neue', 'Barlow Condensed', system-ui, sans-serif;
-    --font-stat:    'Barlow Condensed', system-ui, sans-serif;
+    --font-display: 'Barlow', system-ui, sans-serif;
+    --font-stat:    'Barlow', system-ui, sans-serif;
     --font-body:    'Barlow', system-ui, sans-serif;
     --font-mono:    'JetBrains Mono', ui-monospace, monospace;
   }
@@ -121,8 +121,8 @@
     --sidebar-accent-foreground: 180 100% 70%;
     --sidebar-border: 300 50% 18%;
     --sidebar-ring: 300 100% 50%;
-    --font-display: 'Bebas Neue', system-ui, sans-serif;
-    --font-stat:    'Barlow Condensed', system-ui, sans-serif;
+    --font-display: 'Barlow', system-ui, sans-serif;
+    --font-stat:    'Barlow', system-ui, sans-serif;
     --font-body:    'Barlow', system-ui, sans-serif;
     --font-mono:    'JetBrains Mono', ui-monospace, monospace;
   }
@@ -163,8 +163,8 @@
     --sidebar-accent-foreground: 214 32% 91%;
     --sidebar-border: 210 20% 16%;
     --sidebar-ring: 186 100% 50%;
-    --font-display: 'Bebas Neue', system-ui, sans-serif;
-    --font-stat:    'Barlow Condensed', system-ui, sans-serif;
+    --font-display: 'Barlow', system-ui, sans-serif;
+    --font-stat:    'Barlow', system-ui, sans-serif;
     --font-body:    'Barlow', system-ui, sans-serif;
     --font-mono:    'JetBrains Mono', ui-monospace, monospace;
     --radius: 1rem;
@@ -206,8 +206,8 @@
     --sidebar-accent-foreground: 45 95% 70%;
     --sidebar-border: 20 50% 14%;
     --sidebar-ring: 21 95% 55%;
-    --font-display: 'Bebas Neue', system-ui, sans-serif;
-    --font-stat:    'Barlow Condensed', system-ui, sans-serif;
+    --font-display: 'Barlow', system-ui, sans-serif;
+    --font-stat:    'Barlow', system-ui, sans-serif;
     --font-body:    'Barlow', system-ui, sans-serif;
     --font-mono:    'JetBrains Mono', ui-monospace, monospace;
   }
@@ -248,8 +248,8 @@
     --sidebar-accent-foreground: 220 30% 15%;
     --sidebar-border: 210 25% 90%;
     --sidebar-ring: 199 90% 48%;
-    --font-display: 'Bebas Neue', system-ui, sans-serif;
-    --font-stat:    'Barlow Condensed', system-ui, sans-serif;
+    --font-display: 'Barlow', system-ui, sans-serif;
+    --font-stat:    'Barlow', system-ui, sans-serif;
     --font-body:    'Barlow', system-ui, sans-serif;
     --font-mono:    'JetBrains Mono', ui-monospace, monospace;
   }
