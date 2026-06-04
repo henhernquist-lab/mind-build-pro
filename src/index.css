@@ -440,21 +440,10 @@
 
   /* ---------- Shimmer sweep (rank text + buttons) ---------- */
   .shimmer-text {
-    position: relative;
-    background: linear-gradient(
-      90deg,
-      hsl(var(--foreground)) 0%,
-      hsl(var(--cyan)) 35%,
-      hsl(var(--gold)) 50%,
-      hsl(var(--neon)) 65%,
-      hsl(var(--foreground)) 100%
-    );
-    background-size: 250% 100%;
-    -webkit-background-clip: text;
-            background-clip: text;
-    color: transparent;
-    -webkit-text-fill-color: transparent;
-    animation: shimmerSweep 4s ease-in-out infinite;
+    color: hsl(var(--primary));
+    -webkit-text-fill-color: hsl(var(--primary));
+    background: none;
+    animation: none;
   }
   @keyframes shimmerSweep {
     0%, 100% { background-position: 100% 0; }
@@ -581,34 +570,17 @@
   /* Primary gradient button (apply on top of <Button>) */
   .btn-primary-glow {
     position: relative;
-    background: linear-gradient(135deg, hsl(var(--cyan)), hsl(var(--neon)));
+    background: hsl(var(--primary));
     color: hsl(var(--background));
-    box-shadow:
-      0 8px 24px -8px hsl(var(--cyan) / 0.55),
-      inset 0 1px 0 rgba(255,255,255,0.35);
+    box-shadow: 0 8px 18px hsl(var(--cyan) / 0.20);
     overflow: hidden;
   }
   .btn-primary-glow::before {
-    content: "";
-    position: absolute;
-    inset: 0;
-    background: linear-gradient(
-      100deg,
-      transparent 0%,
-      transparent 40%,
-      hsl(0 0% 100% / 0.3) 50%,
-      transparent 60%,
-      transparent 100%
-    );
-    transform: translateX(-100%);
-    animation: shimmerSurface 5s ease-in-out infinite;
-    pointer-events: none;
+    content: none;
   }
   .btn-primary-glow:hover {
-    box-shadow:
-      0 12px 32px -6px hsl(var(--cyan) / 0.7),
-      0 0 28px hsl(var(--neon) / 0.35);
-    transform: translateY(-2px);
+    box-shadow: 0 10px 22px hsl(var(--cyan) / 0.24);
+    transform: none;
   }
   .btn-primary-glow:active { transform: translateY(0) scale(0.97); }
 
@@ -645,13 +617,10 @@
 
   /* ---------- Animated gradient text (general) ---------- */
   .gradient-text {
-    background: linear-gradient(90deg, hsl(var(--cyan)), hsl(var(--neon)), hsl(var(--cyan)));
-    background-size: 200% auto;
-    -webkit-background-clip: text;
-            background-clip: text;
-    color: transparent;
-    -webkit-text-fill-color: transparent;
-    animation: gradientShift 6s linear infinite;
+    background: none;
+    color: hsl(var(--primary));
+    -webkit-text-fill-color: hsl(var(--primary));
+    animation: none;
   }
   @keyframes gradientShift { from { background-position: 0% 50%; } to { background-position: 200% 50%; } }
 
