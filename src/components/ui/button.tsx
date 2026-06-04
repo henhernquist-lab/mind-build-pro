@@ -9,21 +9,20 @@ const buttonVariants = cva(
   {
     variants: {
       variant: {
-        // Default = LifeStack primary: cyan→neon shimmer, dark text
         default:
-          "btn-shimmer text-[hsl(var(--background))] shadow-[0_8px_24px_-8px_hsl(var(--cyan)/0.55),inset_0_1px_0_rgba(255,255,255,0.30)] hover:shadow-[0_12px_32px_-6px_hsl(var(--cyan)/0.7),0_0_28px_hsl(var(--neon)/0.35)]",
+          "bg-primary text-primary-foreground shadow-sm hover:bg-primary/90",
         destructive:
-          "bg-destructive text-destructive-foreground shadow-[0_8px_24px_-8px_hsl(var(--destructive)/0.55)] hover:bg-destructive/90 hover:shadow-[0_0_24px_hsl(var(--destructive)/0.45)]",
+          "bg-destructive text-destructive-foreground shadow-sm hover:bg-destructive/90",
         outline:
-          "border border-[hsl(var(--cyan)/0.30)] bg-background/30 backdrop-blur-md text-foreground hover:bg-[hsl(var(--cyan)/0.10)] hover:border-[hsl(var(--cyan)/0.55)] hover:text-foreground",
+          "border border-border bg-background text-foreground hover:bg-muted hover:text-foreground",
         secondary:
           "bg-secondary text-secondary-foreground hover:bg-secondary/80",
         ghost:
-          "hover:bg-[hsl(var(--cyan)/0.10)] hover:text-foreground",
+          "hover:bg-muted hover:text-foreground",
         link:
-          "text-[hsl(var(--cyan))] underline-offset-4 hover:underline",
+          "text-primary underline-offset-4 hover:underline",
         premium:
-          "btn-shimmer text-[hsl(var(--background))] shadow-[0_8px_28px_-6px_hsl(var(--neon)/0.55)] hover:brightness-110",
+          "bg-primary text-primary-foreground shadow-sm hover:bg-primary/90",
       },
       size: {
         default: "h-10 px-4 py-2",
