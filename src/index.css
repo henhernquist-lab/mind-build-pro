@@ -276,10 +276,10 @@
     font-feature-settings: "ss01", "cv11";
   }
 
-  /* Display family for headings, subtle wide tracking */
+  /* Display family for headings */
   h1, h2, h3, h4, h5 {
     font-family: var(--font-display);
-    letter-spacing: 0.02em;
+    letter-spacing: 0;
   }
 
   /* Tabular numbers everywhere by default — scoreboard feel */
@@ -325,11 +325,11 @@
 @layer utilities {
 
   /* ---------- Typography helpers ---------- */
-  .font-display { font-family: var(--font-display); letter-spacing: 0.04em; }
-  .font-stat    { font-family: var(--font-stat); letter-spacing: 0.04em; text-transform: uppercase; }
+  .font-display { font-family: var(--font-display); letter-spacing: 0; }
+  .font-stat    { font-family: var(--font-stat); letter-spacing: 0; text-transform: uppercase; }
   .font-body    { font-family: var(--font-body); }
   .font-mono    { font-family: var(--font-mono); }
-  .scoreboard   { font-family: var(--font-mono); font-variant-numeric: tabular-nums; letter-spacing: 0.02em; }
+  .scoreboard   { font-family: var(--font-mono); font-variant-numeric: tabular-nums; letter-spacing: 0; }
 
   /* ---------- Glassmorphism surfaces ---------- */
   .glass {
