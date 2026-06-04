@@ -160,12 +160,10 @@ export const AppShell = () => {
 
       <OfflineBanner />
 
-      <aside className="relative hidden md:flex w-60 flex-col bg-sidebar/80 backdrop-blur-xl border-r border-sidebar-border grid-overlay">
-        {/* Left accent line */}
-        <span aria-hidden className="absolute left-0 top-0 bottom-0 w-[2px] bg-gradient-to-b from-[hsl(var(--cyan))] via-[hsl(var(--neon))] to-transparent opacity-60 pointer-events-none" />
+      <aside className="relative hidden md:flex w-60 flex-col bg-sidebar border-r border-sidebar-border">
         <div className="p-5 pl-16 flex items-center gap-2 justify-between">
           <div className="flex items-center gap-2 min-w-0">
-            <div className="h-9 w-9 rounded-xl flex items-center justify-center bg-gradient-to-br from-[hsl(var(--cyan))] to-[hsl(var(--neon))] flex-shrink-0 shadow-[0_0_18px_hsl(var(--cyan)/0.45)]">
+            <div className="h-9 w-9 rounded-xl flex items-center justify-center bg-primary flex-shrink-0 shadow-sm">
               <Sparkles className="h-5 w-5" style={{ color: "hsl(var(--background))" }} />
             </div>
             <div className="min-w-0">
@@ -300,23 +298,19 @@ export const AppShell = () => {
             {({ isActive }) => (
               <>
                 {isActive && (
-                  <motion.span
+              <motion.span
                     layoutId="mobile-nav-pill"
-                    className="absolute top-1 left-1/2 -translate-x-1/2 h-[3px] w-10 rounded-full"
+                    className="absolute top-1 left-1/2 -translate-x-1/2 h-[3px] w-10 rounded-full bg-primary"
                     transition={{ type: "spring", stiffness: 420, damping: 30 }}
-                    style={{
-                      background: accentColor(item.accent),
-                      boxShadow: `0 0 12px ${accentColor(item.accent)}`,
-                    }}
                     aria-hidden
                   />
                 )}
                 <item.icon
                   className={cn(
                     "h-5 w-5 transition-transform duration-300",
-                    isActive && "scale-[1.15] drop-shadow-[0_0_8px_currentColor]"
+                    isActive && "scale-[1.08]"
                   )}
-                  style={{ color: isActive ? accentColor(item.accent) : undefined }}
+                  style={{ color: isActive ? "hsl(var(--primary))" : undefined }}
                 />
                 <span
                   className={cn(
