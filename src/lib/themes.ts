@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
 
-export type ThemeId = "midnight" | "neon" | "forest" | "solar" | "arctic";
+export type ThemeId = "midnight" | "neon" | "forest" | "solar" | "arctic" | "ocean" | "crimson";
 
 export type Theme = {
   id: ThemeId;
@@ -41,11 +41,23 @@ export const THEMES: Theme[] = [
     vibe: "Minimal light",
     swatches: ["#F8FAFC", "#0EA5E9", "#0F172A"],
   },
+  {
+    id: "ocean",
+    name: "Ocean Depths",
+    vibe: "Calm underwater",
+    swatches: ["#0B192C", "#1A3A5C", "#38BDF8"],
+  },
+  {
+    id: "crimson",
+    name: "Crimson Void",
+    vibe: "Dark red menace",
+    swatches: ["#0D0000", "#1A0000", "#DC2626"],
+  },
 ];
 
 const KEY = "app:theme";
 const HUE_KEY = "app:accentHue";
-const VALID: ThemeId[] = ["midnight", "neon", "forest", "solar", "arctic"];
+const VALID: ThemeId[] = ["midnight", "neon", "forest", "solar", "arctic", "ocean", "crimson"];
 const isValid = (v: string | null): v is ThemeId => !!v && (VALID as string[]).includes(v);
 
 const readLocal = (): ThemeId => {
